@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
     <link rel="stylesheet" href="assets/css/smoothproducts.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/login.css">
 
     <!-- Trigger modal -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -31,34 +32,45 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Login Patient and Therapist</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Login</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="container">
-                        <div class="card shadow-lg o-hidden border-0 my-5">
-                            <div class="p-5">
-                                <div class="text-center">
-                                    <h4 class="text-dark mb-4">Hello! Login, please!</h4>
-                                </div>
-                                <form class="user">
-                                    <div class="form-group">
-                                        <p>Patient</p>
-                                        <input class="form-control" type="text">
-                                    </div>
-                                    <div class="form-group">
-                                        <p>Therapist</p>
-                                        <input class="form-control" type="text">
-                                    </div>
-                                    <button class="btn btn-primary btn-block text-white btn-user" type="submit">Login</button>
-                                    <hr>
-                                </form>
-                                <div class="text-center"><a class="small" href="forgot-password.html">New Patient</a></div>
-                                <div class="text-center"><a class="small" href="register.html">New Therapist</a></div>
-                            </div>
+                    <div class="container card shadow-lg o-hidden border-0 my-5 p-5">
+                        <div class="text-center">
+                            <h4 class="text-dark mb-4">Hello! Login, please!</h4>
                         </div>
+                        <form class="user text-center">
+                                <div class="form-group" >
+                                    <label> Therapist:  </label>
+                                    <br>
+                                    <select class="btn  btn-outline-primary" id="therapistsnames" class="form-control">
+                                        <option selected value="no-choose">Choose therapist...</option>
+                                        <option value="Julio Mila">Julio Mila</option>
+                                        <option value="Veronica" >Veronica</option>
+                                        <option value="Eduardo">Eduardo</option>
+                                    </select>
+                                    <br>
+                                    <br>
+
+                                    <label> Patient:  </label>
+                                    <br>
+                                    <select class="btn  btn-outline-primary" id="patientssnames" class="form-control">
+                                        <option selected value="no-choose">Choose patient...</option>
+                                        <option value="Julio Mila">Julio Mila</option>
+                                        <option value="Veronica" >Veronica</option>
+                                        <option value="Eduardo">Eduardo</option>
+                                    </select>
+                                    <br>
+                                    <br>
+                                    <input class="btn btn-primary btn-block text-white" id ="login_therapist_patient" type="submit" value="Login">
+                                </div>
+                            <hr>
+                        </form>
+                        <div class="text-center"><a class="small" href="forgot-password.html">New Patient</a></div>
+                        <div class="text-center"><a class="small" href="register.html">New Therapist</a></div>
                     </div>
                 </div>
             </div>
@@ -274,13 +286,43 @@
                         <form>
                             <div class="form-row">
                                 <div class="col">
-                                    <div class="form-group"><label for="username"><strong>Gait Velocity</strong></label><input class="form-control-range" type="range"></div>
+                                    <div class="form-group">
+                                        <label for="username">
+                                            <strong>
+                                                Gait Velocity:          
+                                            </strong>
+                                            <strong  class="btn btn-outline-secondary" id="gait_velocity_value">
+                                                50%
+                                            </strong>
+                                        </label>
+                                        <input class="form-control-range" id="gait_velocity" type="range">
+                                    </div>
                                 </div>
                                 <div class="col">
-                                    <div class="form-group"><label for="email"><strong>Range Of Movement (ROM)</strong><br></label><input class="form-control-range" type="range"></div>
+                                    <div class="form-group">
+                                        <label for="username">
+                                            <strong>
+                                                Range Of Movement (ROM):          
+                                            </strong>
+                                            <strong  class="btn btn-outline-secondary" id="rom_value">
+                                                50%
+                                            </strong>
+                                        </label>
+                                        <input class="form-control-range" id="rom" type="range">
+                                    </div>
                                 </div>
                                 <div class="col">
-                                    <div class="form-group"><label for="first_name"><strong>Percentage of Body Weight Support (PBWS)</strong></label><input class="form-control-range" type="range"></div>
+                                    <div class="form-group">
+                                        <label for="username">
+                                            <strong>
+                                                Percentage of Body Weight Support (PBWS)         
+                                            </strong>
+                                            <strong  class="btn btn-outline-secondary" id="pbws_value">
+                                                50%
+                                            </strong>
+                                        </label>
+                                        <input class="form-control-range" id="pbws" type="range">
+                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -377,6 +419,10 @@
     </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/script.min.js?h=9af5f655239f5ce4fa692ca1c1513d50"></script>
+    <script src="assets/js/theme.js"></script>
+    <script src="socket.io/socket.io.js"></script>
+    <script src="assets/js/therapy_sethings.js"></script>
+
 </body>
 
 </html>

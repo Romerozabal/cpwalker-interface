@@ -36,7 +36,7 @@ const io = SocketIO(server);
 io.on('connection', (socket) => {
     console.log('new connection', socket.id);
 
-    //Listen socket to events
+    //Listen traction:message events
     socket.on('traction:message', (data) => {
         //Get values 
         w_r = data.w_right;
@@ -67,6 +67,16 @@ io.on('connection', (socket) => {
         console.log('COMMAND:' + cmd_start + cmd_v_r + cmd_v_l + cmd_traction_mode);
         console.log(`HEX COMMAND:` + COMMAND);
         console.log(`msg:` + msg);  
+    })
+
+    //Listen login:message events
+    socket.on('login:message', (data) => {
+        //Get values 
+        therapist_name = data.therapist_name;
+        patient_name = data.patient_name;
+
+        //Debug
+        console.log(therapist_name, patient_name);
     })
 })
 

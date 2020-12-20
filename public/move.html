@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="assets/css/smoothproducts.css">
 </head>
 
-<body id="page-top">
+<body id="page-top" scroll="no" style="overflow: hidden;">
     <div id="wrapper">
         <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
             <div class="container-fluid d-flex flex-column p-0">
@@ -163,6 +163,23 @@
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
     <script src="assets/js/theme.js"></script>
+    <script>
+        
+        $('html, body').on('touchstart touchmove', function(e){ 
+        //prevent native touch activity like scrolling
+        e.preventDefault();  
+        });
+
+        function openFullscreen() {
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) { /* Safari */
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) { /* IE11 */
+                elem.msRequestFullscreen();
+            }
+        }
+    </script>
 </body>
 
 </html>

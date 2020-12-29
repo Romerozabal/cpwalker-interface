@@ -2,6 +2,7 @@ var dgram = require('dgram');
 const path = require('path'); // Modulo de nodejs para trabajar con rutas
 const express = require('express'); // Configurar express
 
+
 // UPD sockets
 var s_traction_ctrl = dgram.createSocket('udp4');
 var s_exoskeleton_ctrl = dgram.createSocket('udp4');
@@ -42,6 +43,8 @@ const server = app.listen(app.get('port'), () => {
 const SocketIO = require('socket.io'); // Proporciona el server a socketio
 const io = SocketIO(server);
 
+//Database configuration
+var mysql = require('mysql');
 
 //**************************//
 //***** Data Reception *****//
@@ -273,6 +276,29 @@ io.on('connection', (socket) => {
         //console.log(`HEX COMMAND:` + COMMAND);
         //console.log(`msg:` + msg);  
     })
+
+
+
+
+        //Users Databases
+        var con = mysql.createConnection({
+            host: "localhost",
+            user: "root",
+            password: "mysql",
+            database: "cpwalkerdb"
+          });
+            con.connect(function(err) {
+                if (err) throw err;
+                console.log("Connected!");
+                var sql = "SELECT * FROM pacientes";
+                con.query(sql, function (err, result) {
+                  if (err) throw err;
+                  console.log(result);
+                  socket.emit('datostabla', result);
+                });
+    
+            });
+
 
 
     // Therapy configurtion variables

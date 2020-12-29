@@ -1,5 +1,40 @@
 const socket = io();
 
+// Therapy configurtion variables
+var patient_name;
+var patient_age;
+var gait_velocity;
+var rom;
+var pbws;
+var steps;
+var left_hip_config;
+var left_knee_config;
+var right_hip_config;
+var right_knee_config;
+
+// Show therapy sethings in table
+socket.emit('ask_therapy_sethings');
+socket.on('show_therapy_sethings', (data) => {
+	patient_name = data.patient_name;
+	gait_velocity =  data.gait_velocity;
+	rom =  data.rom;
+	pbws =  data.pbws;
+	steps =  data.steps;
+	left_hip_config =  data.left_hip_config;
+	left_knee_config =  data.left_knee_config;
+	right_hip_config =  data.right_hip_config;
+	right_knee_config =  data.right_knee_config;
+	document.getElementById("patient").innerHTML =  patient_name;
+	document.getElementById("gait_velocity").innerHTML = gait_velocity;
+	document.getElementById("ROM").innerHTML =  rom;
+	document.getElementById("PBWS").innerHTML =  pbws;
+	//document.getElementById("steps").innerHTML =  data.steps;
+	document.getElementById("right_knee_config").innerHTML =  right_knee_config;
+	document.getElementById("left_knee_config").innerHTML =  left_knee_config;
+	document.getElementById("right_hip_config").innerHTML =  right_hip_config;
+	document.getElementById("left_hip_config").innerHTML =  left_hip_config;
+})
+
 var chartColors = {
 	red: 'rgb(255, 99, 132)',
 	orange: 'rgb(255, 159, 64)',
@@ -9,7 +44,6 @@ var chartColors = {
 	purple: 'rgb(153, 102, 255)',
 	grey: 'rgb(201, 203, 207)'
 };
-
 
 // Receive joint data from the server
 var left_knee_real;

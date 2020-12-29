@@ -237,6 +237,25 @@ s_pos.bind(10007);
 //***********************//
 //*** Web Interaction ***//
 //***********************//
+
+// Therapy configurtion variables
+var therapist_name;
+var patient_name;
+var patient_age;
+var gmfcs;
+var leg_length;
+var weight;
+var hip_upper_strap;
+var knee_lower_strap;
+var observations;
+var gait_velocity;
+var rom;
+var pbws;
+var steps;
+var left_hip_config;
+var left_knee_config;
+var right_hip_config;
+var right_knee_config;
 // Websockets
 io.on('connection', (socket) => {
     console.log('new connection', socket.id);
@@ -274,25 +293,6 @@ io.on('connection', (socket) => {
         //console.log(`msg:` + msg);  
     })
 
-
-    // Therapy configurtion variables
-    var therapist_name;
-    var patient_name;
-    var patient_age;
-    var gmfcs;
-    var leg_length;
-    var weight;
-    var hip_upper_strap;
-    var knee_lower_strap;
-    var observations;
-    var gait_velocity;
-    var rom;
-    var pbws;
-    var steps;
-    var left_hip_config;
-    var left_knee_config;
-    var right_hip_config;
-    var right_knee_config;
     // Save session configuration. Listen "save_settings:message" events (called in therapy_sethings.js)
     socket.on('save_settings:message', (data) => {
         //Get values 
@@ -316,6 +316,24 @@ io.on('connection', (socket) => {
         //Debug
         console.log(therapist_name, patient_name, patient_age, gmfcs, leg_length, weight, hip_upper_strap, knee_lower_strap, gait_velocity, rom, pbws,steps, left_hip_config, left_knee_config, right_hip_config, right_knee_config);
     })
+
+    // Show therapy sethings in the monitoring screen.(called in therapy_monitoring.js)
+    socket.on('ask_therapy_sethings', function(callbackFn) {
+        console.log(therapist_name, patient_name, patient_age, gmfcs, leg_length, weight, hip_upper_strap, knee_lower_strap, gait_velocity, rom, pbws,steps, left_hip_config, left_knee_config, right_hip_config, right_knee_config);
+ 
+        socket.emit('show_therapy_sethings', {
+            patient_name : patient_name,
+            gmfcs :  gmfcs,
+            gait_velocity :  gait_velocity,
+            rom :  rom,
+            pbws :  pbws,
+            steps :  steps,
+            left_hip_config :  left_hip_config,
+            left_knee_config :  left_knee_config,
+            right_hip_config :  right_hip_config,
+            right_knee_config :  right_knee_config
+        })
+    });
 
     // Update joint chart plots (called in therapy_monitor.js)
     socket.on('jointData_ask', function(callbackFn) {

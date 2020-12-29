@@ -6,6 +6,7 @@ window.onload = function(){
         var therapist_name = document.getElementById("therapistsnames");
         var patient_name = document.getElementById("patientssnames");
         document.getElementById("therapist").innerHTML = therapist_name.value;
+        document.getElementById("therapist_").innerHTML = therapist_name.value;
         document.getElementById("patient").innerHTML = patient_name.value;
     };
    

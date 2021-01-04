@@ -56,7 +56,7 @@ window.onload = function(){
             var right_knee_config = document.getElementById("right_knee_config").value;
             
             // Send data to server
-            socket.emit('save_settings:message', {
+            socket.emit('settings:save_settings', {
                 therapist_name: therapist_name,
                 patient_name: patient_name,
                 patient_age: patient_age,

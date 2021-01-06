@@ -14,7 +14,7 @@ var fs = require('fs'); //  File System module
 // different PORTS to receive and send data. The main objectives 
 // are to configure the therapy settings, move the robot, and 
 // receive data comming from the sensors.
-//
+// 
 // UPD sockets to send data
 var udp_send = dgram.createSocket('udp4');
 // UDP sockets to receive data
@@ -243,79 +243,165 @@ function moveManually(data) {
     }
     var trac_manual = [cmd_start, cmd_v_r, cmd_v_l, cmd_traction_mode];
     // Send UDP Mesage:
-    sendUDP(trac_manual,TRACTION_PORT, LOCAL_IP); 
+    sendUDP(trac_manual,TRACTION_PORT, CPWALKER_IP); 
 }
 
 // Configure robot with the therapy settings and move to start position.  
 function configureStartPos() {
+    var exo_config = [];
+    // Traction control variabels
+    var trac_config = [];
+    var cmd_start;
+    var cmd_v_r;
+    var cmd_v_l;
+    var cmd_traction_mode;
+    // Weight support variabels
+    var weight_conf = [];
+    var calibrate;
+    var pat_weight
+    var pbws;
     // Get therapy settings from json file
     fs.readFile('config/therapySettings.json', (err, data) => {
         if (err) throw err;
         // Get json object
         let config = JSON.parse(data);
+        // Traction control config and initial position
+        cmd_start = 150;
+        cmd_v_r = 50;
+        cmd_v_l = 50;
+        cmd_traction_mode = 20;
+        trac_config = [cmd_start, cmd_v_r, cmd_v_l, cmd_traction_mode];
+        // Weight support config
+        calibrate = 1;
+        pat_weight = parseInt(config.weight);
+        pbws =  parseInt(config.pwbs);
+        weight_conf = [calibrate, pat_weight, pbws, 0];
         // Exoskeleton config and move to initial position.
-        var exo_config = [0,0,0,0,0,0,0,0,0,0,0];
+        exo_config = [0,0,0,0,0,0,0,0,0,0,0];
         if (config.left_hip_config != "disable") {exo_config[0] = 1;} 
         if (config.left_knee_config != "disable") {exo_config[1] = 1;} 
         if (config.right_hip_config != "disable") {exo_config[2] = 1;} 
         if (config.right_knee_config != "disable") {exo_config[3] = 1;}
-        exo_config[4] = 0;
+        exo_config[4] = 0; // Default start, ready and all motors still.
         exo_config[5] = parseInt(config.steps);
         exo_config[6] = parseInt(config.gait_velocity);
         exo_config[7] = parseInt(config.rom);
         exo_config[8] = parseInt(config.leg_length);
-        sendUDP(exo_config, EXO_PORT, LOCAL_IP);  
-        // Traction control config and initial position
-        var cmd_start = 150;
-        var cmd_v_r = 50;
-        var cmd_v_l = 50;
-        var cmd_traction_mode = 20;
-        var trac_auto = [cmd_start, cmd_v_r, cmd_v_l, cmd_traction_mode];
-        sendUDP(trac_auto, TRACTION_PORT, LOCAL_IP);  
+        // Send data to the robot
+        sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP); 
+        sendUDP(weight_conf, WEIGHT_PORT, CPWALKER_IP);   
+        sendUDP(exo_config, EXO_PORT, CPWALKER_IP);  
     });
 }
 
 function startTherapy() {
-    // TODO
-    // Control de Impedancia o Posición dependiendo de la selección realizada
-    /*
+    // Traction control variabels
+    var trac_config = [];
+    var cmd_start;
+    var cmd_v_r;
+    var cmd_v_l;
+    var cmd_traction_mode;
+    // Exo control variabels
+    var exo_config = [];
+    var trajectory_ctr;
+    var impedance_ctr;
+    // Impedance variables
+    var imp_config = [];
+    var cal_imp;
+    var niv_imp;
+    var check_gauges;
+    var weight_ref;
+
     // Read therappy settings from config file.
     fs.readFile('config/therapySettings.json', (err, data) => {
         if (err) throw err;
         // Get json object
         let config = JSON.parse(data);
-        // Get json data
-        leg_length =  config.leg_length;
-        weight =  config.weight;
-        pbws =  config.pbws;
-        // Exoskeleton control. (Port 50011)
-        var exo_config = [0,0,0,0,0,0,0,0,0,0,0];
-        if (config.left_hip_config != "disable") {exo_config[0] = 1;} 
-        if (config.left_knee_config != "disable") {exo_config[1] = 1;} 
-        if (config.right_hip_config != "disable") {exo_config[2] = 1;} 
-        if (config.right_knee_config != "disable") {exo_config[3] = 1;}
-        exo_config[4] = 0;
-        exo_config[5] = parseInt(config.steps);
-        exo_config[6] = parseInt(config.gait_velocity);
-        exo_config[7] = parseInt(config.rom);
-        exo_config[8] = parseInt(config.leg_length);
-        sendUDP(exo_config, EXO_PORT, LOCAL_IP);            
+        // Check type of therapy (trajectory control, impedance control)
+        if (data.right_hip_config == "t_control" || data.left_hip_config == "t_control"
+            || data.right_knee_config == "t_control" || data.left_knee_config == "t_control") {
+            trajectory_ctr = true;
+        } else {
+            impedance_ctr = true;
+        }
+        // TRAJECTORY CONTROL
+        if (trajectory_ctr) {
+            // Traction control config and initial position
+            cmd_start = 0; 
+            cmd_v_r = 50;
+            cmd_v_l = 50;
+            cmd_traction_mode = 20;
+            trac_config = [cmd_start, cmd_v_r, cmd_v_l, cmd_traction_mode];
+            // Impedance config
+            cal_imp = 1;
+            niv_imp = 0;
+            check_gauges = 0;
+            weight_ref = 0;
+            imp_config = [cal_imp, niv_imp, check_gauges, weight_ref];
+             // Exoskeleton config start position control mode.
+            exo_config = [0,0,0,0,0,0,0,0,0,0,0];
+            if (config.left_hip_config != "disable") {exo_config[0] = 1;}
+            if (config.left_knee_config != "disable") {exo_config[1] = 1;}
+            if (config.right_hip_config != "disable") {exo_config[2] = 1;} 
+            if (config.right_knee_config != "disable") {exo_config[3] = 1;}
+            exo_config[4] = 4; // Start motion in position control mode
+            exo_config[5] = parseInt(config.steps);
+            exo_config[6] = parseInt(config.gait_velocity);
+            exo_config[7] = parseInt(config.rom);
+            exo_config[8] = parseInt(config.leg_length);
+        } else if (impedance_ctr) {
+             // Traction control config and initial position
+             cmd_start = 0; 
+             cmd_v_r = 50;
+             cmd_v_l = 50;
+             cmd_traction_mode = 20;
+             trac_config = [cmd_start, cmd_v_r, cmd_v_l, cmd_traction_mode];
+             // Impedance config
+             cal_imp = 1;
+             niv_imp = 1; //TODO
+             check_gauges = 0;
+             weight_ref = 0;
+             imp_config = [cal_imp, niv_imp, check_gauges, weight_ref];
+             // Exoskeleton config start position control mode.
+             exo_config = [0,0,0,0,0,0,0,0,0,0,0];
+             if (config.left_hip_config != "disable") {exo_config[0] = 1;}
+             if (config.left_knee_config != "disable") {exo_config[1] = 1;}
+             if (config.right_hip_config != "disable") {exo_config[2] = 1;} 
+             if (config.right_knee_config != "disable") {exo_config[3] = 1;}
+             exo_config[4] = 4; // Start motion in position control mode
+             exo_config[5] = parseInt(config.steps);
+             exo_config[6] = parseInt(config.gait_velocity);
+             exo_config[7] = parseInt(config.rom);
+             exo_config[8] = parseInt(config.leg_length);
+        }
+        // Send data to the robot
+        sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP);
+        sendUDP(imp_config, IMPEDANCE_PORT, CPWALKER_IP);
+        sendUDP(exo_config, EXO_PORT, CPWALKER_IP);     
     });
-    */
 }
 
 // Stop therapy.  
 function stopTherapy() {
+     // Traction control variabels
+     var trac_config = [];
+     var cmd_start;
+     var cmd_v_r;
+     var cmd_v_l;
+     var cmd_traction_mode;
+     // Exo control variabels
+     var exo_config = [];
     // Exoskeleton config and move to initial position.
-    var exo_config = [0,0,0,0,0,0,0,0,0,0,0];
-    sendUDP(exo_config, EXO_PORT, LOCAL_IP);  
+    exo_config = [0,0,0,0,0,0,0,0,0,0,0];
     // Traction control config and initial position
-    var cmd_start = 150;
-    var cmd_v_r = 50;
-    var cmd_v_l = 50;
-    var cmd_traction_mode = 10;
-    var trac_auto = [cmd_start, cmd_v_r, cmd_v_l, cmd_traction_mode];
-    sendUDP(trac_auto, TRACTION_PORT, LOCAL_IP);
+    cmd_start = 0;
+    cmd_v_r = 50;
+    cmd_v_l = 50;
+    cmd_traction_mode = 10;
+    trac_config = [cmd_start, cmd_v_r, cmd_v_l, cmd_traction_mode];
+    // Send data
+    sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP);
+    sendUDP(exo_config, EXO_PORT, CPWALKER_IP);  
 }
 
 // Sends COMMAND(array numbers) to a PORT(int) of a specific IP(string)
@@ -366,5 +452,5 @@ function decodeRealRef(coded_values) {
     decimals_2_real_pos = codified_values[3];
     decimals_2_ref_pos =  codified_values[7];
     
-    return [sign_real_pos * (interger_real_pos + decimals_2_real_pos/100) , sign_ref_pos * (interger_ref_pos + decimals_2_ref_pos/100) ] 
+    return [ sign_real_pos * (interger_real_pos + decimals_2_real_pos/100) , sign_ref_pos * (interger_ref_pos + decimals_2_ref_pos/100) ] 
 }

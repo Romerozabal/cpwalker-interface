@@ -285,19 +285,38 @@ io.on('connection', (socket) => {
             host: "localhost",
             user: "root",
             password: "mysql",
-            database: "cpwalkerdb"
+            database: "cpwdb"
           });
             con.connect(function(err) {
                 if (err) throw err;
                 console.log("Connected!");
-                var sql = "SELECT * FROM pacientes";
-                con.query(sql, function (err, result) {
+                var sql = "SELECT * FROM tabla_sesion JOIN tabla_pacientes ON tabla_sesion.idPaciente = tabla_pacientes.idtabla_pacientes JOIN tabla_terapeutas ON tabla_sesion.idTerapeuta = tabla_terapeutas.idtabla_terapeutas";
+                con.query(sql, function (err, sessions_data) {
                   if (err) throw err;
-                  console.log(result);
-                  socket.emit('datostabla', result);
+                  //console.log(result);
+                  socket.emit('datostabla', sessions_data);         //session_data---- datos de las sesiones (configuraciones)
+                });
+
+                if (err) throw err;
+                console.log("Connected Patient!");
+                var sql = "SELECT * FROM tabla_pacientes";
+                con.query(sql, function (err, patients_list) {
+                  if (err) throw err;
+                  console.log(patients_list);
+                  socket.emit('patientdata', patients_list);        // patients_list ---- Lista de pacientes, id-nombre-apellido
+                });
+
+                if (err) throw err;
+                console.log("Connected Therapist!");
+                var sql = "SELECT * FROM tabla_terapeutas";
+                con.query(sql, function (err, therapist_list) {
+                  if (err) throw err;
+                  console.log(therapist_list);
+                  socket.emit('therapistdata', therapist_list);     //therapist_list ---- Lista de Terapeutas, id-nombre-apellido-centro
                 });
     
             });
+
 
 
 
@@ -355,6 +374,27 @@ io.on('connection', (socket) => {
             right_hip_real: right_hip_real,
             right_hip_ref: right_hip_ref,
         })
+    });
+
+    socket.on('deleted_patient', function(iddeleted) {
+        console.log(iddeleted);
+        var con = mysql.createConnection({
+            host: "localhost",
+            user: "root",
+            password: "mysql",
+            database: "cpwdb"
+          });
+            con.connect(function(err) {
+                if (err) throw err;
+                console.log("Eliminado");
+                //var sql = "SELECT * FROM tabla_sesion JOIN tabla_pacientes ON tabla_sesion.idPaciente = tabla_pacientes.idtabla_pacientes JOIN tabla_terapeutas ON tabla_sesion.idTerapeuta = tabla_terapeutas.idtabla_terapeutas";
+               // con.query(sql, function (err, result) {
+                //  if (err) throw err;
+                  //console.log(result);
+                //  socket.emit('datostabla', result);
+               // });
+    
+            });
     });
 
 })

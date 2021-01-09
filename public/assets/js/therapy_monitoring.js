@@ -1,5 +1,8 @@
 const socket = io();
 
+//** Global variables **//
+var THERAPY_MONITOR_GOTO_LINK;
+
 //************//
 //** Charts **//
 //************//
@@ -124,11 +127,52 @@ window.onload = function() {
 			socket.emit('monitoring:stop'); 
 		}
 	};
+
+
+	// Advise: changing window and will stop therapy
+	document.getElementById("indexHTML").onclick = function() {
+		preventChange();
+		THERAPY_MONITOR_GOTO_LINK = "index.HTML"
+	};
+	document.getElementById("moveHTML").onclick = function() {
+		preventChange();
+		THERAPY_MONITOR_GOTO_LINK = "move.html"
+	};
+	document.getElementById("usersHTML").onclick = function() {
+		preventChange();
+		THERAPY_MONITOR_GOTO_LINK = "users.html"
+	};
+	document.getElementById("therapySettingsHTML").onclick = function() {
+		preventChange();
+		THERAPY_MONITOR_GOTO_LINK = "therapy_settings.html"
+	};
+	document.getElementById("fesHTML").onclick = function() {
+		preventChange();
+		THERAPY_MONITOR_GOTO_LINK = "fes.html"
+	};	
+
+	document.getElementById("continue-therapy").onclick = function() {
+		$("#modal-change-page").modal('hide');
+	}
+	document.getElementById("stop-exit-therapy").onclick = function() {
+		// Redirect to the therapy monitoring window
+		location.replace(THERAPY_MONITOR_GOTO_LINK)
+	}
 };
 
-// Show therapy sethings in table
-socket.emit('monitoring:ask_therapy_sethings');
-socket.on('monitoring:show_therapy_sethings', (data) => {
+// Show modal if click on change page
+function preventChange() {
+	$("#modal-change-page").modal('show');
+ };
+
+ // Stop therapy in case of window reunload
+window.onbeforeunload = function() {
+	socket.emit("monitoring:stop");
+}
+
+// Show therapy settings in table
+socket.emit('monitoring:ask_therapy_settings');
+socket.on('monitoring:show_therapy_settings', (data) => {
 	document.getElementById("patient").innerHTML =  data.patient_name;
 	document.getElementById("gait_velocity").innerHTML = data.gait_velocity;
 	document.getElementById("ROM").innerHTML =  data.rom;

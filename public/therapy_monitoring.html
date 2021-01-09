@@ -19,6 +19,24 @@
 
 <body id="page-top">
     <div id="wrapper">
+        <!-- Start Modal if click to change to other page  -->
+        <div id="modal-change-page" class="modal fade" role = "dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="container card shadow-lg o-hidden border-0 my-5 p-5">
+                            <div class="text-center">
+                                <h3 class="text-dark mb-4">If you change the page the therapy will stop.</h3>
+                            </div>
+                            <div class="text-center">
+                                <button id="continue-therapy" style = "background-color: hsla(120, 100%, 25%, 0.8);" class="btn btn-primary"> Continue therapy</button>
+                                <button id="stop-exit-therapy" style = "background-color: hsla(0, 100%, 50%, 0.8);" class= "btn btn-primary"> Stop therapy and exit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
             <div class="container-fluid d-flex flex-column p-0">
                 <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
@@ -27,11 +45,11 @@
                 </a>
                 <hr class="sidebar-divider my-0">
                 <ul class="nav navbar-nav text-light" id="accordionSidebar">
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="index.html"><i class="fas fa-window-maximize"></i><span>Home</span></a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="users.html"><i class="fas fa-window-maximize"></i><span>Users</span></a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="move.html"><i class="fas fa-window-maximize"></i><span>Move</span></a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="therapy_sethings.html"><i class="fas fa-window-maximize"></i><span>Therapy</span></a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="fes.html"><i class="fas fa-window-maximize"></i><span>FES</span></a></li>
+                    <li class="nav-item" role="presentation"><a id="indexHTML" href="javascript:void(0)" class="nav-link active"><i class="fas fa-window-maximize"></i><span>Home</span></a></li>
+                    <li class="nav-item" role="presentation"><a id="usersHTML" href="javascript:void(0)" class="nav-link active"><i class="fas fa-window-maximize"></i><span>Users</span></a></li>
+                    <li class="nav-item" role="presentation"><a id="moveHTML" href="javascript:void(0)" class="nav-link active"><i class="fas fa-window-maximize"></i><span>Move</span></a></li>
+                    <li class="nav-item" role="presentation"><a id="therapySettingsHTML" href="javascript:void(0)" class="nav-link active"><i class="fas fa-window-maximize"></i><span>Therapy</span></a></li>
+                    <li class="nav-item" role="presentation"><a id="fesHTML" href="javascript:void(0)" class="nav-link active"><i class="fas fa-window-maximize"></i><span>FES</span></a></li>
                 </ul>
                 <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
             </div>

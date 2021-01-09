@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>CPWalker</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css?h=bc4d94717ae9f095f9e1df29e017c452">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
+    <link rel="stylesheet" href="assets/css/smoothproducts.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/login.css">
+
+    <!-- Modal -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+
+
+<body id="page-top">
+
+     <!-- Start: side and top bars -->
+    <div id="wrapper">
+        <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
+            <div class="container-fluid d-flex flex-column p-0">
+                <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
+                    <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-laugh-wink"></i></div>
+                    <div class="sidebar-brand-text mx-3"><span>Brand</span></div>
+                </a>
+                <hr class="sidebar-divider my-0">
+                <ul class="nav navbar-nav text-light" id="accordionSidebar">
+                    <li class="nav-item" role="presentation"><a class="nav-link active" href="index.html"><i class="fas fa-window-maximize"></i><span>Home</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link active" href="users.html"><i class="fas fa-window-maximize"></i><span>Users</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link active" href="move.html"><i class="fas fa-window-maximize"></i><span>Move</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link active" href="therapy_settings.html"><i class="fas fa-window-maximize"></i><span>Therapy</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link active" href="fes.html"><i class="fas fa-window-maximize"></i><span>FES</span></a></li>
+                </ul>
+                <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
+            </div>
+        </nav>
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content" class="modal_area">
+                <!-- Start: Modal login -->
+                <div id="myModal" class="modal fade" role = "dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-body">
+                                <div class="container card shadow-lg o-hidden border-0 my-5 p-5">
+                                    <div class="text-center">
+                                        <h4 class="text-dark mb-4">Hello! Login, please!</h4>
+                                    </div>
+                                    <form class="user text-center">
+                                            <div class="form-group" >
+                                                <label> Therapist:  </label>
+                                                <br>
+                                                <select class="btn  btn-outline-primary" id="therapists-list" class="form-control">
+                                                    <option selected value="no_choose">Choose therapist...</option>
+                                                    <option value="Julio Mila">Julio Mila</option>
+                                                    <option value="Veronica" >Veronica</option>
+                                                    <option value="Eduardo">Eduardo</option>
+                                                </select>
+                                                <br>
+                                                <p id="empty_therapist" style="color: red;"> </p>
+                                                <br>
+                                                <label> Patient:  </label>
+                                                <br>
+                                                <select class="btn  btn-outline-primary" id="patients-list" class="form-control">
+                                                    <option selected value="no_choose">Choose patient...</option>
+                                                    <option value="Julio Mila">Julio Mila</option>
+                                                    <option value="Veronica" >Veronica</option>
+                                                    <option value="Eduardo">Eduardo</option>
+                                                </select>
+                                                <br>
+                                                <p id="empty_patient" style="color: red;"> </p>
+                                                <br>
+                                                <button class="btn  btn-primary" id ="login_therapist_patient" type="button" aria-label="Save">
+                                                    <span>Save</span>
+                                                </button>
+                                            </div>
+                                        <hr>
+                                    </form>
+                                    <div class="text-center"><a class="small" href="forgot-password.html">New Patient</a></div>
+                                    <div class="text-center"><a class="small" href="register.html">New Therapist</a></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
+                    <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle mr-3" id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
+                        <ul class="nav navbar-nav flex-nowrap ml-auto">
+                            <div class="d-none d-sm-block topbar-divider"></div>
+                            <li class="nav-item dropdown no-arrow" role="presentation">
+                            </li>
+                        </ul>
+                    </div>
+                </nav>  
+                <!-- Start: General Therapy settings -->
+                <div class="container-fluid">
+                    <h3 class="text-dark mb-4">&nbsp;Therapy Settings</h3>
+                    <div class="row mb-3">
+                        <div class="col-lg-4">
+                            <div class="card mb-3">
+                                <h3 class="text-center text-dark mb-4">&nbsp;Users</h3>
+                                <div class="card-body text-center shadow">
+                                    <div class="mb-3">
+                                        <p>Therapist:</p>
+                                        <p class="btn btn-outline-secondary" id="therapist-name">Therapist's name</p>
+                                        <p>Patient:</p>
+                                        <p class="btn btn-outline-secondary" id="patient-name">Patient's name</p>
+                                    </div>
+                                    <div class="form-group">
+                                        <button class="btn btn-primary btn-sm" value="save_settings" id="save_settings" type="submit">Save Settings</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="row mb-3 d-none">
+                                <div class="col">
+                                    <div class="card text-white bg-primary shadow">
+                                        <div class="card-body">
+                                            <div class="row mb-2">
+                                                <div class="col">
+                                                    <p class="m-0">Peformance</p>
+                                                    <p class="m-0"><strong>65.2%</strong></p>
+                                                </div>
+                                                <div class="col-auto"><i class="fas fa-rocket fa-2x"></i></div>
+                                            </div>
+                                            <p class="text-white-50 small m-0"><i class="fas fa-arrow-up"></i>&nbsp;5% since last month</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="card text-white bg-success shadow">
+                                        <div class="card-body">
+                                            <div class="row mb-2">
+                                                <div class="col">
+                                                    <p class="m-0">Peformance</p>
+                                                    <p class="m-0"><strong>65.2%</strong></p>
+                                                </div>
+                                                <div class="col-auto"><i class="fas fa-rocket fa-2x"></i></div>
+                                            </div>
+                                            <p class="text-white-50 small m-0"><i class="fas fa-arrow-up"></i>&nbsp;5% since last month</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="card shadow">
+                                        <div class="card-header py-3">
+                                            <p class="text-primary m-0 font-weight-bold">Patient's Information</p>
+                                        </div>
+                                        <div class="card-body">
+                                            <form>
+                                                <div class="form-row">
+                                                    <div class="col">
+                                                        <div class="form-group">
+                                                            <label for="patient_age">
+                                                                <strong>Age</strong>
+                                                            </label>
+                                                            <input class="form-control" id="patient_age" type="number" placeholder="Age">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="form-group">
+                                                            <label for="gmfcs">
+                                                                <strong>Gross motor function (GMFCS)</strong>
+                                                            </label>
+                                                            <input class="form-control" id="gmfcs" type="number" placeholder="GMFCS">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <div class="col">
+                                                        <div class="form-group">
+                                                            <label for="leg_length">
+                                                                <strong>Leg Length in centimeters</strong>
+                                                            </label>
+                                                            <input class="form-control" id="leg_length" type="number" placeholder="Leg length">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="form-group">
+                                                            <label for="weight">
+                                                                <strong>Weight in kilograms</strong>
+                                                            </label>
+                                                            <input class="form-control" id="weight" type="number" placeholder="Weight">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <div class="col">
+                                                        <div class="form-group">
+                                                            <label for="observations">
+                                                                <strong>Observations</strong>
+                                                            </label>
+                                                            <input class="form-control" id="observations" type="text" placeholder="Observations">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card shadow mb-3">
+                        <div class="card-header py-3">
+                            <p class="text-primary m-0 font-weight-bold">General Therapy Parameters</p>
+                        </div>                    
+                        <div class="card-body">
+                            <form>
+                                <div class="form-row">
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label for="gait_velocity">
+                                                <strong>
+                                                    Gait Velocity:          
+                                                </strong>
+                                                <strong  class="btn btn-outline-secondary" id="gait_velocity_value">
+                                                    50%
+                                                </strong>
+                                            </label>
+                                            <input class="form-control-range" id="gait_velocity" type="range">
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label for="rom">
+                                                <strong>
+                                                    Range Of Movement (ROM):          
+                                                </strong>
+                                                <strong  class="btn btn-outline-secondary" id="rom_value">
+                                                    50%
+                                                </strong>
+                                            </label>
+                                            <input class="form-control-range" id="rom" type="range">
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label for="pbws">
+                                                <strong>
+                                                    Percentage of Body Weight Support (PBWS)         
+                                                </strong>
+                                                <strong  class="btn btn-outline-secondary" id="pbws_value">
+                                                    50%
+                                                </strong>
+                                            </label>
+                                            <input class="form-control-range" id="pbws" type="range">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="card-body">
+                            <form>
+                                <div class="col">
+                                    <div class="form-group row centered">
+                                        <div class = "col-xs-2">
+                                            <label for="steps" class = "centered">
+                                                <strong>Steps</strong>
+                                            </label>
+                                            <input class="form-control" id="steps" type="number" placeholder="Steps">
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="form-group row centered">
+                                        <div class = "col-xs-2">
+                                            <label for="control_mode" class = "centered"> <strong>Choose control mode:</strong></label>
+                                            <select class="btn  btn-outline-primary" id="control_mode" class="form-control">
+                                                <option value="trajectory">Trajectory Control</option>
+                                                <option value="h_impedance" >High Impedance Control</option>
+                                                <option value="m_impedance">Medium Impedance Control</option>
+                                                <option value="l_impedance">Low Impedance Control</option>
+                                            </select>
+                                        </div>                                    
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Start: Exoskeleton joints configuration -->
+                <div class="row">
+                    <div class="col">
+                        <div class="card-header py-3">
+                            <h6 class="text-primary m-0 font-weight-bold centered">CHOOSE JOINTS</h6>
+                        </div>
+                        <img style="display: block; margin-left: auto; margin-right: auto; display: block; max-width:100%;max-height:100%;" src="assets/img/exo_render.png" width="410">
+                        <div class = "left_hip">
+                            <label><h6 class="text-primary font-weight-bold m-0"> Left Hip:  </h6></label>
+                            <br>
+                            <select class="btn  btn-primary" id="left_hip_config" class="form-control">
+                                <option selected value="enable">Enable</option>
+                                <option value="disable">Disable</option>
+                            </select>
+                        </div>
+                        <div class = "right_hip">
+                            <label><h6 class="text-primary font-weight-bold m-0">Right Hip</h6></label>
+                            <br>
+                            <select class="btn  btn-primary" id="right_hip_config" class="form-control">
+                                <option selected value="enable">Enable</option>
+                                <option value="disable">Disable</option>
+                            </select>
+                        </div>
+                        <div class = "left_knee">
+                            <label><h6 class="text-primary font-weight-bold m-0"> Left Knee:  </h6></label>
+                            <br>
+                            <select class="btn  btn-primary" id="left_knee_config" class="form-control">
+                                <option selected value="enable">Enable</option>
+                                <option value="disable">Disable</option>
+                            </select>
+                        </div>
+                        <div class = "right_knee">
+                            <label><h6 class="text-primary font-weight-bold m-0">Right Knee</h6></label>
+                            <br>
+                            <select class="btn  btn-primary" id="right_knee_config" class="form-control">
+                                <option selected value="enable">Enable</option>
+                                <option value="disable">Disable</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End: Chart -->
+            <footer class="bg-white sticky-footer">
+                <div class="container my-auto">
+                    <div class="text-center my-auto copyright"><span>Copyright © CPWalker 2020</span></div>
+                </div>
+            </footer>
+        </div>
+        <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/script.min.js?h=9af5f655239f5ce4fa692ca1c1513d50"></script>
+    <script src="assets/js/theme.js"></script>
+    <script src="socket.io/socket.io.js"></script>
+    <script src="assets/js/therapy_settings.js"></script>
+
+</body>
+
+</html>

@@ -165,15 +165,15 @@ io.on('connection', (socket) => {
         })
     })
 
-    // Show therapy sethings in the monitoring screen.
-    socket.on('monitoring:ask_therapy_sethings', function(callbackFn) {
+    // Show therapy settings in the monitoring screen.
+    socket.on('monitoring:ask_therapy_settings', function(callbackFn) {
         // Read therappy settings from config file.
         fs.readFile('config/therapySettings.json', (err, data) => {
             if (err) throw err;
             let config = JSON.parse(data);
             console.log(config);
             // Send values
-            socket.emit('monitoring:show_therapy_sethings', {
+            socket.emit('monitoring:show_therapy_settings', {
                 patient_name : config.patient_name,
                 gmfcs :  config.gmfcs,
                 gait_velocity :   config.gait_velocity,
@@ -243,11 +243,13 @@ function moveManually(data) {
     }
     var trac_manual = [cmd_start, cmd_v_r, cmd_v_l, cmd_traction_mode];
     // Send UDP Mesage:
+    stopExo();
     sendUDP(trac_manual,TRACTION_PORT, CPWALKER_IP); 
 }
 
 // Configure robot with the therapy settings and move to start position.  
 function configureStartPos() {
+    console.log("Configure and move to start pos");
     var exo_config = [];
     // Traction control variabels
     var trac_config = [];
@@ -266,23 +268,23 @@ function configureStartPos() {
         // Get json object
         let config = JSON.parse(data);
         // Traction control config and initial position
-        cmd_start = 150;
-        cmd_v_r = 50;
-        cmd_v_l = 50;
-        cmd_traction_mode = 20;
+        cmd_start = 150; // Exoskeleton goes to initial position
+        cmd_v_r = 50; // Velocity of right wheel 0 
+        cmd_v_l = 50; // Velocity of left wheel 0
+        cmd_traction_mode = 0;
         trac_config = [cmd_start, cmd_v_r, cmd_v_l, cmd_traction_mode];
         // Weight support config
         calibrate = 1;
         pat_weight = parseInt(config.weight);
-        pbws =  parseInt(config.pwbs);
+        pbws =  parseInt(config.pbws);
         weight_conf = [calibrate, pat_weight, pbws, 0];
         // Exoskeleton config and move to initial position.
         exo_config = [0,0,0,0,0,0,0,0,0,0,0];
-        if (config.left_hip_config != "disable") {exo_config[0] = 1;} 
-        if (config.left_knee_config != "disable") {exo_config[1] = 1;} 
-        if (config.right_hip_config != "disable") {exo_config[2] = 1;} 
-        if (config.right_knee_config != "disable") {exo_config[3] = 1;}
-        exo_config[4] = 0; // Default start, ready and all motors still.
+        if (config.left_hip_config == "enable") {exo_config[0] = 1;} 
+        if (config.left_knee_config == "enable") {exo_config[1] = 1;} 
+        if (config.right_hip_config == "enable") {exo_config[2] = 1;} 
+        if (config.right_knee_config == "enable") {exo_config[3] = 1;}
+        exo_config[4] = 20; // Move to the start position.
         exo_config[5] = parseInt(config.steps);
         exo_config[6] = parseInt(config.gait_velocity);
         exo_config[7] = parseInt(config.rom);
@@ -311,7 +313,6 @@ function startTherapy() {
     var niv_imp;
     var check_gauges;
     var weight_ref;
-
     // Read therappy settings from config file.
     fs.readFile('config/therapySettings.json', (err, data) => {
         if (err) throw err;
@@ -325,11 +326,12 @@ function startTherapy() {
             impedance_ctr = true;
         }
         // TRAJECTORY CONTROL
-        if (trajectory_ctr) {
+        if (config.control_mode == "trajectory") {
+            console.log("Trajectory Control");
             // Traction control config and initial position
-            cmd_start = 0; 
-            cmd_v_r = 50;
-            cmd_v_l = 50;
+            cmd_start = 0; // Exoskeleton does not go to initial position
+            cmd_v_r = 50; // Velocity of right wheel 0 
+            cmd_v_l = 50; // Velocity of left wheel 0
             cmd_traction_mode = 20;
             trac_config = [cmd_start, cmd_v_r, cmd_v_l, cmd_traction_mode];
             // Impedance config
@@ -338,7 +340,7 @@ function startTherapy() {
             check_gauges = 0;
             weight_ref = 0;
             imp_config = [cal_imp, niv_imp, check_gauges, weight_ref];
-             // Exoskeleton config start position control mode.
+             // Exoskeleton config trajectory control mode.
             exo_config = [0,0,0,0,0,0,0,0,0,0,0];
             if (config.left_hip_config != "disable") {exo_config[0] = 1;}
             if (config.left_knee_config != "disable") {exo_config[1] = 1;}
@@ -349,26 +351,31 @@ function startTherapy() {
             exo_config[6] = parseInt(config.gait_velocity);
             exo_config[7] = parseInt(config.rom);
             exo_config[8] = parseInt(config.leg_length);
-        } else if (impedance_ctr) {
+        // IMPEDANCE CONTROL
+        } else {
+            console.log("Impedance Control");
              // Traction control config and initial position
-             cmd_start = 0; 
-             cmd_v_r = 50;
-             cmd_v_l = 50;
-             cmd_traction_mode = 20;
+             cmd_start = 0; // Exoskeleton does not go to initial position
+             cmd_v_r = 50; // Velocity of right wheel 0 
+             cmd_v_l = 50; // Velocity of left wheel 0
+             cmd_traction_mode = 20; // Traction in "Auto" mode
              trac_config = [cmd_start, cmd_v_r, cmd_v_l, cmd_traction_mode];
              // Impedance config
              cal_imp = 1;
-             niv_imp = 1; //TODO
+             if (config.control_mode == "h_impedance") {niv_imp = 3;}
+             else if (config.control_mode == "m_impedance") {niv_imp = 2;}
+             else if (config.control_mode == "l_impedance") {niv_imp = 1;} 
+             else { niv_imp = 0;}
              check_gauges = 0;
              weight_ref = 0;
              imp_config = [cal_imp, niv_imp, check_gauges, weight_ref];
-             // Exoskeleton config start position control mode.
+             // Exoskeleton config impedance control mode.
              exo_config = [0,0,0,0,0,0,0,0,0,0,0];
              if (config.left_hip_config != "disable") {exo_config[0] = 1;}
              if (config.left_knee_config != "disable") {exo_config[1] = 1;}
              if (config.right_hip_config != "disable") {exo_config[2] = 1;} 
              if (config.right_knee_config != "disable") {exo_config[3] = 1;}
-             exo_config[4] = 4; // Start motion in position control mode
+             exo_config[4] = 10; // Start motion in impedance control mode
              exo_config[5] = parseInt(config.steps);
              exo_config[6] = parseInt(config.gait_velocity);
              exo_config[7] = parseInt(config.rom);
@@ -383,28 +390,38 @@ function startTherapy() {
 
 // Stop therapy.  
 function stopTherapy() {
-     // Traction control variabels
-     var trac_config = [];
-     var cmd_start;
-     var cmd_v_r;
-     var cmd_v_l;
-     var cmd_traction_mode;
-     // Exo control variabels
-     var exo_config = [];
+    console.log("Stop Therapy");
+    // Traction control variabels
+    var trac_config = [];
+    var cmd_start;
+    var cmd_v_r;
+    var cmd_v_l;
+    var cmd_traction_mode;
+    // Exo control variabels
+    var exo_config = [];
     // Exoskeleton config and move to initial position.
     exo_config = [0,0,0,0,0,0,0,0,0,0,0];
     // Traction control config and initial position
-    cmd_start = 0;
-    cmd_v_r = 50;
-    cmd_v_l = 50;
-    cmd_traction_mode = 10;
+    cmd_start = 0; // Exoskeleton does not go to initial position
+    cmd_v_r = 50; // Velocity of right wheel 0 
+    cmd_v_l = 50; // Velocity of left wheel 0
+    cmd_traction_mode = 0; // Stop traction
     trac_config = [cmd_start, cmd_v_r, cmd_v_l, cmd_traction_mode];
     // Send data
     sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP);
     sendUDP(exo_config, EXO_PORT, CPWALKER_IP);  
 }
 
-// Sends COMMAND(array numbers) to a PORT(int) of a specific IP(string)
+function stopExo() {
+    // Exo control variabels
+    var exo_config = [];
+   // Exoskeleton config and move to initial position.
+   exo_config = [0,0,0,0,0,0,0,0,0,0,0];
+   // Send data
+   sendUDP(exo_config, EXO_PORT, CPWALKER_IP);  
+}
+
+// Sends COMMAND(array of numbers) to a PORT(int) of a specific IP(string)
 function sendUDP(COMMAND, PORT, IP) {
     // Transform COMMAND to hexadecimal
     var COMMAND_HEX = [];
@@ -413,7 +430,7 @@ function sendUDP(COMMAND, PORT, IP) {
     }
     var msg = Buffer.from(COMMAND_HEX.join(''),'hex');
     udp_send.send(msg, PORT, IP);
-    console.log(`PORT:` + PORT + '; COMMAND: ' + COMMAND + '; COMMAND_HEX: ' + COMMAND_HEX); 
+    console.log(`PORT:` + PORT + '; COMMAND: ' + COMMAND + '; COMMAND_HEX: ' + COMMAND_HEX.join('')); 
 }
 
 // Decode joint real and reference angle values. Get the coded_value and returns an array 

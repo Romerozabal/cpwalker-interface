@@ -91,19 +91,23 @@ var right_hip_real; // Real value of the hip angular position
 var right_hip_ref; // Reference value (setpoint)
 // Left knee data
 s_left_knee.on('message', function(msg, info) {
-    var [left_hip_real, left_hip_ref] = decodeRealRef(msg);
+    [left_knee_real, left_knee_ref] = decodeRealRef(msg);
+    updateData();
 });
 // Right knee data
 s_right_knee.on('message', function(msg, info) {
-    var [right_knee_real, right_knee_ref] = decodeRealRef(msg);
+    [right_knee_real, right_knee_ref] = decodeRealRef(msg);
+    //updateData();
 });
 // Left hip data
 s_left_hip.on('message', function(msg, info) {
-    var [left_hip_real, left_hip_ref] = decodeRealRef(msg);
+    [left_hip_real, left_hip_ref] = decodeRealRef(msg);
+    //updateData();
 });
 // Right hip data
 s_right_hip.on('message', function(msg, info) {
-    var [right_hip_real, right_hip_ref] = decodeRealRef(msg);
+    [right_hip_real, right_hip_ref] = decodeRealRef(msg);
+    //updateData();
 });
 //TODO
 s_weight.on('message', function(msg, info) {
@@ -188,17 +192,17 @@ io.on('connection', (socket) => {
         });
     });
 
-    // Update joint chart plots (called in therapy_monitor.js)
+    // Update joint chart plots.
     socket.on('monitoring:jointData_ask', function(callbackFn) {
         socket.emit('monitoring:jointData_resp', {
-            left_knee_real: left_knee_real,
-            left_knee_ref: left_knee_ref,
-            right_knee_real: right_knee_real,
-            right_knee_ref: right_knee_ref,
-            left_hip_real: left_hip_real,
-            left_hip_ref: left_hip_ref,
             right_hip_real: right_hip_real,
             right_hip_ref: right_hip_ref,
+            left_hip_real: left_hip_real,
+            left_hip_ref: left_hip_ref,
+            right_knee_real: right_knee_real,
+            right_knee_ref: right_knee_ref,
+            left_knee_real: left_knee_real,
+            left_knee_ref: left_knee_ref
         })
     });
 
@@ -222,6 +226,23 @@ io.on('connection', (socket) => {
 //** FUNCTIONS **//
 ///////////////////
 //
+// Update joint data
+function updateData(){
+    data = {
+        right_knee_real: right_knee_real,
+        right_knee_ref: right_knee_ref,
+        left_knee_real: left_knee_real,
+        left_knee_ref: left_knee_ref,
+        right_hip_real: right_hip_real,
+        right_hip_ref: right_hip_ref,
+        left_hip_real: left_hip_real,
+        left_hip_ref: left_hip_ref
+    }
+    fs.writeFileSync('public/assets/js/jointData.json', JSON.stringify(data), function (err){
+        if (err) throw err;
+        console.log('Joint data saved!')
+    })
+}
 // Move manually the robotic platform 
 function moveManually(data) {
     //Get values 

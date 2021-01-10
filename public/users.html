@@ -11,6 +11,56 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.10.0/baguetteBox.min.css">
     <link rel="stylesheet" href="assets/css/smoothproducts.css">
+  
+      <!--JQUERY-->
+      <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+      <script
+      src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"></script>
+      
+      
+      <!-- FRAMEWORK BOOTSTRAP para el estilo de la pagina
+      <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+      <script
+          src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script> -->
+      
+      <!--   --> 
+      <style type="text/css">
+          td.details-control {
+              cursor: pointer;
+          }
+      </style>
+
+
+
+
+
+      <script src="https://use.fontawesome.com/releases/v5.15.1/js/all.js" data-auto-replace-svg></script>
+
+          <script 
+          src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+      
+      <script 
+          src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+      
+      <!-- Los iconos tipo Solid de Fontawesome-->
+      <link rel="stylesheet"
+          href="https://use.fontawesome.com/releases/v5.0.8/css/solid.css">
+      <script src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
+      <script src="socket.io/socket.io.js"></script>
+      <script src="assets/js/users.js"></script>
+      
+      
+      <!-- DATA TABLE -->
+      <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+      <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css">	
+      <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+
+
+
 </head>
 
 <body id="page-top">
@@ -26,7 +76,7 @@
                     <li class="nav-item" role="presentation"><a class="nav-link active" href="index.html"><i class="fas fa-window-maximize"></i><span>Home</span></a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link active" href="users.html"><i class="fas fa-window-maximize"></i><span>Users</span></a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link active" href="move.html"><i class="fas fa-window-maximize"></i><span>Move</span></a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="therapy_sethings.html"><i class="fas fa-window-maximize"></i><span>Therapy</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link active" href="therapy_settings.html"><i class="fas fa-window-maximize"></i><span>Therapy</span></a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link active" href="fes.html"><i class="fas fa-window-maximize"></i><span>FES</span></a></li>
                     
                 </ul>
@@ -147,16 +197,29 @@
                             <div class="block-heading">
                                 <h2 class="text-info">Users</h2>
                                 <p>Enter patient and therapist data</p>
+                            <div id="toolbar">
+                                <button id="remove" class="btn btn-danger" disabled>
+                                     <i class="fa fa-trash"></i> Delete
+                                </button>
                             </div>
-                            <form>
-                                <div class="form-group"><label>Patient: Name</label><input class="form-control" type="text"></div>
-                                <div class="form-group"><label>Patient: Last Name</label><input class="form-control" type="text"></div>
-                                <div class="form-group"><label>Therapist: Name</label><input class="form-control" type="text"></div>
-                                <div class="form-group"><label>Therapist: Last Name</label><input class="form-control" type="text"></div>
-                                <div class="form-group"><label>Email</label><input class="form-control" type="email"></div>
-                                <div class="form-group"><label>Message</label><textarea class="form-control"></textarea></div>
-                                <div class="form-group"><button class="btn btn-primary btn-block" type="submit">Send</button></div>
-                            </form>
+                            </div>
+                            <div class="table-responsive">
+                                <table id="userList" class="table table-bordered table-hover table-striped">
+                                    <thead class="thead-light">
+                                    <tr>
+                                        <th></th>
+                                        <th>
+                                            <input type="checkbox" />
+                                          </th>
+                                        <th scope="col">First</th>
+                                        <th scope="col">Last</th>
+                                        <th scope="col">Edad</th>
+                                        
+                                    </tr>
+                                    </thead>
+                                       <!--     <tbody id = "tableData" ></tbody> -->
+                                </table>
+                            </div>
                         </div>
                     </section>
                 </main>
@@ -168,10 +231,10 @@
             </div>
         </footer>
     </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a></div>
-    <script src="assets/js/jquery.min.js"></script>
+    <!--<script src="assets/js/jquery.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
-    <script src="assets/js/theme.js"></script>
+    <script src="assets/js/theme.js"></script>-->
 </body>
 
 </html>

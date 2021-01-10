@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="assets/css/smoothproducts.css">
 </head>
 
-<body id="page-top">
+<body id="page-top" scroll="no" style="overflow: hidden;">
     <div id="wrapper">
         <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
             <div class="container-fluid d-flex flex-column p-0">
@@ -26,7 +26,7 @@
                     <li class="nav-item" role="presentation"><a class="nav-link active" href="index.html"><i class="fas fa-window-maximize"></i><span>Home</span></a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link active" href="users.html"><i class="fas fa-window-maximize"></i><span>Users</span></a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link active" href="move.html"><i class="fas fa-window-maximize"></i><span>Move</span></a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="therapy_sethings.html"><i class="fas fa-window-maximize"></i><span>Therapy</span></a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link active" href="therapy_settings.html"><i class="fas fa-window-maximize"></i><span>Therapy</span></a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link active" href="fes.html"><i class="fas fa-window-maximize"></i><span>FES</span></a></li>                    
                 </ul>
                 <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
@@ -163,6 +163,23 @@
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
     <script src="assets/js/theme.js"></script>
+    <script>
+        
+        $('html, body').on('touchstart touchmove', function(e){ 
+        //prevent native touch activity like scrolling
+        e.preventDefault();  
+        });
+
+        function openFullscreen() {
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) { /* Safari */
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) { /* IE11 */
+                elem.msRequestFullscreen();
+            }
+        }
+    </script>
 </body>
 
 </html>

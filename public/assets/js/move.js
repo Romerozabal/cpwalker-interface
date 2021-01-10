@@ -59,7 +59,7 @@ function sendTraction(speed, angle_in_degrees){
 var width, height, radius, x_orig, y_orig;
 function resize() {
     width = window.innerWidth - 300;
-    radius = 250;
+    radius = 100;
     height = radius * 6.5;
     ctx.canvas.width = width;
     ctx.canvas.height = height;

@@ -19,6 +19,24 @@
 
 <body id="page-top">
     <div id="wrapper">
+        <!-- Start Modal if click to change to other page  -->
+        <div id="modal-change-page" class="modal fade" role = "dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="container card shadow-lg o-hidden border-0 my-5 p-5">
+                            <div class="text-center">
+                                <h3 class="text-dark mb-4">If you change the page the therapy will stop.</h3>
+                            </div>
+                            <div class="text-center">
+                                <button id="continue-therapy" style = "background-color: hsla(120, 100%, 25%, 0.8);" class="btn btn-primary"> Continue therapy</button>
+                                <button id="stop-exit-therapy" style = "background-color: hsla(0, 100%, 50%, 0.8);" class= "btn btn-primary"> Stop therapy and exit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
             <div class="container-fluid d-flex flex-column p-0">
                 <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
@@ -27,11 +45,11 @@
                 </a>
                 <hr class="sidebar-divider my-0">
                 <ul class="nav navbar-nav text-light" id="accordionSidebar">
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="index.html"><i class="fas fa-window-maximize"></i><span>Home</span></a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="users.html"><i class="fas fa-window-maximize"></i><span>Users</span></a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="move.html"><i class="fas fa-window-maximize"></i><span>Move</span></a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="therapy_sethings.html"><i class="fas fa-window-maximize"></i><span>Therapy</span></a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="fes.html"><i class="fas fa-window-maximize"></i><span>FES</span></a></li>
+                    <li class="nav-item" role="presentation"><a id="indexHTML" href="javascript:void(0)" class="nav-link active"><i class="fas fa-window-maximize"></i><span>Home</span></a></li>
+                    <li class="nav-item" role="presentation"><a id="usersHTML" href="javascript:void(0)" class="nav-link active"><i class="fas fa-window-maximize"></i><span>Users</span></a></li>
+                    <li class="nav-item" role="presentation"><a id="moveHTML" href="javascript:void(0)" class="nav-link active"><i class="fas fa-window-maximize"></i><span>Move</span></a></li>
+                    <li class="nav-item" role="presentation"><a id="therapySettingsHTML" href="javascript:void(0)" class="nav-link active"><i class="fas fa-window-maximize"></i><span>Therapy</span></a></li>
+                    <li class="nav-item" role="presentation"><a id="fesHTML" href="javascript:void(0)" class="nav-link active"><i class="fas fa-window-maximize"></i><span>FES</span></a></li>
                 </ul>
                 <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
             </div>
@@ -63,30 +81,59 @@
                     <h3 class="text-dark mb-4">&nbsp;Therapy Monitor</h3>
                     <button class="btn btn-primary btn-xl" value="start_position" id="start_stop" type="submit" style = "background: #4CAF50">MOVE TO START POSITION</button>
                 </div>
-                <div class="card shadow mb-4">
+
+                <!-- Joint Charts-->
+                <div id = "jointCharts" class="card shadow mb-4">
+
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h6 class="text-primary font-weight-bold m-0">Hip</h6>
+                        <h6 class="text-primary font-weight-bold m-0">Right Hip</h6>
                     </div>
-                    
                     <div class="card-body">
                         <div class="chart-area">
-                            <div>
-                               <canvas style= "height: 100vh;" id="r_l_hip_chart"></canvas> 
+                            <div id = "rightLeftHip">
+                                <canvas id="r_hip_chart"></canvas> 
                             </div>
                         </div>
                     </div>
+
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h6 class="text-primary font-weight-bold m-0">Knee</h6>
+                        <h6 class="text-primary font-weight-bold m-0">Left Hip</h6>
                     </div>
                     <div class="card-body">
                         <div class="chart-area">
-                             <canvas style= "height: 100vh;" id="r_l_knee_chart"></canvas>
+                            <div id = "LeftHip">
+                                <canvas id="l_hip_chart"></canvas>
+                            </div>
                         </div>
                     </div>
+                    
+
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="text-primary font-weight-bold m-0">Right Knee</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-area">
+                            <div id = "rightLeftKnee">
+                                <canvas id="r_knee_chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="text-primary font-weight-bold m-0">Left Knee</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-area">
+                            <div id = "leftKnee">
+                                <canvas id="l_knee_chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
-            <!-- Start: Chart -->
+            <!-- Therapeutic Charts left hip and knee-->
             <div class="row">
                 <div class="col-lg-5 col-xl-4">
                     <div class="card shadow mb-4">
@@ -118,6 +165,8 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Therapy settings information -->
                 <div class="col-lg-5 col-xl-4">
                     <div class="card shadow mb-4">
                         <div class="card-header d-flex justify-content-between align-items-center">
@@ -166,6 +215,8 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Therapeutic charts right hip and knee -->
                 <div class="col-lg-5 col-xl-4">
                     <div class="card shadow mb-4">
                         <div class="card-header d-flex justify-content-between align-items-center">
@@ -197,7 +248,7 @@
                     </div>
                 </div>                
             </div>
-            <!-- End: Chart -->
+            <!-- End: Charts -->
             <footer class="bg-white sticky-footer">
                 <div class="container my-auto">
                     <div class="text-center my-auto copyright"><span>Copyright © Brand 2020</span></div>

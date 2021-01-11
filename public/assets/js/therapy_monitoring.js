@@ -1,5 +1,23 @@
 const socket = io();
 
+//** Global variables **//
+var THERAPY_MONITOR_GOTO_LINK;
+// Joints data 
+var right_hip_real;
+var right_hip_ref;
+var left_hip_real;
+var left_hip_ref;
+var right_knee_real;
+var right_knee_ref;
+var left_knee_real;
+var left_knee_ref;
+// Charts time configuration variables (in ms)
+var chartDuration = 10000;
+var refreshTime = 10;
+var delayChart = 200;
+// Data sampling time (in ms)
+var samplingTime = 10; 
+
 //************//
 //** Charts **//
 //************//
@@ -12,61 +30,280 @@ var chartColors = {
 	purple: 'rgb(153, 102, 255)',
 	grey: 'rgb(201, 203, 207)'
 };
-// Receive joint data from the server to generate the plots
-var left_knee_real;
-var left_knee_ref;
-socket.on('jointData_resp', (data) => {
-	left_knee_real = data.left_knee_real;
-	left_knee_ref = data.left_knee_ref;
-})
-function leftKneeReal() {
-	socket.emit('jointData_ask');
-	return (left_knee_real);
-}
-function leftKneeRef() {
-	socket.emit('jointData_ask');
-	return (left_knee_ref);
-}
-function onRefresh(chart) {
-	chart.config.data.datasets[0].data.push({
-			x: Date.now(),
-			y: leftKneeReal()
-		});
-	chart.config.data.datasets[1].data.push({
-			x: Date.now(),
-			y: leftKneeRef()
-	});
-}
-
 var color = Chart.helpers.color;
-var config = {
+// Configuration of the right hip chart
+var configrhip = {
 	type: 'line',
 	data: {
 		datasets: [{
-				label: 'Right',
+				label: 'Real',
 				borderColor: chartColors.red,
 				borderWidth: 1,
-				data: []
+  		    	showLine: false, // disable for a single dataset
+			    data: []
 			}, {
-				label: 'Left',
+				label: 'Reference',
 				borderColor: chartColors.blue,
 				borderWidth: 1,
-				data: []
+  		    	showLine: false, // disable for a single dataset
+			    data: []
 			}
 		]
 	},
 	options: {
+		showLines: false, // disable for all datasets
+		animation: {
+            duration: 0 // general animation time
+        },
+		elements: {
+            line: {
+                tension: 0 // disables bezier curves
+            }
+		},
+		
 		scales: {
 			xAxes: [{
 				type: 'realtime',
 				realtime: {
-					duration: 10000,
-					refresh: 100,
-					delay: 500,
-					onRefresh: onRefresh
+					duration: chartDuration,
+					refresh: refreshTime,
+					delay: delayChart,
+					onRefresh: onRefreshRH
+				},
+				scaleLabel: {
+					display: true,
+					labelString: 'Time'
+				},
+				ticks: {
+					autoSkip: false,
+					maxRotation: 0,
+					minRotation: 0
 				}
 			}],
 			yAxes: [{
+				display: true,
+				ticks: {
+					suggestedMax: 50,    // maximum will be 70, unless there is a lower value.
+					suggestedMin: -20,    // minimum will be -10, unless there is a lower value.
+				},
+				scaleLabel: {
+					display: true,
+					labelString: 'Degrees'
+				}
+			}]
+		},
+		tooltips: {
+			mode: 'nearest',
+			intersect: false
+		},
+        hover: {
+            animationDuration: 0 // duration of animations when hovering an item
+        },
+        responsiveAnimationDuration: 0, // animation duration after a resize
+		maintainAspectRatio: false
+	}
+};
+
+// Configuration of the left hip chart
+var configlhip = {
+	type: 'line',
+	data: {
+		datasets: [{
+				label: 'Real',
+				borderColor: chartColors.red,
+				borderWidth: 1,
+  		    	showLine: false, // disable for a single dataset
+			    data: []
+			}, {
+				label: 'Reference',
+				borderColor: chartColors.blue,
+				borderWidth: 1,
+  		    	showLine: false, // disable for a single dataset
+			    data: []
+			}
+		]
+	},
+	options: {
+		showLines: false, // disable for all datasets
+		animation: {
+            duration: 0 // general animation time
+        },
+		elements: {
+            line: {
+                tension: 0 // disables bezier curves
+            }
+		},
+		
+		scales: {
+			xAxes: [{
+				type: 'realtime',
+				realtime: {
+					duration: chartDuration,
+					refresh: refreshTime,
+					delay: delayChart,
+					onRefresh: onRefreshLH
+				},
+				scaleLabel: {
+					display: true,
+					labelString: 'Time'
+				},
+				ticks: {
+					autoSkip: false,
+					maxRotation: 0,
+					minRotation: 0
+				}
+			}],
+			yAxes: [{
+				display: true,
+				ticks: {
+					suggestedMax: 50,    // maximum will be 70, unless there is a lower value.
+					suggestedMin: -20,    // minimum will be -10, unless there is a lower value.
+				},
+				scaleLabel: {
+					display: true,
+					labelString: 'Degrees'
+				}
+			}]
+		},
+		tooltips: {
+			mode: 'nearest',
+			intersect: false
+		},
+        hover: {
+            animationDuration: 0 // duration of animations when hovering an item
+        },
+        responsiveAnimationDuration: 0, // animation duration after a resize
+		maintainAspectRatio: false
+	}
+};
+
+// Configuration of the right knee chart
+var configrknee = {
+	type: 'line',
+	data: {
+		datasets: [{
+				label: 'Real',
+				borderColor: chartColors.red,
+				borderWidth: 1,
+				showLine: false, // disable for a single dataset
+			    data: []
+			}, {
+				label: 'Reference',
+				borderColor: chartColors.blue,
+				borderWidth: 1,
+				showLine: false, // disable for a single dataset
+			    data: []
+			}
+		]
+	},
+	options: {
+		showLines: false, // disable for a single dataset
+		animation: {
+            duration: 0 // general animation time
+        },
+		elements: {
+            line: {
+                tension: 0 // disables bezier curves
+            }
+		},
+		
+		scales: {
+			xAxes: [{
+				type: 'realtime',
+				realtime: {
+					duration: chartDuration,
+					refresh: refreshTime,
+					delay: delayChart,
+					onRefresh: onRefreshRK
+				},
+				scaleLabel: {
+					display: true,
+					labelString: 'Time'
+				},
+				ticks: {
+					sampleSize: 1,
+					autoSkip: false,
+					maxRotation: 0,
+					minRotation: 0
+					
+				}
+			}],
+			yAxes: [{
+				display: true,
+				ticks: {
+					suggestedMax: 65,    // maximum will be 70, unless there is a lower value.
+					suggestedMin: 0,    // minimum will be -10, unless there is a lower value.
+					// OR //
+					beginAtZero: true	
+				},
+				scaleLabel: {
+					display: true,
+					labelString: 'Degrees'
+				}
+			}]
+		},
+		tooltips: {
+			mode: 'nearest',
+			intersect: false
+		},
+        hover: {
+            animationDuration: 0 // duration of animations when hovering an item
+        },
+        responsiveAnimationDuration: 0, // animation duration after a resize
+		maintainAspectRatio: false
+	}
+};
+
+// Configuration of the left knee chart
+var configlknee = {
+	type: 'line',
+	data: {
+		datasets: [{
+				label: 'Real',
+				borderColor: chartColors.red,
+				borderWidth: 1,
+  		    	showLine: false, // disable for a single dataset
+			    data: []
+			}, {
+				label: 'Reference',
+				borderColor: chartColors.blue,
+				borderWidth: 1,
+  		    	showLine: false, // disable for a single dataset
+			    data: []
+			}
+		]
+	},
+	options: {
+		showLines: false, // disable for all datasets
+		animation: {
+            duration: 0 // general animation time
+        },
+		elements: {
+            line: {
+                tension: 0 // disables bezier curves
+            }
+		},
+		
+		scales: {
+			xAxes: [{
+				type: 'realtime',
+				realtime: {
+					duration: chartDuration,
+					refresh: refreshTime,
+					delay: delayChart,
+					onRefresh: onRefreshLK
+				},
+				scaleLabel: {
+					display: true,
+					labelString: 'Time'
+				},
+				ticks: {
+					autoSkip: false,
+					maxRotation: 0,
+					minRotation: 0
+				}
+			}],
+			yAxes: [{				
 				display: true,
 				ticks: {
 					suggestedMax: 65,    // maximum will be 70, unless there is a lower value.
@@ -76,32 +313,80 @@ var config = {
 				},
 				scaleLabel: {
 					display: true,
-					labelString: 'value'
+					labelString: 'Degrees'
 				}
 			}]
 		},
 		tooltips: {
 			mode: 'nearest',
-			intersect: true
+			intersect: false
 		},
-		hover: {
-			mode: 'nearest',
-			intersect: true
-		},
-		responsive: true
-		, maintainAspectRatio: false
+        hover: {
+            animationDuration: 0 // duration of animations when hovering an item
+        },
+        responsiveAnimationDuration: 0, // animation duration after a resize
+		maintainAspectRatio: false
 	}
 };
 
+// Call server to update joints data
+window.setInterval(function(){
+	socket.emit('monitoring:jointData_ask');
+}, samplingTime);
+
+// Call server to update joints data
+window.setInterval(function(){
+	onRefreshRH();
+	onRefreshLH();
+	onRefreshRK();
+	onRefreshLK();
+}, refreshTime);
+
 // Get charts form html and plot the incomming data. 
-window.onload = function() {
-	
-    //var ctxhip = document.getElementById('r_l_hip_chart').getContext('2d');
-    var ctxknee = document.getElementById('r_l_knee_chart').getContext('2d');
-    //ctxhip.canvas.height = 70;
-    ctxknee.canvas.height = 70;
-    window.r_l_knee_chart = new Chart(ctxknee, config); // Right and Left knee chart
-	//window.r_l_hip_chart = new Chart(ctxknee, config); // Right and Left hip chart
+window.onload = function() {	
+	// Charts configuration
+	var ctxrhip = document.getElementById('r_hip_chart').getContext('2d');
+	var ctxlhip = document.getElementById('l_hip_chart').getContext('2d');
+	var ctxrknee = document.getElementById('r_knee_chart').getContext('2d');
+    var ctxlknee = document.getElementById('l_knee_chart').getContext('2d');
+	ctxrhip.canvas.height = 300;
+	ctxlhip.canvas.height = 300;
+	ctxrknee.canvas.height = 300;
+	ctxlknee.canvas.height = 300;
+	window.r_knee_chart = new Chart(ctxrhip, configrhip); 
+	window.l_hip_chart = new Chart(ctxlhip, configlhip);
+	window.r_knee_chart = new Chart(ctxrknee, configrknee); 
+	window.l_hip_chart = new Chart(ctxlknee, configlknee); 
+
+	// Receive joints data from server 
+	socket.on('monitoring:jointData_resp', (data) => {
+		right_hip_real = parseInt(data.right_hip_real);
+		right_hip_ref = data.right_hip_ref;
+		left_hip_real = data.left_hip_real;
+		left_hip_ref = data.left_hip_ref;
+		right_knee_real = data.right_knee_real;
+		right_knee_ref = data.right_knee_ref;
+		left_knee_real = data.left_knee_real;
+		left_knee_ref = data.left_knee_ref;
+		/*
+		console.log("right_hip_real:");
+		console.log(right_hip_real);
+		console.log("right_hip_ref:");
+		console.log(right_hip_ref);
+		console.log("left_hip_real:");
+		console.log(left_hip_real);
+		console.log("left_hip_ref:");
+		console.log(left_hip_ref);
+		console.log("right_knee_real:");
+		console.log(right_knee_real);
+		console.log("right_knee_ref:");
+		console.log(right_knee_ref);
+		console.log("left_knee_real:");
+		console.log(left_knee_real);
+		console.log("left_knee_ref:");
+		console.log(left_knee_ref);
+		*/
+	})
 	
 	// Start stop interaction
 	document.getElementById("start_stop").onclick = function() {
@@ -124,11 +409,52 @@ window.onload = function() {
 			socket.emit('monitoring:stop'); 
 		}
 	};
+
+
+	// Advise: changing window and will stop therapy
+	document.getElementById("indexHTML").onclick = function() {
+		preventChange();
+		THERAPY_MONITOR_GOTO_LINK = "index.HTML"
+	};
+	document.getElementById("moveHTML").onclick = function() {
+		preventChange();
+		THERAPY_MONITOR_GOTO_LINK = "move.html"
+	};
+	document.getElementById("usersHTML").onclick = function() {
+		preventChange();
+		THERAPY_MONITOR_GOTO_LINK = "users.html"
+	};
+	document.getElementById("therapySettingsHTML").onclick = function() {
+		preventChange();
+		THERAPY_MONITOR_GOTO_LINK = "therapy_settings.html"
+	};
+	document.getElementById("fesHTML").onclick = function() {
+		preventChange();
+		THERAPY_MONITOR_GOTO_LINK = "fes.html"
+	};	
+
+	document.getElementById("continue-therapy").onclick = function() {
+		$("#modal-change-page").modal('hide');
+	}
+	document.getElementById("stop-exit-therapy").onclick = function() {
+		// Redirect to the therapy monitoring window
+		location.replace(THERAPY_MONITOR_GOTO_LINK)
+	}
 };
 
-// Show therapy sethings in table
-socket.emit('monitoring:ask_therapy_sethings');
-socket.on('monitoring:show_therapy_sethings', (data) => {
+// Show modal if click on change page
+function preventChange() {
+	$("#modal-change-page").modal('show');
+ };
+
+ // Stop therapy in case of window reunload
+window.onbeforeunload = function() {
+	socket.emit("monitoring:stop");
+}
+
+// Show therapy settings in table
+socket.emit('monitoring:ask_therapy_settings');
+socket.on('monitoring:show_therapy_settings', (data) => {
 	document.getElementById("patient").innerHTML =  data.patient_name;
 	document.getElementById("gait_velocity").innerHTML = data.gait_velocity;
 	document.getElementById("ROM").innerHTML =  data.rom;
@@ -140,38 +466,44 @@ socket.on('monitoring:show_therapy_sethings', (data) => {
 	document.getElementById("left_hip_config").innerHTML =  data.left_hip_config;
 })
 
-
-/*
-var left_knee_real;
-var right_knee_real;
-socket.on('jointData_resp', (data) => {
-	left_knee_real = data.left_knee_real;
-	right_knee_real = data.right_knee_real;
-})
-function leftKneeData() {
-	socket.emit('jointData_ask');
-	return (left_knee_real);
-}
-function rightKneeData() {
-	socket.emit('jointData_ask');
-	return (right_knee_real);
-}
-function onRefreshLeftKnee(chart) {
-	chart.config.data.datasets[0].(function(dataset) {
-		dataset.data.push({
+// Functions called when charts refresh to update data sets
+function onRefreshRH(chart) {
+	chart.config.data.datasets[0].data.push({
 			x: Date.now(),
-			y: leftKneeData()
+			y: right_hip_real
 		});
+	chart.config.data.datasets[1].data.push({
+			x: Date.now(),
+			y: Math.round(right_hip_ref)
 	});
 }
-function onRefreshRightKnee(chart) {
-	chart.config.data.datasets.forEach(function(dataset) {
-		dataset.data.push({
+function onRefreshLH(chart) {
+	chart.config.data.datasets[0].data.push({
 			x: Date.now(),
-			y: rightKneeData()
+			y: Math.round(left_hip_real)
 		});
+	chart.config.data.datasets[1].data.push({
+			x: Date.now(),
+			y: Math.round(left_hip_ref)
 	});
 }
-
-
-*/
+function onRefreshRK(chart) {
+	chart.config.data.datasets[0].data.push({
+			x: Date.now(),
+			y: Math.round(right_knee_real)
+		});
+	chart.config.data.datasets[1].data.push({
+			x: Date.now(),
+			y: Math.round(right_knee_ref)
+	});
+}
+function onRefreshLK(chart) {
+	chart.config.data.datasets[0].data.push({
+			x: Date.now(),
+			y: Math.round(left_knee_real)
+		});
+	chart.config.data.datasets[1].data.push({
+			x: Date.now(),
+			y: Math.round(left_knee_ref)
+	});
+}

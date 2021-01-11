@@ -4,6 +4,22 @@ html, body {
   zoom: 100%;
 }
 
+.center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+.btn-xl {
+  padding: 10px 20px;
+  font-size: 20px;
+  border-radius: 10px;
+  width:20%;   
+}
+
 .sp-loading {
   text-align: center;
   max-width: 270px;

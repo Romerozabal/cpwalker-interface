@@ -133,13 +133,25 @@ socket.on('datostabla', function(datas) {
     });
     
     
-    //  suscribimos un listener al click del boton obtener
+    //  suscribimos un listener al click del boton remove
     $('#remove').on('click', function() {
       let dt = $('#userList').DataTable();
       let checkeds = dt.data().toArray().filter((data) => data.checked);
       console.log(checkeds[0].idtabla_sesion);
       socket.emit('deleted_patient',checkeds[0].idtabla_sesion);
     });
+
+
+
+      //  suscribimos un listener al click del boton del modal add patient
+      $('#b_add_p').on('click', function() {
+        let patfname = document.getElementById("FNPatient").value;
+        let patlname = document.getElementById("LNPatient").value;
+        console.log(patfname);
+        socket.emit('insertPatient',[patfname, patlname]);
+      });
+
+
 
 
     // Listener al click en detalles de cada paciente
@@ -268,8 +280,13 @@ socket.on('patientdata',function(datapatient){
                 document.getElementById("edit_patient").disabled = true;
                 document.getElementById("remove_patient").disabled = true;
                 document.getElementById("download_list_patient").disabled = true;
-                pd.clear().draw();
-                pd.rows.add(datapatient).draw();
+
+                //location.reload();
+                //document.getElementById("home-tab").setAttribute("focus",true);
+                
+              
+                //pd.clear().draw();
+               // pd.rows.add(datapatient).draw();
             }
            
         });
@@ -307,6 +324,10 @@ socket.on('therapistdata',function(datatherapist){
     });
     
 })
+
+
+
+
 
 
 

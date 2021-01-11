@@ -6,6 +6,7 @@ window.onload = function(){
         var therapist_name = document.getElementById("therapistsnames");
         var patient_name = document.getElementById("patientssnames");
         document.getElementById("therapist").innerHTML = therapist_name.value;
+        document.getElementById("therapist_").innerHTML = therapist_name.value;
         document.getElementById("patient").innerHTML = patient_name.value;
     };
    
@@ -55,7 +56,7 @@ window.onload = function(){
             var right_knee_config = document.getElementById("right_knee_config").value;
             
             // Send data to server
-            socket.emit('save_settings:message', {
+            socket.emit('settings:save_settings', {
                 therapist_name: therapist_name,
                 patient_name: patient_name,
                 patient_age: patient_age,

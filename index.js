@@ -4,6 +4,8 @@ const express = require('express'); // Configurar express
 var fs = require('fs'); //  File System module
 
 
+var PLOTSAMPLINGTIME = 50; //ms
+
 /////////////////////
 //** UDP Network **//
 /////////////////////
@@ -65,9 +67,9 @@ const io = SocketIO(server);
 //
 var mysql = require('mysql');
 
-//**************************//
+//////////////////////////////
 //***** Data Reception *****//
-//**************************//
+//////////////////////////////
 //
 // Receive UDP data from several ports of the ESP32 mounted in CPWalker:
 // - port: 10001 -> left knee angles (real position, reference position)
@@ -92,22 +94,18 @@ var right_hip_ref; // Reference value (setpoint)
 // Left knee data
 s_left_knee.on('message', function(msg, info) {
     [left_knee_real, left_knee_ref] = decodeRealRef(msg);
-    updateData();
 });
 // Right knee data
 s_right_knee.on('message', function(msg, info) {
     [right_knee_real, right_knee_ref] = decodeRealRef(msg);
-    //updateData();
 });
 // Left hip data
 s_left_hip.on('message', function(msg, info) {
     [left_hip_real, left_hip_ref] = decodeRealRef(msg);
-    //updateData();
 });
 // Right hip data
 s_right_hip.on('message', function(msg, info) {
     [right_hip_real, right_hip_ref] = decodeRealRef(msg);
-    //updateData();
 });
 //TODO
 s_weight.on('message', function(msg, info) {
@@ -127,105 +125,48 @@ s_weight.bind(10005);
 s_can.bind(10006);
 s_pos.bind(10007);
 
-//***********************************//
+///////////////////////////////////////
 //*** Server-Client communication ***//
-//***********************************//
+///////////////////////////////////////
 // Websockets
 io.on('connection', (socket) => {
     console.log('new connection', socket.id);
 
-    // Move the platform manualy. Listen traction:message events and send UDP data to the platform (called in move.js)
-    socket.on('traction:message', (data) => {
-        //Get values 
-        w_r = data.w_right;
-        w_l = data.w_left;
-        //Command variables 
-        var cmd_start;
-        var cmd_v_l;
-        var cmd_v_r;
-        var cmd_traction_mode;
-        //Commands transformation:
-        cmd_start = 110;
-        cmd_v_r = Math.round(50 * (1 + w_r/100));
-        cmd_v_l = Math.round(50 * (1 + w_l/100));
-        if (w_r === 0 && w_l === 0) {
-            cmd_traction_mode = 0;  //0 -> STOP
-        } else {
-            cmd_traction_mode = 10; //10 -> Manual control
-        }
-        COMMAND = ((cmd_start).toString(16) + (cmd_v_r).toString(16) + (cmd_v_l).toString(16) + (cmd_traction_mode).toString(16)).toString();
-        //UDP Mesage:
-        IP = LOCAL_IP;
-        PORT = TRACTION_PORT;
-        var msg = Buffer.from(COMMAND,'hex');
-        s_traction_ctrl.send(msg, PORT, IP);
-
-        //Debug
-        //console.log('Velocities:' + w_r , w_l);
-        //console.log('COMMAND:' + cmd_start + cmd_v_r + cmd_v_l + cmd_traction_mode);
-        //console.log(`HEX COMMAND:` + COMMAND);
-        //console.log(`msg:` + msg);  
-    })
-
-
-
-
-        //Users Databases
-        var con = mysql.createConnection({
-            host: "localhost",
-            user: "root",
-            password: "mysql",
-            database: "cpwdb"
-          });
-            con.connect(function(err) {
-                if (err) throw err;
-                console.log("Connected!");
-                var sql = "SELECT * FROM tabla_sesion JOIN tabla_pacientes ON tabla_sesion.idPaciente = tabla_pacientes.idtabla_pacientes JOIN tabla_terapeutas ON tabla_sesion.idTerapeuta = tabla_terapeutas.idtabla_terapeutas";
-                con.query(sql, function (err, sessions_data) {
-                  if (err) throw err;
-                  //console.log(result);
-                  socket.emit('datostabla', sessions_data);         //session_data---- datos de las sesiones (configuraciones)
-                });
-
-                if (err) throw err;
-                console.log("Connected Patient!");
-                var sql = "SELECT * FROM tabla_pacientes";
-                con.query(sql, function (err, patients_list) {
-                  if (err) throw err;
-                  console.log(patients_list);
-                  socket.emit('patientdata', patients_list);        // patients_list ---- Lista de pacientes, id-nombre-apellido
-                });
-
-                if (err) throw err;
-                console.log("Connected Therapist!");
-                var sql = "SELECT * FROM tabla_terapeutas";
-                con.query(sql, function (err, therapist_list) {
-                  if (err) throw err;
-                  console.log(therapist_list);
-                  socket.emit('therapistdata', therapist_list);     //therapist_list ---- Lista de Terapeutas, id-nombre-apellido-centro
-                });
-            });
-    
-    /*
     //Users Databases
     var con = mysql.createConnection({
         host: "localhost",
         user: "root",
         password: "mysql",
-        database: "cpwalkerdb"
-        });
-        con.connect(function(err) {
+        database: "cpwdb"
+    });
+    con.connect(function(err) {
+        if (err) throw err;
+        console.log("Connected!");
+        var sql = "SELECT * FROM tabla_sesion JOIN tabla_pacientes ON tabla_sesion.idPaciente = tabla_pacientes.idtabla_pacientes JOIN tabla_terapeutas ON tabla_sesion.idTerapeuta = tabla_terapeutas.idtabla_terapeutas";
+        con.query(sql, function (err, sessions_data) {
             if (err) throw err;
-            console.log("Connected!");
-            var sql = "SELECT * FROM pacientes";
-            con.query(sql, function (err, result) {
-                if (err) throw err;
-                console.log(result);
-                socket.emit('datostabla', result);
-            });
-
+            //console.log(result);
+            socket.emit('datostabla', sessions_data);         //session_data---- datos de las sesiones (configuraciones)
         });
-    */
+
+        if (err) throw err;
+        console.log("Connected Patient!");
+        var sql = "SELECT * FROM tabla_pacientes";
+        con.query(sql, function (err, patients_list) {
+            if (err) throw err;
+            console.log(patients_list);
+            socket.emit('patientdata', patients_list);        // patients_list ---- Lista de pacientes, id-nombre-apellido
+        });
+
+        if (err) throw err;
+        console.log("Connected Therapist!");
+        var sql = "SELECT * FROM tabla_terapeutas";
+        con.query(sql, function (err, therapist_list) {
+            if (err) throw err;
+            console.log(therapist_list);
+            socket.emit('therapistdata', therapist_list);     //therapist_list ---- Lista de Terapeutas, id-nombre-apellido-centro
+        });
+    });
 
     // Move the platform manualy. Listen traction:message events 
     // and send UDP data to the platform (called in move.js)
@@ -233,49 +174,21 @@ io.on('connection', (socket) => {
         moveManually(data);
     })
 
-
-    // Therapy configurtion variables
-    var therapist_name;
-    var patient_name;
-    var patient_age;
-    var gmfcs;
-    var leg_length;
-    var weight;
-    var hip_upper_strap;
-    var knee_lower_strap;
-    var observations;
-    var gait_velocity;
-    var rom;
-    var pbws;
-    var steps;
-    var left_hip_config;
-    var left_knee_config;
-    var right_hip_config;
-    var right_knee_config;
-    // Save session configuration. Listen "save_settings:message" events (called in therapy_sethings.js)
-    //socket.on('save_settings:message', (data) => {
-        //Get values 
-    //    therapist_name= data.therapist_name;
-    //    patient_name = data.patient_name;
-    //    patient_age =  data.patient_age;
-     //   gmfcs =  data.gmfcs;
-     //   leg_length =  data.leg_length;
-     //   weight =  data.weight;
-     //   hip_upper_strap =  data.hip_upper_strap;
-     //   knee_lower_strap =  data.knee_lower_strap;
-      //  observations =  data.observations;
-     //   gait_velocity =  data.gait_velocity;
-     //   rom =  data.rom;
-     //   pbws =  data.pbws;
-     //   steps =  data.steps;
-     //   left_hip_config =  data.left_hip_config;
-     //   left_knee_config =  data.left_knee_config;
-     //   right_hip_config =  data.right_hip_config;
-     //   right_knee_config =  data.right_knee_config;
-        //Debug
-     //   console.log(therapist_name, patient_name, patient_age, gmfcs, leg_length, weight, hip_upper_strap, knee_lower_strap, gait_velocity, rom, pbws,steps, left_hip_config, left_knee_config, right_hip_config, right_knee_config);
-
-        // Save therapy settings in a JSON file.
+    // Send data to the charts in therapy monitoring
+    setInterval(function () {
+        socket.emit('monitoring:jointData', {
+            right_hip_real: right_hip_real,
+            right_hip_ref: right_hip_ref,
+            left_hip_real: left_hip_real,
+            left_hip_ref: left_hip_ref,
+            right_knee_real: right_knee_real,
+            right_knee_ref: right_knee_ref,
+            left_knee_real: left_knee_real,
+            left_knee_ref: left_knee_ref
+        })
+    }, PLOTSAMPLINGTIME);
+    
+    // Save therapy settings in a JSON file.
     socket.on('settings:save_settings', (data) => {
         fs.writeFileSync('config/therapySettings.json', JSON.stringify(data), function (err){
             if (err) throw err;
@@ -363,10 +276,7 @@ io.on('connection', (socket) => {
                 });
     
             });
-    });
-
-    
-
+    }); 
 
     // Configure the robot.
     socket.on('monitoring:configure_robot', function(callbackFn) {
@@ -378,7 +288,7 @@ io.on('connection', (socket) => {
         startTherapy();
     });
 
-    // Start therapy.
+    // Stop therapy.
     socket.on('monitoring:stop', function(callbackFn) {
         stopTherapy();
     });
@@ -388,23 +298,6 @@ io.on('connection', (socket) => {
 //** FUNCTIONS **//
 ///////////////////
 //
-// Update joint data
-function updateData(){
-    data = {
-        right_knee_real: right_knee_real,
-        right_knee_ref: right_knee_ref,
-        left_knee_real: left_knee_real,
-        left_knee_ref: left_knee_ref,
-        right_hip_real: right_hip_real,
-        right_hip_ref: right_hip_ref,
-        left_hip_real: left_hip_real,
-        left_hip_ref: left_hip_ref
-    }
-    fs.writeFileSync('public/assets/js/jointData.json', JSON.stringify(data), function (err){
-        if (err) throw err;
-        console.log('Joint data saved!')
-    })
-}
 // Move manually the robotic platform 
 function moveManually(data) {
     //Get values 

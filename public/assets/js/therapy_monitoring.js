@@ -35,13 +35,13 @@ window.onload = function() {
 	ctxlhip.canvas.height = 340;
 	ctxrknee.canvas.height = 340;
 	ctxlknee.canvas.height = 340;
-	//chart instances & configuration
 
+	//chart instances & configuration
 	var commonOptions = {
 		scales: {
 			xAxes: [{
 				type: 'time',
-				distribution: 'series',
+				distribution: 'line',
 				time: {
 					displayFormats: {
 						second: 'mm:ss'
@@ -53,7 +53,7 @@ window.onload = function() {
 				},
 				ticks: {
 					autoSkip: false,
-					sampleSize: 1000,
+					sampleSize: 100,
 					maxRotation: 0,
 					minRotation: 0
 				}
@@ -83,13 +83,15 @@ window.onload = function() {
 				data: 0,
 				fill: false,
 				borderColor: '#2626FF',
-				borderWidth: 1
+				borderWidth: 1.5,
+				pointStyle: 'line'
 			}, {
 				label: 'Real',
 				data: 0,
 				fill: false,
 				borderColor: '#FF2626',
-				borderWidth: 1
+				borderWidth: 1.5,
+				pointStyle: 'line'
 			}]
 		},
 		options: Object.assign({}, commonOptions, {
@@ -99,7 +101,7 @@ window.onload = function() {
 			},
 			elements: {
 				line: {
-					tension: 0 // disables bezier curves
+					tension: 0.3 // disables bezier curves
 				}
 			},
 			title:{
@@ -118,13 +120,15 @@ window.onload = function() {
 				data: 0,
 				fill: false,
 				borderColor: '#2626FF',
-				borderWidth: 1
+				borderWidth: 1.5,
+				pointStyle: 'line'
 			}, {
 				label: 'Real',
 				data: 0,
 				fill: false,
 				borderColor: '#FF2626',
-				borderWidth: 1
+				borderWidth: 1.5,
+				pointStyle: 'line'
 			}]
 		},
 		options: Object.assign({}, commonOptions, {
@@ -134,7 +138,7 @@ window.onload = function() {
 			},
 			elements: {
 				line: {
-					tension: 0 // disables bezier curves
+					tension: 0.4 // disables bezier curves
 				}
 			},
 			title:{
@@ -152,7 +156,7 @@ window.onload = function() {
         },
 		elements: {
             line: {
-                tension: 0 // disables bezier curves
+                tension: 0.4 // disables bezier curves
             }
 		},
 		type: 'line',
@@ -162,13 +166,15 @@ window.onload = function() {
 				data: 0,
 				fill: false,
 				borderColor: '#2626FF',
-				borderWidth: 1
+				borderWidth: 1.5,
+				pointStyle: 'line'
 			}, {
 				label: 'Real',
 				data: 0,
 				fill: false,
 				borderColor: '#FF2626',
-				borderWidth: 1
+				borderWidth: 1.5,
+				pointStyle: 'line'
 			}]
 		},
 		options: Object.assign({}, commonOptions, {
@@ -178,7 +184,7 @@ window.onload = function() {
 			},
 			elements: {
 				line: {
-					tension: 0 // disables bezier curves
+					tension: 0.4 // disables bezier curves
 				}
 			},
 			title:{
@@ -196,7 +202,7 @@ window.onload = function() {
         },
 		elements: {
             line: {
-                tension: 0 // disables bezier curves
+                tension: 0.4 // disables bezier curves
             }
 		},
 		type: 'line',
@@ -206,13 +212,15 @@ window.onload = function() {
 				data: 0,
 				fill: false,
 				borderColor: '#2626FF',
-				borderWidth: 1
+				borderWidth: 1.5,
+				pointStyle: 'line'
 			}, {
 				label: 'Real',
 				data: 0,
 				fill: false,
 				borderColor: '#FF2626',
-				borderWidth: 1
+				borderWidth: 1.5,
+				pointStyle: 'line'
 			}]
 		},
 		options: Object.assign({}, commonOptions, {
@@ -222,7 +230,7 @@ window.onload = function() {
 			},
 			elements: {
 				line: {
-					tension: 0 // disables bezier curves
+					tension: 0.4 // disables bezier curves
 				}
 			},
 			title:{

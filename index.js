@@ -4,7 +4,7 @@ const express = require('express'); // Configurar express
 var fs = require('fs'); //  File System module
 
 
-var PLOTSAMPLINGTIME = 50; //ms
+var PLOTSAMPLINGTIME = 35; //ms
 
 /////////////////////
 //** UDP Network **//

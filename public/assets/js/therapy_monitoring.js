@@ -299,6 +299,7 @@ window.onload = function() {
 		if (document.getElementById("start_stop").value == "start_position") {
 			document.getElementById("start_stop").value = "start";
 			document.getElementById("start_stop").innerHTML = "START";
+			document.getElementById("start_stop").style.background = "#4CAF50";
 			socket.emit('monitoring:configure_robot');
 		// Start the therapy
 		} else if (document.getElementById("start_stop").value == "start") {
@@ -307,10 +308,10 @@ window.onload = function() {
 				document.getElementById("start_stop").style.background = "#FF0000"; 
 				socket.emit('monitoring:start');
 		// Stop the therapy
-		} else {
-			document.getElementById("start_stop").value = "start";
-			document.getElementById("start_stop").innerHTML = "START";
-			document.getElementById("start_stop").style.background = "#4CAF50";
+		}  else if (document.getElementById("start_stop").value == "stop") {
+			document.getElementById("start_stop").value = "start_position";
+			document.getElementById("start_stop").innerHTML = "MOVE TO START POSITION";
+			document.getElementById("start_stop").style.background = "#0000FF";
 			socket.emit('monitoring:stop'); 
 		}
 	};

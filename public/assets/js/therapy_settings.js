@@ -80,11 +80,12 @@ window.onload = function(){
                 rom: document.getElementById("rom").value,
                 pbws: document.getElementById("pbws").value,
                 steps: document.getElementById("steps").value,
-                control_mode : document.getElementById("control_mode").value,
-                left_hip_config: document.getElementById("left_hip_config").value,
+                control_mode : document.getElementById("control_mode").value,               
                 left_knee_config: document.getElementById("left_knee_config").value,
-                right_hip_config: document.getElementById("right_hip_config").value,
-                right_knee_config: document.getElementById("right_knee_config").value
+                right_knee_config: document.getElementById("right_knee_config").value,
+                left_hip_config: document.getElementById("left_hip_config").value,
+                right_hip_config: document.getElementById("right_hip_config").value
+                
             })
             // Redirect to the therapy monitoring window
             location.replace("therapy_monitoring.html")

@@ -355,16 +355,28 @@ function configureStartPos() {
         pbws =  parseInt(config.pbws);
         weight_conf = [calibrate, pat_weight, pbws, 0];
         // Exoskeleton config and move to initial position.
-        exo_config = [0,0,0,0,0,0,0,0,0,0,0];
-        if (config.left_hip_config == "enable") {exo_config[0] = 1;} 
-        if (config.left_knee_config == "enable") {exo_config[1] = 1;} 
-        if (config.right_hip_config == "enable") {exo_config[2] = 1;} 
-        if (config.right_knee_config == "enable") {exo_config[3] = 1;}
-        exo_config[4] = 20; // Move to the start position.
-        exo_config[5] = parseInt(config.steps);
-        exo_config[6] = parseInt(config.gait_velocity);
-        exo_config[7] = parseInt(config.rom);
-        exo_config[8] = parseInt(config.leg_length);
+        exo_config = [0,0,0,0,0,0,0,0];
+        if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 0; } 
+        if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 1; } 
+        if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 2; } 
+        if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 3; } 
+        if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 4; } 
+        if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 5; } 
+        if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 6; } 
+        if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 7; } 
+        if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 8; } 
+        if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 9; } 
+        if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 10;} 
+        if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 11;} 
+        if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 12;} 
+        if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 13;} 
+        if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 14;} 
+        if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 15;} 
+        exo_config[1] = 20; // Move to the start position.
+        exo_config[2] = parseInt(config.steps);
+        exo_config[3] = parseInt(config.gait_velocity);
+        exo_config[4] = parseInt(config.rom);
+        exo_config[5] = parseInt(config.leg_length);
         // Send data to the robot
         sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP); 
         sendUDP(weight_conf, WEIGHT_PORT, CPWALKER_IP);   
@@ -416,46 +428,70 @@ function startTherapy() {
             check_gauges = 0;
             weight_ref = 0;
             imp_config = [cal_imp, niv_imp, check_gauges, weight_ref];
-             // Exoskeleton config trajectory control mode.
-            exo_config = [0,0,0,0,0,0,0,0,0,0,0];
-            if (config.left_hip_config != "disable") {exo_config[0] = 1;}
-            if (config.left_knee_config != "disable") {exo_config[1] = 1;}
-            if (config.right_hip_config != "disable") {exo_config[2] = 1;} 
-            if (config.right_knee_config != "disable") {exo_config[3] = 1;}
-            exo_config[4] = 4; // Start motion in position control mode
-            exo_config[5] = parseInt(config.steps);
-            exo_config[6] = parseInt(config.gait_velocity);
-            exo_config[7] = parseInt(config.rom);
-            exo_config[8] = parseInt(config.leg_length);
+            // Exoskeleton config trajectory control mode.
+            exo_config = [0,0,0,0,0,0,0,0];
+            if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 0; } 
+            if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 1; } 
+            if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 2; } 
+            if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 3; } 
+            if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 4; } 
+            if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 5; } 
+            if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 6; } 
+            if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 7; } 
+            if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 8; } 
+            if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 9; } 
+            if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 10;} 
+            if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 11;} 
+            if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 12;} 
+            if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 13;} 
+            if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 14;} 
+            if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 15;} 
+            exo_config[1] = 4; // Start motion in position control mode
+            exo_config[2] = parseInt(config.steps);
+            exo_config[3] = parseInt(config.gait_velocity);
+            exo_config[4] = parseInt(config.rom);
+            exo_config[5] = parseInt(config.leg_length);
         // IMPEDANCE CONTROL
         } else {
             console.log("Impedance Control");
-             // Traction control config and initial position
-             cmd_start = 0; // Exoskeleton does not go to initial position
-             cmd_v_r = 50; // Velocity of right wheel 0 
-             cmd_v_l = 50; // Velocity of left wheel 0
-             cmd_traction_mode = 20; // Traction in "Auto" mode
-             trac_config = [cmd_start, cmd_v_r, cmd_v_l, cmd_traction_mode];
-             // Impedance config
-             cal_imp = 1;
-             if (config.control_mode == "h_impedance") {niv_imp = 3;}
-             else if (config.control_mode == "m_impedance") {niv_imp = 2;}
-             else if (config.control_mode == "l_impedance") {niv_imp = 1;} 
-             else { niv_imp = 0;}
-             check_gauges = 0;
-             weight_ref = 0;
-             imp_config = [cal_imp, niv_imp, check_gauges, weight_ref];
-             // Exoskeleton config impedance control mode.
-             exo_config = [0,0,0,0,0,0,0,0,0,0,0];
-             if (config.left_hip_config != "disable") {exo_config[0] = 1;}
-             if (config.left_knee_config != "disable") {exo_config[1] = 1;}
-             if (config.right_hip_config != "disable") {exo_config[2] = 1;} 
-             if (config.right_knee_config != "disable") {exo_config[3] = 1;}
-             exo_config[4] = 10; // Start motion in impedance control mode
-             exo_config[5] = parseInt(config.steps);
-             exo_config[6] = parseInt(config.gait_velocity);
-             exo_config[7] = parseInt(config.rom);
-             exo_config[8] = parseInt(config.leg_length);
+            // Traction control config and initial position
+            cmd_start = 0; // Exoskeleton does not go to initial position
+            cmd_v_r = 50; // Velocity of right wheel 0 
+            cmd_v_l = 50; // Velocity of left wheel 0
+            cmd_traction_mode = 20; // Traction in "Auto" mode
+            trac_config = [cmd_start, cmd_v_r, cmd_v_l, cmd_traction_mode];
+            // Impedance config
+            cal_imp = 1;
+            if (config.control_mode == "h_impedance") {niv_imp = 3;}
+            else if (config.control_mode == "m_impedance") {niv_imp = 2;}
+            else if (config.control_mode == "l_impedance") {niv_imp = 1;} 
+            else { niv_imp = 0;}
+            check_gauges = 0;
+            weight_ref = 0;
+            imp_config = [cal_imp, niv_imp, check_gauges, weight_ref];
+            // Exoskeleton config impedance control mode.
+            exo_config = [0,0,0,0,0,0,0,0];
+            if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 0; } 
+            if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 1; } 
+            if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 2; } 
+            if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 3; } 
+            if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 4; } 
+            if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 5; } 
+            if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 6; } 
+            if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 7; } 
+            if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 8; } 
+            if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 9; } 
+            if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 10;} 
+            if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 11;} 
+            if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 12;} 
+            if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 13;} 
+            if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 14;} 
+            if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 15;} 
+            exo_config[1] = 10; // Start motion in impedance control mode
+            exo_config[2] = parseInt(config.steps);
+            exo_config[3] = parseInt(config.gait_velocity);
+            exo_config[4] = parseInt(config.rom);
+            exo_config[5] = parseInt(config.leg_length);
         }
         // Send data to the robot
         sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP);
@@ -476,7 +512,7 @@ function stopTherapy() {
     // Exo control variabels
     var exo_config = [];
     // Exoskeleton config and move to initial position.
-    exo_config = [0,0,0,0,0,0,0,0,0,0,0];
+    exo_config = [0,0,0,0,0,0,0,0];
     // Traction control config and initial position
     cmd_start = 0; // Exoskeleton does not go to initial position
     cmd_v_r = 50; // Velocity of right wheel 0 
@@ -492,7 +528,7 @@ function stopExo() {
     // Exo control variabels
     var exo_config = [];
    // Exoskeleton config and move to initial position.
-   exo_config = [0,0,0,0,0,0,0,0,0,0,0];
+   exo_config = [0,0,0,0,0,0,0,0];
    // Send data
    sendUDP(exo_config, EXO_PORT, CPWALKER_IP);  
 }
@@ -502,7 +538,11 @@ function sendUDP(COMMAND, PORT, IP) {
     // Transform COMMAND to hexadecimal
     var COMMAND_HEX = [];
     for (let index = 0; index < COMMAND.length; index++) {
-        COMMAND_HEX[index] = (COMMAND[index]).toString(16);            
+        if (COMMAND[index] < 16) {
+            COMMAND_HEX[index] = (0).toString(16) + (COMMAND[index]).toString(16);            
+        } else {
+            COMMAND_HEX[index] = (COMMAND[index]).toString(16);
+        }
     }
     var msg = Buffer.from(COMMAND_HEX.join(''),'hex');
     udp_send.send(msg, PORT, IP);

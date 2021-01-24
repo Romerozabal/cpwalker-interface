@@ -11,381 +11,286 @@ var right_knee_real;
 var right_knee_ref;
 var left_knee_real;
 var left_knee_ref;
-// Charts time configuration variables (in ms)
-var chartDuration = 10000;
-var refreshTime = 10;
-var delayChart = 200;
-// Data sampling time (in ms)
-var samplingTime = 10; 
 
-//************//
-//** Charts **//
-//************//
-var chartColors = {
-	red: 'rgb(255, 99, 132)',
-	orange: 'rgb(255, 159, 64)',
-	yellow: 'rgb(255, 205, 86)',
-	green: 'rgb(75, 192, 192)',
-	blue: 'rgb(54, 162, 235)',
-	purple: 'rgb(153, 102, 255)',
-	grey: 'rgb(201, 203, 207)'
-};
-var color = Chart.helpers.color;
-// Configuration of the right hip chart
-var configrhip = {
-	type: 'line',
-	data: {
-		datasets: [{
-				label: 'Real',
-				borderColor: chartColors.red,
-				borderWidth: 1,
-  		    	showLine: false, // disable for a single dataset
-			    data: []
-			}, {
-				label: 'Reference',
-				borderColor: chartColors.blue,
-				borderWidth: 1,
-  		    	showLine: false, // disable for a single dataset
-			    data: []
-			}
-		]
-	},
-	options: {
-		showLines: false, // disable for all datasets
-		animation: {
-            duration: 0 // general animation time
-        },
-		elements: {
-            line: {
-                tension: 0 // disables bezier curves
-            }
-		},
-		
-		scales: {
-			xAxes: [{
-				type: 'realtime',
-				realtime: {
-					duration: chartDuration,
-					refresh: refreshTime,
-					delay: delayChart,
-					onRefresh: onRefreshRH
-				},
-				scaleLabel: {
-					display: true,
-					labelString: 'Time'
-				},
-				ticks: {
-					autoSkip: false,
-					maxRotation: 0,
-					minRotation: 0
-				}
-			}],
-			yAxes: [{
-				display: true,
-				ticks: {
-					suggestedMax: 50,    // maximum will be 70, unless there is a lower value.
-					suggestedMin: -20,    // minimum will be -10, unless there is a lower value.
-				},
-				scaleLabel: {
-					display: true,
-					labelString: 'Degrees'
-				}
-			}]
-		},
-		tooltips: {
-			mode: 'nearest',
-			intersect: false
-		},
-        hover: {
-            animationDuration: 0 // duration of animations when hovering an item
-        },
-        responsiveAnimationDuration: 0, // animation duration after a resize
-		maintainAspectRatio: false
-	}
-};
 
-// Configuration of the left hip chart
-var configlhip = {
-	type: 'line',
-	data: {
-		datasets: [{
-				label: 'Real',
-				borderColor: chartColors.red,
-				borderWidth: 1,
-  		    	showLine: false, // disable for a single dataset
-			    data: []
-			}, {
-				label: 'Reference',
-				borderColor: chartColors.blue,
-				borderWidth: 1,
-  		    	showLine: false, // disable for a single dataset
-			    data: []
-			}
-		]
-	},
-	options: {
-		showLines: false, // disable for all datasets
-		animation: {
-            duration: 0 // general animation time
-        },
-		elements: {
-            line: {
-                tension: 0 // disables bezier curves
-            }
-		},
-		
-		scales: {
-			xAxes: [{
-				type: 'realtime',
-				realtime: {
-					duration: chartDuration,
-					refresh: refreshTime,
-					delay: delayChart,
-					onRefresh: onRefreshLH
-				},
-				scaleLabel: {
-					display: true,
-					labelString: 'Time'
-				},
-				ticks: {
-					autoSkip: false,
-					maxRotation: 0,
-					minRotation: 0
-				}
-			}],
-			yAxes: [{
-				display: true,
-				ticks: {
-					suggestedMax: 50,    // maximum will be 70, unless there is a lower value.
-					suggestedMin: -20,    // minimum will be -10, unless there is a lower value.
-				},
-				scaleLabel: {
-					display: true,
-					labelString: 'Degrees'
-				}
-			}]
-		},
-		tooltips: {
-			mode: 'nearest',
-			intersect: false
-		},
-        hover: {
-            animationDuration: 0 // duration of animations when hovering an item
-        },
-        responsiveAnimationDuration: 0, // animation duration after a resize
-		maintainAspectRatio: false
-	}
-};
-
-// Configuration of the right knee chart
-var configrknee = {
-	type: 'line',
-	data: {
-		datasets: [{
-				label: 'Real',
-				borderColor: chartColors.red,
-				borderWidth: 1,
-				showLine: false, // disable for a single dataset
-			    data: []
-			}, {
-				label: 'Reference',
-				borderColor: chartColors.blue,
-				borderWidth: 1,
-				showLine: false, // disable for a single dataset
-			    data: []
-			}
-		]
-	},
-	options: {
-		showLines: false, // disable for a single dataset
-		animation: {
-            duration: 0 // general animation time
-        },
-		elements: {
-            line: {
-                tension: 0 // disables bezier curves
-            }
-		},
-		
-		scales: {
-			xAxes: [{
-				type: 'realtime',
-				realtime: {
-					duration: chartDuration,
-					refresh: refreshTime,
-					delay: delayChart,
-					onRefresh: onRefreshRK
-				},
-				scaleLabel: {
-					display: true,
-					labelString: 'Time'
-				},
-				ticks: {
-					sampleSize: 1,
-					autoSkip: false,
-					maxRotation: 0,
-					minRotation: 0
-					
-				}
-			}],
-			yAxes: [{
-				display: true,
-				ticks: {
-					suggestedMax: 65,    // maximum will be 70, unless there is a lower value.
-					suggestedMin: 0,    // minimum will be -10, unless there is a lower value.
-					// OR //
-					beginAtZero: true	
-				},
-				scaleLabel: {
-					display: true,
-					labelString: 'Degrees'
-				}
-			}]
-		},
-		tooltips: {
-			mode: 'nearest',
-			intersect: false
-		},
-        hover: {
-            animationDuration: 0 // duration of animations when hovering an item
-        },
-        responsiveAnimationDuration: 0, // animation duration after a resize
-		maintainAspectRatio: false
-	}
-};
-
-// Configuration of the left knee chart
-var configlknee = {
-	type: 'line',
-	data: {
-		datasets: [{
-				label: 'Real',
-				borderColor: chartColors.red,
-				borderWidth: 1,
-  		    	showLine: false, // disable for a single dataset
-			    data: []
-			}, {
-				label: 'Reference',
-				borderColor: chartColors.blue,
-				borderWidth: 1,
-  		    	showLine: false, // disable for a single dataset
-			    data: []
-			}
-		]
-	},
-	options: {
-		showLines: false, // disable for all datasets
-		animation: {
-            duration: 0 // general animation time
-        },
-		elements: {
-            line: {
-                tension: 0 // disables bezier curves
-            }
-		},
-		
-		scales: {
-			xAxes: [{
-				type: 'realtime',
-				realtime: {
-					duration: chartDuration,
-					refresh: refreshTime,
-					delay: delayChart,
-					onRefresh: onRefreshLK
-				},
-				scaleLabel: {
-					display: true,
-					labelString: 'Time'
-				},
-				ticks: {
-					autoSkip: false,
-					maxRotation: 0,
-					minRotation: 0
-				}
-			}],
-			yAxes: [{				
-				display: true,
-				ticks: {
-					suggestedMax: 65,    // maximum will be 70, unless there is a lower value.
-					suggestedMin: 0,    // minimum will be -10, unless there is a lower value.
-					// OR //
-					beginAtZero: true 
-				},
-				scaleLabel: {
-					display: true,
-					labelString: 'Degrees'
-				}
-			}]
-		},
-		tooltips: {
-			mode: 'nearest',
-			intersect: false
-		},
-        hover: {
-            animationDuration: 0 // duration of animations when hovering an item
-        },
-        responsiveAnimationDuration: 0, // animation duration after a resize
-		maintainAspectRatio: false
-	}
-};
-
-// Call server to update joints data
-window.setInterval(function(){
-	socket.emit('monitoring:jointData_ask');
-}, samplingTime);
-
-// Call server to update joints data
-window.setInterval(function(){
-	onRefreshRH();
-	onRefreshLH();
-	onRefreshRK();
-	onRefreshLK();
-}, refreshTime);
 
 // Get charts form html and plot the incomming data. 
-window.onload = function() {	
+window.onload = function() {
+	////////////////
+	//** Charts **//
+	////////////////
 	// Charts configuration
+	//Configuration variables
+	var numberElements = 70;
+
+	//Globals
+	var updateCount = 0;
+
+	// Chart Objects
 	var ctxrhip = document.getElementById('r_hip_chart').getContext('2d');
 	var ctxlhip = document.getElementById('l_hip_chart').getContext('2d');
 	var ctxrknee = document.getElementById('r_knee_chart').getContext('2d');
-    var ctxlknee = document.getElementById('l_knee_chart').getContext('2d');
-	ctxrhip.canvas.height = 300;
-	ctxlhip.canvas.height = 300;
-	ctxrknee.canvas.height = 300;
-	ctxlknee.canvas.height = 300;
-	window.r_knee_chart = new Chart(ctxrhip, configrhip); 
-	window.l_hip_chart = new Chart(ctxlhip, configlhip);
-	window.r_knee_chart = new Chart(ctxrknee, configrknee); 
-	window.l_hip_chart = new Chart(ctxlknee, configlknee); 
+	var ctxlknee = document.getElementById('l_knee_chart').getContext('2d');
+	ctxrhip.canvas.height = 340;
+	ctxlhip.canvas.height = 340;
+	ctxrknee.canvas.height = 340;
+	ctxlknee.canvas.height = 340;
+
+	//chart instances & configuration
+	var commonOptions = {
+		scales: {
+			xAxes: [{
+				type: 'time',
+				distribution: 'line',
+				time: {
+					displayFormats: {
+						second: 'mm:ss'
+					}
+				},
+				scaleLabel: {
+					display: true,
+					labelString: 'Time'
+				},
+				ticks: {
+					autoSkip: false,
+					sampleSize: 100,
+					maxRotation: 0,
+					minRotation: 0
+				}
+			}],
+			yAxes: [{
+				ticks: {
+					suggestedMax: 60,    // maximum will be 70, unless there is a lower value.
+					suggestedMin: -20,    // minimum will be -10, unless there is a lower value.
+				},
+				scaleLabel: {
+					display: true,
+					labelString: 'Degrees'
+				}
+			}]
+		},
+		legend: {display: true},
+		tooltips:{
+			enabled: false
+		},
+		maintainAspectRatio: false
+	};
+	var ctxrhipInstance = new Chart(ctxrhip, {
+		type: 'line',
+		data: {
+			datasets: [{
+				label: "Reference",
+				data: 0,
+				fill: false,
+				borderColor: '#2626FF',
+				borderWidth: 1.5,
+				pointStyle: 'line'
+			}, {
+				label: 'Real',
+				data: 0,
+				fill: false,
+				borderColor: '#FF2626',
+				borderWidth: 1.5,
+				pointStyle: 'line'
+			}]
+		},
+		options: Object.assign({}, commonOptions, {
+			//showLines: false, // disable for a single dataset
+			animation: {
+				duration: 0 // general animation time
+			},
+			elements: {
+				line: {
+					tension: 0.3 // disables bezier curves
+				}
+			},
+			title:{
+			display: true,
+			text: "Right Hip",
+			fontSize: 18
+			}
+		})
+	});
+
+	var ctxlhipInstance = new Chart(ctxlhip, {
+		type: 'line',
+		data: {
+			datasets: [{
+				label: "Reference",
+				data: 0,
+				fill: false,
+				borderColor: '#2626FF',
+				borderWidth: 1.5,
+				pointStyle: 'line'
+			}, {
+				label: 'Real',
+				data: 0,
+				fill: false,
+				borderColor: '#FF2626',
+				borderWidth: 1.5,
+				pointStyle: 'line'
+			}]
+		},
+		options: Object.assign({}, commonOptions, {
+			//showLines: false, // disable for a single dataset
+			animation: {
+				duration: 0 // general animation time
+			},
+			elements: {
+				line: {
+					tension: 0.4 // disables bezier curves
+				}
+			},
+			title:{
+			display: true,
+			text: "Left Hip",
+			fontSize: 18
+			}
+		})    
+	});
+
+	var ctxrkneeInstance = new Chart(ctxrknee, {
+		////showLines: false, // disable for a single dataset
+		animation: {
+            duration: 0 // general animation time
+        },
+		elements: {
+            line: {
+                tension: 0.4 // disables bezier curves
+            }
+		},
+		type: 'line',
+		data: {
+			datasets: [{
+				label: "Reference",
+				data: 0,
+				fill: false,
+				borderColor: '#2626FF',
+				borderWidth: 1.5,
+				pointStyle: 'line'
+			}, {
+				label: 'Real',
+				data: 0,
+				fill: false,
+				borderColor: '#FF2626',
+				borderWidth: 1.5,
+				pointStyle: 'line'
+			}]
+		},
+		options: Object.assign({}, commonOptions, {
+			//showLines: false, // disable for a single dataset
+			animation: {
+				duration: 0 // general animation time
+			},
+			elements: {
+				line: {
+					tension: 0.4 // disables bezier curves
+				}
+			},
+			title:{
+			display: true,
+			text: "Right Knee",
+			fontSize: 18
+			}
+		})
+	});
+
+	var ctxlkneeInstance = new Chart(ctxlknee, {
+		//showLines: false, // disable for a single dataset
+		animation: {
+            duration: 0 // general animation time
+        },
+		elements: {
+            line: {
+                tension: 0.4 // disables bezier curves
+            }
+		},
+		type: 'line',
+		data: {
+			datasets: [{
+				label: "Reference",
+				data: 0,
+				fill: false,
+				borderColor: '#2626FF',
+				borderWidth: 1.5,
+				pointStyle: 'line'
+			}, {
+				label: 'Real',
+				data: 0,
+				fill: false,
+				borderColor: '#FF2626',
+				borderWidth: 1.5,
+				pointStyle: 'line'
+			}]
+		},
+		options: Object.assign({}, commonOptions, {
+			//showLines: false, // disable for a single dataset
+			animation: {
+				duration: 0 // general animation time
+			},
+			elements: {
+				line: {
+					tension: 0.4 // disables bezier curves
+				}
+			},
+			title:{
+			display: true,
+			text: "Left Knee",
+			fontSize: 18
+			}
+		})    
+	});
 
 	// Receive joints data from server 
-	socket.on('monitoring:jointData_resp', (data) => {
-		right_hip_real = parseInt(data.right_hip_real);
-		right_hip_ref = data.right_hip_ref;
-		left_hip_real = data.left_hip_real;
-		left_hip_ref = data.left_hip_ref;
-		right_knee_real = data.right_knee_real;
-		right_knee_ref = data.right_knee_ref;
-		left_knee_real = data.left_knee_real;
-		left_knee_ref = data.left_knee_ref;
-		/*
-		console.log("right_hip_real:");
-		console.log(right_hip_real);
-		console.log("right_hip_ref:");
-		console.log(right_hip_ref);
-		console.log("left_hip_real:");
-		console.log(left_hip_real);
-		console.log("left_hip_ref:");
-		console.log(left_hip_ref);
-		console.log("right_knee_real:");
-		console.log(right_knee_real);
-		console.log("right_knee_ref:");
-		console.log(right_knee_ref);
-		console.log("left_knee_real:");
-		console.log(left_knee_real);
-		console.log("left_knee_ref:");
-		console.log(left_knee_ref);
-		*/
+	socket.on('monitoring:jointData', (data) => {
+		right_hip_real = Math.floor(data.right_hip_real);
+		right_hip_ref = Math.floor(data.right_hip_ref);
+		left_hip_real = Math.floor(data.left_hip_real);
+		left_hip_ref = Math.floor(data.left_hip_ref);
+		right_knee_real = Math.floor(data.right_knee_real);
+		right_knee_ref = Math.floor(data.right_knee_ref);
+		left_knee_real = Math.floor(data.left_knee_real);
+		left_knee_ref = Math.floor(data.left_knee_ref);
+
+		ctxrhipInstance.data.labels.push(new Date());
+		ctxrhipInstance.data.datasets[0].data.push(right_knee_ref);
+		ctxrhipInstance.data.datasets[1].data.push(right_knee_real);
+		
+		ctxlhipInstance.data.labels.push(new Date());
+		ctxlhipInstance.data.datasets[0].data.push(left_knee_ref);
+		ctxlhipInstance.data.datasets[1].data.push(left_knee_real);
+
+		ctxrkneeInstance.data.labels.push(new Date());
+		ctxrkneeInstance.data.datasets[0].data.push(right_knee_ref);
+		ctxrkneeInstance.data.datasets[1].data.push(right_knee_real);
+		
+		ctxlkneeInstance.data.labels.push(new Date());
+		ctxlkneeInstance.data.datasets[0].data.push(left_knee_ref);
+		ctxlkneeInstance.data.datasets[1].data.push(left_knee_real);
+
+		
+		if(updateCount > numberElements){
+			ctxrhipInstance.data.labels.shift();
+			ctxrhipInstance.data.datasets[0].data.shift();
+			ctxrhipInstance.data.datasets[1].data.shift();
+
+			ctxlhipInstance.data.labels.shift();
+			ctxlhipInstance.data.datasets[0].data.shift();
+			ctxlhipInstance.data.datasets[1].data.shift();
+
+			ctxrkneeInstance.data.labels.shift();
+			ctxrkneeInstance.data.datasets[0].data.shift();
+			ctxrkneeInstance.data.datasets[1].data.shift();
+
+			ctxlkneeInstance.data.labels.shift();
+			ctxlkneeInstance.data.datasets[0].data.shift();
+			ctxlkneeInstance.data.datasets[1].data.shift();
+		}
+		else updateCount++;
+		ctxrhipInstance.update();
+		ctxlhipInstance.update();
+		ctxrkneeInstance.update();
+		ctxlkneeInstance.update();			
 	})
 	
 	// Start stop interaction
@@ -394,6 +299,7 @@ window.onload = function() {
 		if (document.getElementById("start_stop").value == "start_position") {
 			document.getElementById("start_stop").value = "start";
 			document.getElementById("start_stop").innerHTML = "START";
+			document.getElementById("start_stop").style.background = "#4CAF50";
 			socket.emit('monitoring:configure_robot');
 		// Start the therapy
 		} else if (document.getElementById("start_stop").value == "start") {
@@ -402,10 +308,10 @@ window.onload = function() {
 				document.getElementById("start_stop").style.background = "#FF0000"; 
 				socket.emit('monitoring:start');
 		// Stop the therapy
-		} else {
-			document.getElementById("start_stop").value = "start";
-			document.getElementById("start_stop").innerHTML = "START";
-			document.getElementById("start_stop").style.background = "#4CAF50";
+		}  else if (document.getElementById("start_stop").value == "stop") {
+			document.getElementById("start_stop").value = "start_position";
+			document.getElementById("start_stop").innerHTML = "MOVE TO START POSITION";
+			document.getElementById("start_stop").style.background = "#0000FF";
 			socket.emit('monitoring:stop'); 
 		}
 	};
@@ -414,31 +320,63 @@ window.onload = function() {
 	// Advise: changing window and will stop therapy
 	document.getElementById("indexHTML").onclick = function() {
 		preventChange();
-		THERAPY_MONITOR_GOTO_LINK = "index.HTML"
+		THERAPY_MONITOR_GOTO_LINK = "index.HTML";
 	};
 	document.getElementById("moveHTML").onclick = function() {
 		preventChange();
-		THERAPY_MONITOR_GOTO_LINK = "move.html"
+		THERAPY_MONITOR_GOTO_LINK = "move.html";
 	};
 	document.getElementById("usersHTML").onclick = function() {
 		preventChange();
-		THERAPY_MONITOR_GOTO_LINK = "users.html"
+		THERAPY_MONITOR_GOTO_LINK = "users.html";
 	};
 	document.getElementById("therapySettingsHTML").onclick = function() {
 		preventChange();
-		THERAPY_MONITOR_GOTO_LINK = "therapy_settings.html"
+		THERAPY_MONITOR_GOTO_LINK = "therapy_settings.html";
 	};
 	document.getElementById("fesHTML").onclick = function() {
 		preventChange();
-		THERAPY_MONITOR_GOTO_LINK = "fes.html"
+		THERAPY_MONITOR_GOTO_LINK = "fes.html";
 	};	
 
 	document.getElementById("continue-therapy").onclick = function() {
-		$("#modal-change-page").modal('hide');
+		document.getElementById("modal-change-page").modal('hide');
 	}
 	document.getElementById("stop-exit-therapy").onclick = function() {
 		// Redirect to the therapy monitoring window
 		location.replace(THERAPY_MONITOR_GOTO_LINK)
+	}
+
+	// Functions called when charts refresh to update data sets
+	function onRefreshRH() {
+		console.log("onRefreshRH");
+		ctxrhipInstance.data.labels.push(new Date());
+		ctxrhipInstance.data.datasets.forEach((dataset) =>{dataset.data.push(1)});
+	}
+	function onRefreshLH() {
+		console.log("onRefreshLH");
+		ctxlhipInstance.data.labels.push(new Date());
+		ctxlhipInstance.data.datasets.forEach((dataset) =>{dataset.data.push({
+				right_hip_real
+			})
+		});
+	}
+	function onRefreshRK(chart) {
+		console.log("onRefreshRK");
+		ctxrkneeInstance.data.labels.push(new Date());
+		ctxrkneeInstance.data.datasets.forEach((dataset) =>{dataset.data.push({
+				x: Date.now(),
+				y: right_hip_real
+			})
+		});
+	}
+	function onRefreshLK(chart) {
+		console.log("onRefreshLK");
+		ctxlkneeInstance.data.labels.push(new Date());
+		ctxlkneeInstance.data.datasets[0].data.push({
+				x: Date.now(),
+				y: right_hip_real
+		});
 	}
 };
 
@@ -466,44 +404,3 @@ socket.on('monitoring:show_therapy_settings', (data) => {
 	document.getElementById("left_hip_config").innerHTML =  data.left_hip_config;
 })
 
-// Functions called when charts refresh to update data sets
-function onRefreshRH(chart) {
-	chart.config.data.datasets[0].data.push({
-			x: Date.now(),
-			y: right_hip_real
-		});
-	chart.config.data.datasets[1].data.push({
-			x: Date.now(),
-			y: Math.round(right_hip_ref)
-	});
-}
-function onRefreshLH(chart) {
-	chart.config.data.datasets[0].data.push({
-			x: Date.now(),
-			y: Math.round(left_hip_real)
-		});
-	chart.config.data.datasets[1].data.push({
-			x: Date.now(),
-			y: Math.round(left_hip_ref)
-	});
-}
-function onRefreshRK(chart) {
-	chart.config.data.datasets[0].data.push({
-			x: Date.now(),
-			y: Math.round(right_knee_real)
-		});
-	chart.config.data.datasets[1].data.push({
-			x: Date.now(),
-			y: Math.round(right_knee_ref)
-	});
-}
-function onRefreshLK(chart) {
-	chart.config.data.datasets[0].data.push({
-			x: Date.now(),
-			y: Math.round(left_knee_real)
-		});
-	chart.config.data.datasets[1].data.push({
-			x: Date.now(),
-			y: Math.round(left_knee_ref)
-	});
-}

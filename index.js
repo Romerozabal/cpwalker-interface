@@ -3,7 +3,6 @@ const path = require('path'); // Modulo de nodejs para trabajar con rutas
 const express = require('express'); // Configurar express
 var fs = require('fs'); //  File System module
 
-
 var PLOTSAMPLINGTIME = 35; //ms
 
 /////////////////////
@@ -67,6 +66,12 @@ const io = SocketIO(server);
 //
 var mysql = require('mysql');
 
+////////////////////////////////////
+//** Export .xlsx configuration **//
+////////////////////////////////////
+//
+const ExcelJS = require('exceljs');
+
 //////////////////////////////
 //***** Data Reception *****//
 //////////////////////////////
@@ -128,45 +133,133 @@ s_pos.bind(10007);
 ///////////////////////////////////////
 //*** Server-Client communication ***//
 ///////////////////////////////////////
+//
+//Connect with DataBase CPW_DB
+var con = mysql.createConnection({
+host: "localhost",
+user: "root",
+password: "mysql",
+database: "cpwdb"
+});
 // Websockets
 io.on('connection', (socket) => {
     console.log('new connection', socket.id);
+    var datitos=[];
 
-    //Users Databases
-    var con = mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: "mysql",
-        database: "cpwdb"
-    });
-    con.connect(function(err) {
-        if (err) throw err;
+    //
+    socket.on('refreshlist',function() {
         console.log("Connected!");
         var sql = "SELECT * FROM tabla_sesion JOIN tabla_pacientes ON tabla_sesion.idPaciente = tabla_pacientes.idtabla_pacientes JOIN tabla_terapeutas ON tabla_sesion.idTerapeuta = tabla_terapeutas.idtabla_terapeutas";
         con.query(sql, function (err, sessions_data) {
             if (err) throw err;
-            //console.log(result);
-            socket.emit('datostabla', sessions_data);         //session_data---- datos de las sesiones (configuraciones)
+            socket.emit('datostabla', sessions_data);   //session_data---- datos de las sesiones (configuraciones)
         });
-
-        if (err) throw err;
         console.log("Connected Patient!");
         var sql = "SELECT * FROM tabla_pacientes";
         con.query(sql, function (err, patients_list) {
             if (err) throw err;
-            console.log(patients_list);
-            socket.emit('patientdata', patients_list);        // patients_list ---- Lista de pacientes, id-nombre-apellido
+            socket.emit('patientdata', patients_list);  //patients_list ----- lista de pacientes(id-nombre-apellido)
         });
-
-        if (err) throw err;
         console.log("Connected Therapist!");
         var sql = "SELECT * FROM tabla_terapeutas";
         con.query(sql, function (err, therapist_list) {
             if (err) throw err;
-            console.log(therapist_list);
             socket.emit('therapistdata', therapist_list);     //therapist_list ---- Lista de Terapeutas, id-nombre-apellido-centro
+        });          
+    })
+
+    //DELET PATIENT DATABASE
+    socket.on('deleted_patient', function(iddeleted) {
+        var sql = "DELETE FROM tabla_pacientes WHERE idtabla_pacientes="+iddeleted;
+        con.query(sql, function (err, result) {
+            console.log("Delet Patient");
         });
     });
+
+    //EDIT PATIENT DATABASE
+    socket.on('edit_patient', function(editpat) {
+        var sql = 'UPDATE tabla_pacientes SET NombrePaciente = ?, ApellidoPaciente = ?  WHERE (idtabla_pacientes=?)'
+        con.query(sql,[editpat.NombrePaciente,editpat.ApellidoPaciente,editpat.idtabla_pacientes], function (err, result) {
+            console.log("Edited Patient");
+        });
+    });
+    // ADD PATIENT IN DATABASE
+    socket.on('insertPatient', function(patient) {
+        var sql = "INSERT INTO tabla_pacientes (NombrePaciente, ApellidoPaciente) VALUES (?)";
+        con.query(sql,[patient], function (err, result) {
+            if (err) throw err;
+            console.log("1 record Patient");
+        });
+    });
+
+    //DOWNLOAD PATIENT LIST (DATABASE)
+    socket.on('download_patients',function(res){
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('My Sheet');
+        worksheet.columns = [
+            { header: 'Id Patient', key: 'idtabla_pacientes', width: 10 },
+            { header: 'First Name', key: 'NombrePaciente', width: 10 },
+            { header: 'Last Name', key: 'ApellidoPaciente', width: 10 }
+        ];
+        var sql = "SELECT * FROM tabla_pacientes";
+        con.query(sql, function (err, patients_list) {
+            if (err) throw err;
+            datitos=patients_list;
+            //console.log(datitos);
+                for (var i = 0; i < patients_list.length; i++) {
+                    worksheet.addRow((patients_list[i]));
+                }   
+            workbook.xlsx.writeFile("Patients_DB.xlsx");
+        });     
+    })
+    app.get('/downloadpatients', (req, res) => setTimeout(function(){ res.download('./Patients_DB.xlsx'); }, 100))
+
+
+    
+    // ADD THERAPIST IN DATABASE
+    socket.on('insertTherapist', function(therapist) {
+        var sql = "INSERT INTO tabla_terapeutas (NombreTerapeuta, ApellidoTerapeuta, Centro) VALUES (?)";
+        con.query(sql,[therapist], function (err, result) {
+            if (err) throw err;
+            console.log("1 record Therapist");
+        });
+    });
+
+    //EDIT THERAPIST DATABASE
+    socket.on('edit_therapist', function(editpat) {
+        var sql = 'UPDATE tabla_terapeutas SET NombreTerapeuta = ?, ApellidoTerapeuta = ?, Centro = ?  WHERE (idtabla_terapeutas=?)'
+        con.query(sql,[editpat.NombreTerapeuta,editpat.ApellidoTerapeuta, editpat.Centro,editpat.idtabla_terapeutas], function (err, result) {
+            console.log("Edited therapist");
+        });
+    });
+
+    //DELET THERAPIST DATABASE
+    socket.on('deleted_therapist', function(iddeleted) {
+        var sql = "DELETE FROM tabla_terapeutas WHERE idtabla_terapeutas="+iddeleted;
+        con.query(sql, function (err, result) {
+            console.log("Delet Therapist");
+        });
+    });  
+
+    //DOWNLOAD PATIENT LIST (DATABASE)
+    socket.on('download_therapist',function(res){
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Therapists');
+        worksheet.columns = [
+            { header: 'Id Therapist', key: 'idtabla_terapeutas', width: 10 },
+            { header: 'First Name', key: 'NombreTerapeuta', width: 10 },
+            { header: 'Last Name', key: 'ApellidoTerapeuta', width: 10 }
+        ];
+        var sql = "SELECT * FROM tabla_terapeutas";
+        con.query(sql, function (err, therapist_list) {
+            if (err) throw err;
+                for (var i = 0; i < therapist_list.length; i++) {
+                    worksheet.addRow((therapist_list[i]));
+                }   
+            workbook.xlsx.writeFile("Therapists_DB.xlsx");
+        });     
+    })
+    app.get('/downloadtherapists', (req, res) => setTimeout(function(){ res.download('./Therapists_DB.xlsx'); }, 100))
 
     // Move the platform manualy. Listen traction:message events 
     // and send UDP data to the platform (called in move.js)

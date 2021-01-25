@@ -1,5 +1,37 @@
 const socket = io();
 
+//Call to database
+socket.emit('refreshlist');
+var patient_select = [];
+var therapist_select = [];
+var datapatients ={};
+var datatherapists={};
+socket.on('patientdata',function(datapatient){
+    for (i = 0; i < datapatient.length; i++){
+        let patient = datapatient[i].NombrePaciente +" " +datapatient[i].ApellidoPaciente;
+        patient_select.push(patient);  
+    }
+
+    for(var i in patient_select)
+    { 
+        document.getElementById("patients-list").innerHTML += "<option value='"+patient_select[i]+"'>"+patient_select[i]+"</option>"; 
+    }
+    datapatients=datapatient;
+})
+socket.on('therapistdata',function(datatherapist){
+    //console.log(datatherapist);
+    for (i = 0; i < datatherapist.length; i++){
+        let therapist = datatherapist[i].NombreTerapeuta +" " +datatherapist[i].ApellidoTerapeuta;
+        therapist_select.push(therapist);
+    }
+ 
+    for(var i in therapist_select)
+    { 
+        document.getElementById("therapists-list").innerHTML += "<option value='"+therapist_select[i]+"'>"+therapist_select[i]+"</option>"; 
+    }
+    datatherapists=datatherapist;
+})
+
 // Trigger modal
 $( document ).ready( function() {
     $("#myModal").modal('show');
@@ -11,7 +43,6 @@ $('#myModal').modal({
     backdrop: 'static',
     keyboard: false
 })
-
 
 window.onload = function(){ 
     // Updates the therapist and patient name according to the selected names in the "login" popup.
@@ -84,8 +115,7 @@ window.onload = function(){
                 left_knee_config: document.getElementById("left_knee_config").value,
                 right_knee_config: document.getElementById("right_knee_config").value,
                 left_hip_config: document.getElementById("left_hip_config").value,
-                right_hip_config: document.getElementById("right_hip_config").value
-                
+                right_hip_config: document.getElementById("right_hip_config").value                
             })
             // Redirect to the therapy monitoring window
             location.replace("therapy_monitoring.html")

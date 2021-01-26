@@ -11,9 +11,14 @@
     <link rel="stylesheet" href="assets/css/google-fonts-montserrat.css">
     <link rel="stylesheet" href="assets/css/cloudflareAjaxBaguetteboxbaguetteBox.min.css">
     <link rel="stylesheet" href="assets/css/smoothproducts.css">
+    <link rel="stylesheet" href="assets/css/move_arrows.css">
+
+    <!-- Solid Fontawesome icons-->
+    <script src="assets/js/v5.15.1jsall.js" data-auto-replace-svg></script>
+    <link rel="stylesheet" href="assets/css/v508csssolid.css">
 </head>
 
-<body id="page-top" scroll="no" style="touch-action: none; overflow: hidden;">
+<body id="page-top" >
     <div id="wrapper">
         <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
             <div class="container-fluid d-flex flex-column p-0">
@@ -28,7 +33,6 @@
                     <li class="nav-item" role="presentation"><a class="nav-link active" href="move.html"><i class="fas fa-arrows-alt"></i><span> Move</span></a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link active" href="therapy_settings.html"><i class="fas fa-clinic-medical"></i><span> Therapy</span></a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link active" href="fes.html"><i class="fas fa-bolt"></i><span> FES</span></a></li>
-                    
                 </ul>
                 <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
             </div>
@@ -61,48 +65,106 @@
                         </ul>
                      </div>
                 </nav>
-            <div  style="text-align:center" class="container-fluid">
-                <h1>
-                    Move the platform </h1>
-                <h3>
-                    Speed: <span id="speed"> 0 </span> %
-                    Angle: <span id="angle"> 0 </span>
-                </h3>
-            
-                <canvas id="canvas" name="game"></canvas>
-                <script src="socket.io/socket.io.js"></script>
-                <script src="assets/js/move.js"></script>
+                <div class="container-fluid">
+                    <div >
+                        <h1>Move the platform </h1>
+                        <br> 
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6 col-xl-4">
+                            <div class="card shadow mb-4">
+                                <div class="card-body">
+                                    <div class="chart-area">
+                                        <label for="velocity">
+                                            <h3>
+                                                Select Velocity:          
+                                            </h3>
+                                            <h3  class="btn btn-secondary" id="velocity_html">
+                                                50%
+                                            </h3>
+                                        </label>
+                                        <div class="form-group velocity">
+                                            <input class="form-control-range" id="velocity_input" type="range">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-xl-8">
+                            <div class="card shadow mb-4">
+                                <div class="card-body">
+                                    <div class="chart-area">
+                                        <h3>
+                                            Select Direction:          
+                                        </h3>
+                                        <h3  class="btn btn-secondary" id="direction_html">
+                                            Stop
+                                        </h3>
+                                        <div class="move_left icon">
+                                            <div id="move_left" class="arrow arrow_left"></div>
+                                        </div>
+                                        <div class="move_fordward icon">
+                                            <div id="move_fordward" class="arrow arrow_fordward"></div>
+                                        </div>
+                                        <div class="move_backwards icon">
+                                            <div id="move_backwards" class="arrow arrow_backwards"></div>
+                                        </div>
+                                        <div class="move_right icon">
+                                            <div id="move_right" class="arrow arrow_right"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 
+                        <div class="col-lg-6 col-xl-10">
+                            <div class="card shadow mb-4">
+                                <div class="card-body">
+                                    <div class="chart-area">
+                                        <div class="row">
+                                            <div class="col-sm-4">
+                                                <div class="move_left icon">
+                                                    <div id="move_left" class="arrow arrow_left"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="row">
+                                                    <div class="move_fordward icon">
+                                                        <div id="move_fordward" class="arrow arrow_fordward"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="move_backwards icon">
+                                                        <div id="move_backwards" class="arrow arrow_backwards"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="move_right icon">
+                                                    <div id="move_right" class="arrow arrow_right"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        -->
+                    </div>
+                    <script src="socket.io/socket.io.js"></script>
+                    <script src="move.js"></script>
+                </div>            
             </div>
-            
-        </div>
-        <footer class="bg-white sticky-footer">
-            <div class="container my-auto">
-                <div class="text-center my-auto copyright"><span>Copyright © CPWalker 2020</span></div>
-            </div>
-        </footer>
-    </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a></div>
+            <footer class="bg-white sticky-footer">
+                <div class="container my-auto">
+                    <div class="text-center my-auto copyright"><span>Copyright © CPWalker 2020</span></div>
+                </div>
+            </footer>
+        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a></div>
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/js/cdnjsCloudflareAjaxLibsJquery-easing141Jquery.easing.js"></script>
-
-    <script src="assets/js/theme.js"></script>
-    <script>
-        
-        $('html, body').on('touchstart touchmove', function(e){ 
-        //prevent native touch activity like scrolling
-        e.preventDefault();  
-        });
-
-        function openFullscreen() {
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen();
-            } else if (elem.webkitRequestFullscreen) { /* Safari */
-                elem.webkitRequestFullscreen();
-            } else if (elem.msRequestFullscreen) { /* IE11 */
-                elem.msRequestFullscreen();
-            }
-        }
-    </script>
 </body>
 
 </html>

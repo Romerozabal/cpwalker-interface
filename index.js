@@ -27,7 +27,7 @@ var s_weight = dgram.createSocket('udp4');
 var s_can = dgram.createSocket('udp4');
 var s_pos = dgram.createSocket('udp4');
 // UDP constants to send data
-const CPWALKER_IP = '192.168.4.1';
+const CPWALKER_IP = '192.168.4.2';
 const LOCAL_IP = 'localhost';
 const EXO_PORT = 50011; //Exoskeleton port
 const WEIGHT_PORT = 50015; //Patient weight control
@@ -283,7 +283,7 @@ io.on('connection', (socket) => {
     
     // Save therapy settings in a JSON file.
     socket.on('settings:save_settings', (data) => {
-        fs.writeFileSync('config/therapySettings.json', JSON.stringify(data), function (err){
+        fs.writeFileSync('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', JSON.stringify(data), function (err){
             if (err) throw err;
             console.log('Therapy settings saved!')
         })
@@ -292,7 +292,7 @@ io.on('connection', (socket) => {
     // Show therapy settings in the monitoring screen.
     socket.on('monitoring:ask_therapy_settings', function(callbackFn) {
         // Read therappy settings from config file.
-        fs.readFile('config/therapySettings.json', (err, data) => {
+        fs.readFile('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', (err, data) => {
             if (err) throw err;
             let config = JSON.parse(data);
             console.log(config);
@@ -432,7 +432,7 @@ function configureStartPos() {
     var pat_weight
     var pbws;
     // Get therapy settings from json file
-    fs.readFile('config/therapySettings.json', (err, data) => {
+    fs.readFile('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', (err, data) => {
         if (err) throw err;
         // Get json object
         let config = JSON.parse(data);
@@ -495,7 +495,7 @@ function startTherapy() {
     var check_gauges;
     var weight_ref;
     // Read therappy settings from config file.
-    fs.readFile('config/therapySettings.json', (err, data) => {
+    fs.readFile('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', (err, data) => {
         if (err) throw err;
         // Get json object
         let config = JSON.parse(data);

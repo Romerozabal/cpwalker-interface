@@ -71,6 +71,7 @@ var mysql = require('mysql');
 ////////////////////////////////////
 //
 const ExcelJS = require('exceljs');
+const { parse } = require('path');
 
 //////////////////////////////
 //***** Data Reception *****//
@@ -144,6 +145,7 @@ database: "cpwdb"
 // Websockets
 io.on('connection', (socket) => {
     console.log('new connection', socket.id);
+    resetTexas();
     var datitos=[];
 
     //
@@ -385,6 +387,15 @@ io.on('connection', (socket) => {
     socket.on('monitoring:stop', function(callbackFn) {
         stopTherapy();
     });
+
+    // Update joint chart plots.
+    socket.on('FES:configuration', function(data) {
+        var stimulation_point = data.stimulation_point;
+        //console.log(data.channels, data.current, data.pw, data.main_freq, data.mode)
+        var trama = configFES(data.channels, data.current, data.pw, data.main_freq, data.mode);
+        setTimeout(sendUDP(trama,50017,CPWALKER_IP), 50);
+        sendUDP(trama,8080,"localhost");        
+    });
 })
 
 ///////////////////
@@ -392,6 +403,78 @@ io.on('connection', (socket) => {
 ///////////////////
 //
 // Move manually the robotic platform 
+function resetTexas () {
+    sendUDP(255,9999,CPWALKER_IP);
+}
+
+function configFES (channels, current, pw ,main_freq, group_time, mode) {   
+    // channels: Stimulator channels to be sued (example:'00100011' // Canales activos, segun orden descendente:1 (tibial), 2(Gastrocnemios) y 5 (Cuádriceps))    
+    // current: Stimulation Current [mA]
+    // pw: Pulse width [us]
+    // main_freq: Attendance frequency [hz]
+    // group_time: Attendance frequency between groups (doublets and triplets)
+    // mode: Mode of assistance: single pulses, doublets and triplets
+       
+    // Channels:
+    channels_dec = parseInt(channels,2); 
+    console.log("channels_dec: " + channels_dec);
+
+    // Main frequency
+    period = Math.abs((1/main_freq)*1000); // sec to msec
+    console.log("period: " + period);
+    period_mod = period-1;             // Datasheet: period=main_time*.5ms + 1ms
+    console.log("period_mod: " + period_mod);
+    main_time = period_mod/.5;
+    console.log("main_time: " + main_time);
+    main_time_bin = parseInt(main_time,10).toString(2); 
+    console.log("main_time_bin: " + main_time_bin);
+    main_time_bin = binaryResize (main_time_bin, 11)
+    console.log("main_time_bin (11): " + main_time_bin);
+
+    // Group frequency (neceista tamaño 8 bits)
+    console.log("group_time: " + group_time);
+    group_time_bin = parseInt(group_time).toString(2); // Conver to binary
+    console.log("group_time_bin: " + group_time_bin);
+    group_time_bin = binaryResize (group_time_bin, 8); // Resize binary number
+    console.log("group_time_bin (8): " + group_time_bin);
+
+    // Frequency configuration   
+    var crc_update_bin = ('100' + binaryResize(parseInt((channels_dec + main_time + group_time) % 8 , 10).toString(2), 3) + '00'); // Update sequence
+    var crc_update =  parseInt(crc_update_bin, 2);
+    console.log("crc_update: " + crc_update);
+    console.log("crc_update_bin: " + crc_update_bin);
+
+    var tren_set = [crc_update,  parseInt('00'+channels.substr(0,channels.length-2),2) , parseInt('0'+channels.substr(channels.length-1,2)+'00000',2) , parseInt('000000'+ group_time_bin.substr(0,2),2) , parseInt('0'+group_time_bin.substr(group_time.length-2,2)+main_time_bin.substr(0,4),2) , parseInt('0'+main_time_bin.substr(4,main_time_bin.length-4),2)]; // Attendance sequence    
+
+    // Pulse width
+    pw_bin=parseInt(pw).toString(2); 
+    pw_bin = binaryResize(pw_bin,9);
+    console.log("pw_bin: " + pw_bin);
+
+
+    // Current
+    crc_update_bin = parseInt('101' + binaryResize(parseInt((pw + current + mode) % 32).toString(2), 5));
+    crc_update = parseInt(crc_update_bin, 2);
+    tramaStim  = [crc_update, parseInt('0' + binaryResize(parseInt(mode).toString(2),2) + '000' + pw_bin.substr(0,2), 2), parseInt('0' + pw_bin.substr(2,pw_bin.length), 2), current, 0, 0, 0, 0, 0, 0];
+    trama = tren_set.concat(tramaStim);
+    console.log("crc_update_bin (8): " + crc_update_bin);
+    console.log("tramaStim: " + tramaStim);
+    console.log("tren_set: " + tren_set);
+    console.log("trama: " + trama);
+    return trama;
+}
+
+function binaryResize (data, size) {
+    var dataResized = '';
+    for (let index = 0; index <= size; index++) {
+        if (index <= data.length) {
+            dataResized = dataResized + data.charAt(index);
+        } else {
+            dataResized = '0' + dataResized;
+        }
+    }
+    return dataResized;
+}
 function moveManually(data) {
     //Get values 
     w_r = data.w_right;
@@ -410,10 +493,10 @@ function moveManually(data) {
     } else {
         cmd_traction_mode = 10; //10 -> Manual control
     }
-    var trac_manual = [cmd_start, cmd_v_r, cmd_v_l, cmd_traction_mode];
+    var trac_manual = [cmd_start, cmd_v_l, cmd_v_r, cmd_traction_mode];
     // Send UDP Mesage:
     stopExo();
-    sendUDP(trac_manual,TRACTION_PORT, CPWALKER_IP); 
+    setTimeout(sendUDP(trac_manual, TRACTION_PORT, CPWALKER_IP), 50);
 }
 
 // Configure robot with the therapy settings and move to start position.  
@@ -441,7 +524,7 @@ function configureStartPos() {
         cmd_v_r = 50; // Velocity of right wheel 0 
         cmd_v_l = 50; // Velocity of left wheel 0
         cmd_traction_mode = 0;
-        trac_config = [cmd_start, cmd_v_r, cmd_v_l, cmd_traction_mode];
+        trac_config = [cmd_start, cmd_v_l, cmd_v_r, cmd_traction_mode];
         // Weight support config
         calibrate = 1;
         pat_weight = parseInt(config.weight);
@@ -471,9 +554,9 @@ function configureStartPos() {
         exo_config[4] = parseInt(config.rom);
         exo_config[5] = parseInt(config.leg_length);
         // Send data to the robot
-        sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP); 
-        sendUDP(weight_conf, WEIGHT_PORT, CPWALKER_IP);   
-        sendUDP(exo_config, EXO_PORT, CPWALKER_IP);  
+        setTimeout(sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP), 50);
+        setTimeout(sendUDP(weight_conf, WEIGHT_PORT, CPWALKER_IP), 50);
+        setTimeout(sendUDP(exo_config, EXO_PORT, CPWALKER_IP), 50);
     });
 }
 
@@ -514,7 +597,7 @@ function startTherapy() {
             cmd_v_r = 50; // Velocity of right wheel 0 
             cmd_v_l = 50; // Velocity of left wheel 0
             cmd_traction_mode = 20;
-            trac_config = [cmd_start, cmd_v_r, cmd_v_l, cmd_traction_mode];
+            trac_config = [cmd_start, cmd_v_l, cmd_v_r, cmd_traction_mode];
             // Impedance config
             cal_imp = 1;
             niv_imp = 0;
@@ -552,7 +635,7 @@ function startTherapy() {
             cmd_v_r = 50; // Velocity of right wheel 0 
             cmd_v_l = 50; // Velocity of left wheel 0
             cmd_traction_mode = 20; // Traction in "Auto" mode
-            trac_config = [cmd_start, cmd_v_r, cmd_v_l, cmd_traction_mode];
+            trac_config = [cmd_start, cmd_v_l, cmd_v_r, cmd_traction_mode];
             // Impedance config
             cal_imp = 1;
             if (config.control_mode == "h_impedance") {niv_imp = 3;}
@@ -587,9 +670,9 @@ function startTherapy() {
             exo_config[5] = parseInt(config.leg_length);
         }
         // Send data to the robot
-        sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP);
-        sendUDP(imp_config, IMPEDANCE_PORT, CPWALKER_IP);
-        sendUDP(exo_config, EXO_PORT, CPWALKER_IP);     
+        setTimeout(sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP), 50);
+        setTimeout(sendUDP(imp_config, IMPEDANCE_PORT, CPWALKER_IP), 50);
+        setTimeout(sendUDP(exo_config, EXO_PORT, CPWALKER_IP), 50);
     });
 }
 
@@ -611,10 +694,10 @@ function stopTherapy() {
     cmd_v_r = 50; // Velocity of right wheel 0 
     cmd_v_l = 50; // Velocity of left wheel 0
     cmd_traction_mode = 0; // Stop traction
-    trac_config = [cmd_start, cmd_v_r, cmd_v_l, cmd_traction_mode];
+    trac_config = [cmd_start, cmd_v_l, cmd_v_r, cmd_traction_mode];
     // Send data
-    sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP);
-    sendUDP(exo_config, EXO_PORT, CPWALKER_IP);  
+    setTimeout(sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP), 50);
+    setTimeout(sendUDP(exo_config, EXO_PORT, CPWALKER_IP), 50);
 }
 
 function stopExo() {
@@ -623,7 +706,7 @@ function stopExo() {
    // Exoskeleton config and move to initial position.
    exo_config = [0,0,0,0,0,0,0,0];
    // Send data
-   sendUDP(exo_config, EXO_PORT, CPWALKER_IP);  
+   setTimeout(sendUDP(exo_config, EXO_PORT, CPWALKER_IP), 50);
 }
 
 // Sends COMMAND(array of numbers) to a PORT(int) of a specific IP(string)
@@ -637,9 +720,14 @@ function sendUDP(COMMAND, PORT, IP) {
             COMMAND_HEX[index] = (COMMAND[index]).toString(16);
         }
     }
-    var msg = Buffer.from(COMMAND_HEX.join(''),'hex');
+    if (COMMAND_HEX.length > 1) {
+        var msg = Buffer.from(COMMAND_HEX.join(''),'hex');
+    } else {
+        var msg = Buffer.from(COMMAND_HEX,'hex');
+    }
+
     udp_send.send(msg, PORT, IP);
-    console.log(`PORT:` + PORT + '; COMMAND: ' + COMMAND + '; COMMAND_HEX: ' + COMMAND_HEX.join('')); 
+    console.log(`PORT:` + PORT + '; COMMAND: ' + COMMAND + '; COMMAND_HEX: ' + COMMAND_HEX); 
 }
 
 // Decode joint real and reference angle values. Get the coded_value and returns an array 

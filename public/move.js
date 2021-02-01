@@ -1,11 +1,15 @@
 const socket = io();
 
 var speed = 50;
+var direction;
 
 window.onload = function(){ 
   document.getElementById("velocity_input").onclick = function() {
     speed = document.getElementById("velocity_input").value;
     document.getElementById("velocity_html").innerHTML = speed + "%";
+    if (direction != "stop"){
+      sendTraction(direction, speed);
+    }
   };
 }
 
@@ -27,10 +31,11 @@ var move_backwards = false;
 $arrow_right.onclick = () => {
   if (move_right) {
     move_right = false;
-    sendTraction("right", 0);
+    sendTraction("stop", 0);
   } else {
     move_right = true;
     document.getElementById("direction_html").innerHTML = "Right...";
+    direction = "right";
     sendTraction("right", speed);
   }
   $arrow_right.animate([
@@ -45,10 +50,11 @@ $arrow_right.onclick = () => {
 $arrow_left.onclick = () => {
   if (move_left) {
     move_left = false;
-    sendTraction("left", 0);
+    sendTraction("stop", 0);
   } else {
     move_left = true;
     document.getElementById("direction_html").innerHTML = "Left...";
+    direction = "left";
     sendTraction("left", speed);
     $arrow_left.animate([
       {left: '0'},
@@ -64,10 +70,11 @@ $arrow_left.onclick = () => {
 $arrow_fordward.onclick = () => {
   if (move_fordward) {
     move_fordward = false;
-    sendTraction("fordward", 0);
+    sendTraction("stop", 0);
   } else {
     move_fordward = true;
     document.getElementById("direction_html").innerHTML = "Fordward...";
+    direction = "fordward";
     sendTraction("fordward", speed);
   }
   $arrow_fordward.animate([
@@ -86,6 +93,7 @@ $arrow_backwards.onclick = () => {
   } else {
     move_backwards = true;
     document.getElementById("direction_html").innerHTML = "Backwards...";
+    direction = "backwards";
     sendTraction("backwards", speed);
   }
   $arrow_backwards.animate([
@@ -120,6 +128,9 @@ function sendTraction(direction, speed){
     } else if (direction == "fordward") {
       w_r = speed;
       w_l = speed;
+    } else if (direction == "stop") {
+      w_r = speed;
+      w_l = speed;
     }
     
     // Send data to server
@@ -127,6 +138,4 @@ function sendTraction(direction, speed){
         w_right: w_r,
         w_left: w_l
     })
-
-    console.log(w_r, w_l);
 }

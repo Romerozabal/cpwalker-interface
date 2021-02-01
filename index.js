@@ -393,7 +393,10 @@ io.on('connection', (socket) => {
         var stimulation_point = data.stimulation_point;
         //console.log(data.channels, data.current, data.pw, data.main_freq, data.mode)
         var trama = configFES(data.channels, data.current, data.pw, data.main_freq, data.mode);
-        setTimeout(sendUDP(trama,50017,CPWALKER_IP), 50);
+        sendUDP(trama,50017,CPWALKER_IP);
+        (async () => {
+            await new Promise(resolve => setTimeout(resolve, 50));        
+        })();
         sendUDP(trama,8080,"localhost");        
     });
 })
@@ -496,7 +499,10 @@ function moveManually(data) {
     var trac_manual = [cmd_start, cmd_v_l, cmd_v_r, cmd_traction_mode];
     // Send UDP Mesage:
     stopExo();
-    setTimeout(sendUDP(trac_manual, TRACTION_PORT, CPWALKER_IP), 50);
+    (async () => {
+        await new Promise(resolve => setTimeout(resolve, 50));        
+    })();
+    sendUDP(trac_manual, TRACTION_PORT, CPWALKER_IP);
 }
 
 // Configure robot with the therapy settings and move to start position.  
@@ -554,9 +560,21 @@ function configureStartPos() {
         exo_config[4] = parseInt(config.rom);
         exo_config[5] = parseInt(config.leg_length);
         // Send data to the robot
-        setTimeout(sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP), 50);
-        setTimeout(sendUDP(weight_conf, WEIGHT_PORT, CPWALKER_IP), 50);
+        (async () => {
+            await new Promise(resolve => setTimeout(resolve, 50));        
+        })();
+        sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP);
+        (async () => {
+            await new Promise(resolve => setTimeout(resolve, 50));        
+        })();
+        sendUDP(weight_conf, WEIGHT_PORT, CPWALKER_IP);
+        (async () => {
+            await new Promise(resolve => setTimeout(resolve, 50));        
+        })();
         setTimeout(sendUDP(exo_config, EXO_PORT, CPWALKER_IP), 50);
+        (async () => {
+            await new Promise(resolve => setTimeout(resolve, 50));        
+        })();
     });
 }
 
@@ -670,9 +688,21 @@ function startTherapy() {
             exo_config[5] = parseInt(config.leg_length);
         }
         // Send data to the robot
-        setTimeout(sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP), 50);
-        setTimeout(sendUDP(imp_config, IMPEDANCE_PORT, CPWALKER_IP), 50);
-        setTimeout(sendUDP(exo_config, EXO_PORT, CPWALKER_IP), 50);
+        (async () => {
+            await new Promise(resolve => setTimeout(resolve, 50));        
+        })();
+        sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP);
+        (async () => {
+            await new Promise(resolve => setTimeout(resolve, 50));        
+        })();
+        sendUDP(imp_config, IMPEDANCE_PORT, CPWALKER_IP);
+        (async () => {
+            await new Promise(resolve => setTimeout(resolve, 50));        
+        })();
+        sendUDP(exo_config, EXO_PORT, CPWALKER_IP);
+        (async () => {
+            await new Promise(resolve => setTimeout(resolve, 50));        
+        })();
     });
 }
 
@@ -696,8 +726,17 @@ function stopTherapy() {
     cmd_traction_mode = 0; // Stop traction
     trac_config = [cmd_start, cmd_v_l, cmd_v_r, cmd_traction_mode];
     // Send data
-    setTimeout(sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP), 50);
-    setTimeout(sendUDP(exo_config, EXO_PORT, CPWALKER_IP), 50);
+    (async () => {
+        await new Promise(resolve => setTimeout(resolve, 50));        
+    })();
+    sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP);
+    (async () => {
+        await new Promise(resolve => setTimeout(resolve, 50));        
+    })();
+    sendUDP(exo_config, EXO_PORT, CPWALKER_IP);
+    (async () => {
+        await new Promise(resolve => setTimeout(resolve, 50));        
+    })();
 }
 
 function stopExo() {
@@ -705,8 +744,11 @@ function stopExo() {
     var exo_config = [];
    // Exoskeleton config and move to initial position.
    exo_config = [0,0,0,0,0,0,0,0];
-   // Send data
-   setTimeout(sendUDP(exo_config, EXO_PORT, CPWALKER_IP), 50);
+   // Send data   
+   sendUDP(exo_config, EXO_PORT, CPWALKER_IP);
+   (async () => {
+    await new Promise(resolve => setTimeout(resolve, 50));        
+    })();
 }
 
 // Sends COMMAND(array of numbers) to a PORT(int) of a specific IP(string)

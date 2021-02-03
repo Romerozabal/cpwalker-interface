@@ -8,6 +8,7 @@ window.onload = function(){
     var stimulation_point = document.getElementById("stimulation_point").value;
     var current = document.getElementById("current").value;
     var pw = document.getElementById("pw").value;
+		var group_time = document.getElementById("group_time").value;
     var mode = document.getElementById("mode").value;
     var main_freq = document.getElementById("main_freq").value;
     socket.emit('FES:configuration', {
@@ -15,6 +16,7 @@ window.onload = function(){
       stimulation_point: stimulation_point,
       current : current,
       pw : pw,
+			group_time: group_time,
       mode : mode,
       main_freq : main_freq
     })

@@ -1,7 +1,13 @@
-var dgram = require('dgram');
+const dgram = require('dgram');
 const path = require('path'); // Modulo de nodejs para trabajar con rutas
 const express = require('express'); // Configurar express
-var fs = require('fs'); //  File System module
+const fs = require('fs'); //  File System module
+const {spawn} = require ('child_process');
+
+
+
+// Execute python program to control the rehaStym when server starts
+const python = spawn('python', ['rehaStym_configuration.py']);
 
 var PLOTSAMPLINGTIME = 35; //ms
 
@@ -391,9 +397,9 @@ io.on('connection', (socket) => {
     // Update joint chart plots.
     socket.on('FES:configuration', function(data) {
         var stimulation_point = data.stimulation_point;
-        //console.log(data.channels, data.current, data.pw, data.main_freq, data.mode)
-        var trama = configFES(data.channels, data.current, data.pw, data.main_freq, data.mode);
-        sendUDP(trama,50017,CPWALKER_IP);
+        console.log(data.channels, data.current, data.pw, data.main_freq, data.group_time, data.mode)
+        var trama = configFES(data.channels, data.current, data.pw, data.main_freq, data.group_time, data.mode);
+        sendUDP(trama,6000,LOCAL_IP);
         (async () => {
             await new Promise(resolve => setTimeout(resolve, 50));        
         })();
@@ -417,13 +423,14 @@ function configFES (channels, current, pw ,main_freq, group_time, mode) {
     // main_freq: Attendance frequency [hz]
     // group_time: Attendance frequency between groups (doublets and triplets)
     // mode: Mode of assistance: single pulses, doublets and triplets
-       
+    
+    console.log(channels, current, pw, main_freq, group_time, mode)
     // Channels:
     channels_dec = parseInt(channels,2); 
     console.log("channels_dec: " + channels_dec);
 
     // Main frequency
-    period = Math.abs((1/main_freq)*1000); // sec to msec
+    period = Math.abs((1/parseInt(main_freq))*1000); // sec to msec
     console.log("period: " + period);
     period_mod = period-1;             // Datasheet: period=main_time*.5ms + 1ms
     console.log("period_mod: " + period_mod);
@@ -435,6 +442,7 @@ function configFES (channels, current, pw ,main_freq, group_time, mode) {
     console.log("main_time_bin (11): " + main_time_bin);
 
     // Group frequency (neceista tamaño 8 bits)
+    group_time = parseInt(group_time);
     console.log("group_time: " + group_time);
     group_time_bin = parseInt(group_time).toString(2); // Conver to binary
     console.log("group_time_bin: " + group_time_bin);
@@ -442,21 +450,34 @@ function configFES (channels, current, pw ,main_freq, group_time, mode) {
     console.log("group_time_bin (8): " + group_time_bin);
 
     // Frequency configuration   
-    var crc_update_bin = ('100' + binaryResize(parseInt((channels_dec + main_time + group_time) % 8 , 10).toString(2), 3) + '00'); // Update sequence
-    var crc_update =  parseInt(crc_update_bin, 2);
-    console.log("crc_update: " + crc_update);
-    console.log("crc_update_bin: " + crc_update_bin);
+		console.log(channels_dec + main_time + group_time)
+		var modulo_8 = (channels_dec + main_time + group_time) % 8;
+		console.log("modulo_8: " + modulo_8)
+    var crc_second = binaryResize(parseInt((channels_dec + main_time + group_time) % 8).toString(2), 3);
+		console.log("crc_second: " + crc_second)
+    var crc_tren_bin = ('100' + binaryResize(parseInt((channels_dec + main_time + group_time) % 8).toString(2), 3) + '00'); // Update sequence
+    var crc_tren =  parseInt(crc_tren_bin, 2);
+    console.log("crc_tren: " + crc_tren);
+    console.log("crc_tren_bin: " + crc_tren_bin);
 
-    var tren_set = [crc_update,  parseInt('00'+channels.substr(0,channels.length-2),2) , parseInt('0'+channels.substr(channels.length-1,2)+'00000',2) , parseInt('000000'+ group_time_bin.substr(0,2),2) , parseInt('0'+group_time_bin.substr(group_time.length-2,2)+main_time_bin.substr(0,4),2) , parseInt('0'+main_time_bin.substr(4,main_time_bin.length-4),2)]; // Attendance sequence    
+    var tren_set = [crc_tren,  parseInt('00'+channels.substr(0,channels.length-2),2) , parseInt('0'+channels.substr(channels.length-2,2)+'00000',2) , parseInt('000000'+ group_time_bin.substr(0,2),2) , parseInt('0'+group_time_bin.substr(group_time.length-2,2)+main_time_bin.substr(0,4),2) , parseInt('0'+main_time_bin.substr(4,main_time_bin.length-4),2)]; // Attendance sequence    
 
     // Pulse width
+		pw = parseInt(pw);
     pw_bin=parseInt(pw).toString(2); 
     pw_bin = binaryResize(pw_bin,9);
+    console.log(pw);
     console.log("pw_bin: " + pw_bin);
 
 
     // Current
-    crc_update_bin = parseInt('101' + binaryResize(parseInt((pw + current + mode) % 32).toString(2), 5));
+		current = parseInt(current);
+    console.log(current);
+    console.log("Mode:");
+		mode = parseInt(mode);
+    console.log(mode);
+	  console.log(pw + current + mode);
+    crc_update_bin = '101' + binaryResize(((pw + current + mode) % 32).toString(2), 5);
     crc_update = parseInt(crc_update_bin, 2);
     tramaStim  = [crc_update, parseInt('0' + binaryResize(parseInt(mode).toString(2),2) + '000' + pw_bin.substr(0,2), 2), parseInt('0' + pw_bin.substr(2,pw_bin.length), 2), current, 0, 0, 0, 0, 0, 0];
     trama = tren_set.concat(tramaStim);
@@ -571,7 +592,7 @@ function configureStartPos() {
         (async () => {
             await new Promise(resolve => setTimeout(resolve, 50));        
         })();
-        setTimeout(sendUDP(exo_config, EXO_PORT, CPWALKER_IP), 50);
+        sendUDP(exo_config, EXO_PORT, CPWALKER_IP);
         (async () => {
             await new Promise(resolve => setTimeout(resolve, 50));        
         })();
@@ -762,12 +783,7 @@ function sendUDP(COMMAND, PORT, IP) {
             COMMAND_HEX[index] = (COMMAND[index]).toString(16);
         }
     }
-    if (COMMAND_HEX.length > 1) {
-        var msg = Buffer.from(COMMAND_HEX.join(''),'hex');
-    } else {
-        var msg = Buffer.from(COMMAND_HEX,'hex');
-    }
-
+    var msg = Buffer.from(COMMAND_HEX.join(''),'hex');
     udp_send.send(msg, PORT, IP);
     console.log(`PORT:` + PORT + '; COMMAND: ' + COMMAND + '; COMMAND_HEX: ' + COMMAND_HEX); 
 }

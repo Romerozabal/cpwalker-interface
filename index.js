@@ -79,6 +79,23 @@ var mysql = require('mysql');
 const ExcelJS = require('exceljs');
 const { parse } = require('path');
 
+
+
+
+///////////////////
+//** CLASSES **//
+///////////////////
+//
+// Class for the FES stimultion points
+var stimulationPoints = [];
+class stimulationFES {
+    constructor(joint, index, trama) {
+        this.joint = joint;
+        this.index = index;
+        this.trama = trama;
+    }
+}
+
 //////////////////////////////
 //***** Data Reception *****//
 //////////////////////////////
@@ -95,6 +112,9 @@ const { parse } = require('path');
 // Received data format: 
 // Joint data: 8 bytes in hexadecimal => [sign_real_pos, interger_real_pos, decimals_1_real_pos, decimals_2_real_pos, sign_ref_pos, interger_ref_pos, decimals_1_ref_pos, decimals_2_ref_pos]
 //
+// Trajectory references
+const hip_trajectory = [36.5585, 36.5259, 36.4962, 36.4689, 36.4408, 36.3909, 36.335, 36.271, 36.1943, 36.0842, 35.9539, 35.8015, 35.6229, 35.3996, 35.1472, 34.8671, 34.5588, 34.2085, 33.8337, 33.4375, 33.021, 32.5716, 32.1055, 31.6253, 31.1309, 30.6092, 30.0759, 29.5333, 28.982, 28.4101, 27.8326, 27.2519, 26.6686, 26.0712, 25.4745, 24.881, 24.2907, 23.6928, 23.0991, 22.5103, 21.9251, 21.3314, 20.7416, 20.1566, 19.576, 18.9904, 18.4092, 17.8328, 17.26, 16.6806, 16.1042, 15.5317, 14.9625, 14.3888, 13.8194, 13.2551, 12.6957, 12.1344, 11.5788, 11.0296, 10.4863, 9.943, 9.4059, 8.8751, 8.35, 7.8256, 7.307, 6.7943, 6.2873, 5.782, 5.2825, 4.789, 4.3013, 3.8162, 3.3365, 2.8623, 2.3931, 1.9264, 1.4649, 1.0089, 0.55876, 0.11339, -0.32492, -0.75545, -1.1777, -1.592, -1.9966, -2.3906, -2.7733, -3.1449, -3.503, -3.8462, -4.1732, -4.483, -4.7732, -5.0422, -5.2883, -5.5107, -5.7056, -5.8703, -6.0025, -6.1013, -6.1635, -6.1873, -6.1715, -6.117, -6.0199, -5.8784, -5.691, -5.4588, -5.1776, -4.8459, -4.4624, -4.0296, -3.5434, -3.0028, -2.408, -1.7637, -1.0667, -0.31824, 0.47919, 1.3179, 2.1989, 3.1186, 4.0724, 5.0499, 6.0517, 7.0737, 8.1109, 9.1527, 10.2008, 11.2518, 12.3017, 13.3403, 14.3718, 15.3946, 16.4062, 17.397, 18.3728, 19.3328, 20.2749, 21.189, 22.0824, 22.9548, 23.805, 24.6222, 25.4163, 26.1884, 26.9377, 27.6538, 28.3466, 29.0165, 29.6621, 30.2707, 30.8549, 31.416, 31.9538, 32.4557, 32.9354, 33.3942, 33.8315, 34.2332, 34.613, 34.9714, 35.3072, 35.6047, 35.8803, 36.136, 36.3716, 36.5725, 36.7541, 36.9172, 37.0604, 37.1663, 37.2525, 37.3207, 37.3704, 37.3856, 37.3845, 37.3695, 37.3407, 37.2817, 37.2124, 37.1364, 37.0547, 36.9514, 36.8478, 36.7477, 36.6527, 36.5465, 36.4502, 36.367, 36.2969, 36.2222, 36.1618, 36.1168, 36.085, 36.046, 36.0174, 35.9986, 35.9863];
+const knee_trajectory = [6.1418, 6.7972, 7.4686, 8.1689, 8.9067, 9.6842, 10.4966, 11.3337, 12.182, 13.0189, 13.8396, 14.6336, 15.3915, 16.1046, 16.7657, 17.3684, 17.9076, 18.3745, 18.7741, 19.1077, 19.3771, 19.5806, 19.725, 19.8135, 19.8487, 19.828, 19.7606, 19.6507, 19.5023, 19.3141, 19.0962, 18.8534, 18.5896, 18.303, 18.0026, 17.692, 17.3728, 17.0405, 16.7037, 16.3641, 16.0224, 15.6729, 15.3231, 14.9743, 14.6265, 14.2733, 13.9225, 13.5755, 13.2325, 12.8872, 12.5471, 12.213, 11.885, 11.5564, 11.2348, 10.9213, 10.6157, 10.3121, 10.0171, 9.7313, 9.4541, 9.1793, 8.9136, 8.6575, 8.4108, 8.1681, 7.9356, 7.7143, 7.5041, 7.2999, 7.108, 6.9295, 6.7647, 6.6084, 6.4679, 6.3452, 6.2412, 6.1513, 6.0831, 6.0383, 6.018, 6.0166, 6.0428, 6.0985, 6.185, 6.2962, 6.4408, 6.6206, 6.8362, 7.0798, 7.3613, 7.6824, 8.0437, 8.4363, 8.8715, 9.3514, 9.8765, 10.4366, 11.0446, 11.7028, 12.4117, 13.1596, 13.9608, 14.8179, 15.7311, 16.6869, 17.701, 18.7756, 19.9101, 21.0885, 22.3263, 23.6239, 24.9787, 26.3711, 27.8151, 29.3086, 30.8466, 32.4058, 33.9996, 35.624, 37.2719, 38.9172, 40.5709, 42.2259, 43.8718, 45.4793, 47.0568, 48.5956, 50.0841, 51.4928, 52.8325, 54.0975, 55.2796, 56.3539, 57.3346, 58.2194, 59.0042, 59.6669, 60.2264, 60.6839, 61.0388, 61.2726, 61.407, 61.4458, 61.3902, 61.2232, 60.9669, 60.6248, 60.1978, 59.6684, 59.0586, 58.3722, 57.6101, 56.7555, 55.8304, 54.839, 53.7822, 52.6441, 51.4464, 50.193, 48.8851, 47.5074, 46.0817, 44.6124, 43.1012, 41.5343, 39.9329, 38.3016, 36.6427, 34.943, 33.2247, 31.4935, 29.753, 27.9924, 26.2345, 24.4865, 22.7541, 21.028, 19.3339, 17.6818, 16.0799, 14.5222, 13.0349, 11.629, 10.3133, 9.0819, 7.9609, 6.9607, 6.0887, 5.3415, 4.7328, 4.2657, 3.9404, 3.7431, 3.6892, 3.7775, 4.0008, 4.3424, 4.7836, 5.2959, 5.8453];
 var left_knee_real; // Real value of the knee angular position
 var left_knee_ref; // Reference value (setpoint)
 var right_knee_real; // Real value of the knee angular position
@@ -136,6 +156,35 @@ s_right_hip.bind(10004);
 s_weight.bind(10005); 
 s_can.bind(10006);
 s_pos.bind(10007);
+
+
+
+setInterval(function () {
+    var element
+    for (let i = 0; i < stimulationPoints.length; i++) {
+        element = stimulationPoints[i]
+        if (element.joint == "l_hip" && ( hip_trajectory[element.index] > (left_hip_ref - 2) && (hip_trajectory[element.index] < (left_hip_ref + 2)))) {
+            sendUDP(element.trama,6000,LOCAL_IP);
+        } else {
+            //TODO: Send the 0 current of that configuration
+        }
+        if (element.joint == "r_hip" && (hip_trajectory[element.index] > (right_hip_ref - 2) && (hip_trajectory[element.index] < (right_hip_ref + 2)))){
+            sendUDP(element.trama,6000,LOCAL_IP);
+        } else {
+            //TODO: Send the 0 current of that configuration
+        }
+        if (element.joint == "r_knee" && (knee_trajectory[element.index] > (right_knee_ref - 2) && (knee_trajectory[element.index] < (right_knee_ref + 2)))){
+            sendUDP(element.trama,6000,LOCAL_IP);
+        } else {
+            //TODO: Send the 0 current of that configuration
+        }
+        if (element.joint == "l_knee" && (knee_trajectory[element.index] > (left_knee_ref - 2) && (knee_trajectory[element.index] < (left_knee_ref + 2)))){
+            sendUDP(element.trama,6000,LOCAL_IP);
+        } else {
+            //TODO: Send the 0 current of that configuration
+        }    
+    }
+}, 10);
 
 ///////////////////////////////////////
 //*** Server-Client communication ***//
@@ -290,8 +339,9 @@ io.on('connection', (socket) => {
     }, PLOTSAMPLINGTIME);
     
     // Save therapy settings in a JSON file.
-    socket.on('settings:save_settings', (data) => {
-        fs.writeFileSync('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', JSON.stringify(data), function (err){
+    socket.on('settings:save_settings', (data) => { 
+        //fs.writeFileSync('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', JSON.stringify(data), function (err){
+        fs.writeFileSync('config/therapySettings.json', JSON.stringify(data), function (err){
             if (err) throw err;
             console.log('Therapy settings saved!')
         })
@@ -300,7 +350,8 @@ io.on('connection', (socket) => {
     // Show therapy settings in the monitoring screen.
     socket.on('monitoring:ask_therapy_settings', function(callbackFn) {
         // Read therappy settings from config file.
-        fs.readFile('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', (err, data) => {
+        //fs.readFile('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', (err, data) => {
+        fs.readFile('config/therapySettings.json', (err, data) => {
             if (err) throw err;
             let config = JSON.parse(data);
             console.log(config);
@@ -396,14 +447,21 @@ io.on('connection', (socket) => {
 
     // Update joint chart plots.
     socket.on('FES:configuration', function(data) {
-        var stimulation_point = data.stimulation_point;
-        console.log(data.channels, data.current, data.pw, data.main_freq, data.group_time, data.mode)
-        var trama = configFES(data.channels, data.current, data.pw, data.main_freq, data.group_time, data.mode);
-        sendUDP(trama,6000,LOCAL_IP);
-        (async () => {
-            await new Promise(resolve => setTimeout(resolve, 50));        
-        })();
-        sendUDP(trama,8080,"localhost");        
+        //console.log(data.channels, data.current, data.pw, data.main_freq, data.group_time, data.mode)
+        var trama =  configFES(data.channels, data.current, data.pw, data.main_freq, data.group_time, data.mode);;
+        if (data.configuration == "test") {
+            sendUDP(trama,6000,LOCAL_IP);
+            (async () => {
+                await new Promise(resolve => setTimeout(resolve, 50));        
+            })();       
+        } else {
+            stimulationPoints.push(new stimulationFES(data.configuration, data.index, trama));
+            console.log(stimulationPoints)
+            socket.emit('FES:stimulation_points', {
+                stimulationPoints: stimulationPoints
+            })
+        }
+            
     });
 })
 
@@ -424,67 +482,68 @@ function configFES (channels, current, pw ,main_freq, group_time, mode) {
     // group_time: Attendance frequency between groups (doublets and triplets)
     // mode: Mode of assistance: single pulses, doublets and triplets
     
-    console.log(channels, current, pw, main_freq, group_time, mode)
+    //console.log(channels, current, pw, main_freq, group_time, mode)
     // Channels:
     channels_dec = parseInt(channels,2); 
-    console.log("channels_dec: " + channels_dec);
+    //console.log("channels: " + channels);
+    //console.log("channels_dec: " + channels_dec);
 
     // Main frequency
     period = Math.abs((1/parseInt(main_freq))*1000); // sec to msec
-    console.log("period: " + period);
+    //console.log("period: " + period);
     period_mod = period-1;             // Datasheet: period=main_time*.5ms + 1ms
-    console.log("period_mod: " + period_mod);
+    //console.log("period_mod: " + period_mod);
     main_time = period_mod/.5;
-    console.log("main_time: " + main_time);
+    //console.log("main_time: " + main_time);
     main_time_bin = parseInt(main_time,10).toString(2); 
-    console.log("main_time_bin: " + main_time_bin);
+    //console.log("main_time_bin: " + main_time_bin);
     main_time_bin = binaryResize (main_time_bin, 11)
-    console.log("main_time_bin (11): " + main_time_bin);
+    //console.log("main_time_bin (11): " + main_time_bin);
 
     // Group frequency (neceista tamaño 8 bits)
     group_time = parseInt(group_time);
-    console.log("group_time: " + group_time);
+    //console.log("group_time: " + group_time);
     group_time_bin = parseInt(group_time).toString(2); // Conver to binary
-    console.log("group_time_bin: " + group_time_bin);
+    //console.log("group_time_bin: " + group_time_bin);
     group_time_bin = binaryResize (group_time_bin, 8); // Resize binary number
-    console.log("group_time_bin (8): " + group_time_bin);
+    //console.log("group_time_bin (8): " + group_time_bin);
 
     // Frequency configuration   
-		console.log(channels_dec + main_time + group_time)
-		var modulo_8 = (channels_dec + main_time + group_time) % 8;
-		console.log("modulo_8: " + modulo_8)
+    //console.log(channels_dec + main_time + group_time)
+    var modulo_8 = (channels_dec + main_time + group_time) % 8;
+    //console.log("modulo_8: " + modulo_8)
     var crc_second = binaryResize(parseInt((channels_dec + main_time + group_time) % 8).toString(2), 3);
-		console.log("crc_second: " + crc_second)
+	//console.log("crc_second: " + crc_second)
     var crc_tren_bin = ('100' + binaryResize(parseInt((channels_dec + main_time + group_time) % 8).toString(2), 3) + '00'); // Update sequence
     var crc_tren =  parseInt(crc_tren_bin, 2);
-    console.log("crc_tren: " + crc_tren);
-    console.log("crc_tren_bin: " + crc_tren_bin);
+    //console.log("crc_tren: " + crc_tren);
+    //console.log("crc_tren_bin: " + crc_tren_bin);
 
     var tren_set = [crc_tren,  parseInt('00'+channels.substr(0,channels.length-2),2) , parseInt('0'+channels.substr(channels.length-2,2)+'00000',2) , parseInt('000000'+ group_time_bin.substr(0,2),2) , parseInt('0'+group_time_bin.substr(group_time.length-2,2)+main_time_bin.substr(0,4),2) , parseInt('0'+main_time_bin.substr(4,main_time_bin.length-4),2)]; // Attendance sequence    
 
     // Pulse width
-		pw = parseInt(pw);
+	pw = parseInt(pw);
     pw_bin=parseInt(pw).toString(2); 
     pw_bin = binaryResize(pw_bin,9);
-    console.log(pw);
-    console.log("pw_bin: " + pw_bin);
+    //console.log(pw);
+    //console.log("pw_bin: " + pw_bin);
 
 
     // Current
-		current = parseInt(current);
-    console.log(current);
-    console.log("Mode:");
-		mode = parseInt(mode);
-    console.log(mode);
-	  console.log(pw + current + mode);
+	//current = parseInt(current);
+    //console.log(current);
+    //console.log("Mode:");
+	mode = parseInt(mode);
+    //console.log(mode);
+	//console.log(pw + current + mode);
     crc_update_bin = '101' + binaryResize(((pw + current + mode) % 32).toString(2), 5);
     crc_update = parseInt(crc_update_bin, 2);
     tramaStim  = [crc_update, parseInt('0' + binaryResize(parseInt(mode).toString(2),2) + '000' + pw_bin.substr(0,2), 2), parseInt('0' + pw_bin.substr(2,pw_bin.length), 2), current, 0, 0, 0, 0, 0, 0];
     trama = tren_set.concat(tramaStim);
-    console.log("crc_update_bin (8): " + crc_update_bin);
-    console.log("tramaStim: " + tramaStim);
-    console.log("tren_set: " + tren_set);
-    console.log("trama: " + trama);
+    //console.log("crc_update_bin (8): " + crc_update_bin);
+    //console.log("tramaStim: " + tramaStim);
+    //console.log("tren_set: " + tren_set);
+    //console.log("trama: " + trama);
     return trama;
 }
 
@@ -542,7 +601,8 @@ function configureStartPos() {
     var pat_weight
     var pbws;
     // Get therapy settings from json file
-    fs.readFile('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', (err, data) => {
+    //fs.readFile('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', (err, data) => {
+    fs.readFile('config/therapySettings.json', (err, data) => {
         if (err) throw err;
         // Get json object
         let config = JSON.parse(data);
@@ -559,22 +619,21 @@ function configureStartPos() {
         weight_conf = [calibrate, pat_weight, pbws, 0];
         // Exoskeleton config and move to initial position.
         exo_config = [0,0,0,0,0,0,0,0];
-        if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 0; } 
-        if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 1; } 
-        if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 2; } 
-        if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 3; } 
-        if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 4; } 
-        if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 5; } 
-        if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 6; } 
-        if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 7; } 
-        if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 8; } 
-        if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 9; } 
-        if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 10;} 
-        if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 11;} 
-        if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 12;} 
-        if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 13;} 
-        if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 14;} 
-        if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 15;} 
+        // Encode selected joints.
+        var joints = [0,0,0,0]
+        if (config.right_hip_config == "enable") {
+            joints[0] = 1;
+        }
+        if (config.left_hip_config == "enable") {
+            joints[1] = 1;
+        }
+        if (config.right_knee_config == "enable") {
+            joints[2] = 1;
+        }
+        if (config.left_knee_config == "enable") {
+            joints[3] = 1;
+        }
+        exo_config[0] =   parseInt(joints.join(""), 2);
         exo_config[1] = 20; // Move to the start position.
         exo_config[2] = parseInt(config.steps);
         exo_config[3] = parseInt(config.gait_velocity);
@@ -616,8 +675,9 @@ function startTherapy() {
     var niv_imp;
     var check_gauges;
     var weight_ref;
-    // Read therappy settings from config file.
-    fs.readFile('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', (err, data) => {
+    // Read therappy settings from config file.    
+    //fs.readFile('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', (err, data) => {
+    fs.readFile('config/therapySettings.json', (err, data) => {
         if (err) throw err;
         // Get json object
         let config = JSON.parse(data);
@@ -645,22 +705,21 @@ function startTherapy() {
             imp_config = [cal_imp, niv_imp, check_gauges, weight_ref];
             // Exoskeleton config trajectory control mode.
             exo_config = [0,0,0,0,0,0,0,0];
-            if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 0; } 
-            if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 1; } 
-            if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 2; } 
-            if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 3; } 
-            if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 4; } 
-            if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 5; } 
-            if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 6; } 
-            if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 7; } 
-            if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 8; } 
-            if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 9; } 
-            if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 10;} 
-            if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 11;} 
-            if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 12;} 
-            if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 13;} 
-            if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 14;} 
-            if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 15;} 
+            // Encode selected joints.
+            var joints = [0,0,0,0]
+            if (config.right_hip_config == "enable") {
+                joints[0] = 1;
+            }
+            if (config.left_hip_config == "enable") {
+                joints[1] = 1;
+            }
+            if (config.right_knee_config == "enable") {
+                joints[2] = 1;
+            }
+            if (config.left_knee_config == "enable") {
+                joints[3] = 1;
+            }
+            exo_config[0] =   parseInt(joints.join(""), 2);
             exo_config[1] = 4; // Start motion in position control mode
             exo_config[2] = parseInt(config.steps);
             exo_config[3] = parseInt(config.gait_velocity);
@@ -686,22 +745,20 @@ function startTherapy() {
             imp_config = [cal_imp, niv_imp, check_gauges, weight_ref];
             // Exoskeleton config impedance control mode.
             exo_config = [0,0,0,0,0,0,0,0];
-            if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 0; } 
-            if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 1; } 
-            if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 2; } 
-            if (config.left_hip_config == "disable" && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 3; } 
-            if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 4; } 
-            if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 5; } 
-            if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 6; } 
-            if (config.left_hip_config == "disable" && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 7; } 
-            if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 8; } 
-            if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 9; } 
-            if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 10;} 
-            if (config.left_hip_config == "enable"  && config.right_hip_config == "disable" && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 11;} 
-            if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "disable") {exo_config[0] = 12;} 
-            if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "disable" && config.right_knee_config == "enable" ) {exo_config[0] = 13;} 
-            if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "disable") {exo_config[0] = 14;} 
-            if (config.left_hip_config == "enable"  && config.right_hip_config == "enable"  && config.left_knee_config == "enable"  && config.right_knee_config == "enable" ) {exo_config[0] = 15;} 
+            // Encode selected joints.
+            var joints = [0,0,0,0]
+            if (config.right_hip_config == "enable") {
+                joints[0] = 1;
+            }
+            if (config.left_hip_config == "enable") {
+                joints[1] = 1;
+            }
+            if (config.right_knee_config == "enable") {
+                joints[2] = 1;
+            }
+            if (config.left_knee_config == "enable") {
+                joints[3] = 1;
+            }
             exo_config[1] = 10; // Start motion in impedance control mode
             exo_config[2] = parseInt(config.steps);
             exo_config[3] = parseInt(config.gait_velocity);

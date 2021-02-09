@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="assets/css/fontawesome-all.min.css">
     <link rel="stylesheet" href="assets/css/google-fonts-montserrat.css">
     <link rel="stylesheet" href="assets/css/cloudflareAjaxBaguetteboxbaguetteBox.min.css">
-    <link rel="stylesheet" href="assets/css/smoothproducts.css">
 
     <!-- Solid Fontawesome icons-->
     <script src="assets/js/v5.15.1jsall.js" data-auto-replace-svg></script>
@@ -64,77 +63,152 @@
                         </ul>
                      </div>
                 </nav>
+                <!-- Start Modal if click on Test Stimulator  -->
+                <div id="modal_fes_config" class="modal fade" role="dialog" >
+                    <div class="modal-dialog">
+                        <div class="modal-content" >
+                            <div class="modal-body">
+                                <h3 id = "modal_fes_config_title">Test Stimulator </h3>
+                                <button id= "fes_angle" class="btn btn-outline-primary" value="-1"> Angle: 0 </button>
+                                <br> 
+                                <form>
+                                    <div class="form-row">
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label for="channels" class = "centered"> <strong>Channels:</strong></label>
+                                                <div class="form-row">
+                                                    <div class="col">
+                                                        <div class="btn btn-secondary" id="channel0" value="0" > Channel 0 </div>
+                                                        <br>
+                                                        <br>
+                                                        <div class="btn btn-secondary" id="channel1" value="0"> Channel 1 </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="btn btn-secondary" id="channel2" value="0"> Channel 2 </div>
+                                                        <br>
+                                                        <br>
+                                                        <div class="btn btn-secondary" id="channel3" value="0"> Channel 3 </div>
+                                                    </div>
+                                                    <div class="col">                                                        
+                                                        <div class="btn btn-secondary" id="channel4" value="0"> Channel 4 </div>
+                                                        <br>
+                                                        <br>
+                                                        <div class="btn btn-secondary" id="channel5" value="0"> Channel 5 </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="btn btn-secondary" id="channel6" value="0"> Channel 6 </div>
+                                                        <br>
+                                                        <br>
+                                                        <div class="btn btn-secondary" id="channel7" value="0"> Channel 7 </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label for="current">
+                                                    <strong>Current (mA)</strong>
+                                                </label>
+                                                <input class="form-control" id="current" type="number" placeholder="6">
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label for="leg_length">
+                                                    <strong>Pulse width (us)</strong>
+                                                </label>
+                                                <input class="form-control" id="pw" type="number" placeholder="250">
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label for="main_freq">
+                                                    <strong>Main frequency</strong>
+                                                </label>
+                                                <input class="form-control" id="main_freq" type="number" placeholder="40">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label for="group_time">
+                                                    <strong>Attendance frequency between groups (doublets and triplets)</strong>
+                                                </label>
+                                                <input class="form-control" id="group_time" type="number" placeholder="0">
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label for="mode">
+                                                    <strong>Mode of assistance: single pulses(0) | doublets(1) | triplets(2) </strong>
+                                                </label>
+                                                <input class="form-control" id="mode" type="number" placeholder="0">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                                <button class="btn btn-primary btn-xl" id="fes_config" value="test" type="submit" >Test</button>
+                            </div>  
+                        </div>
+                    </div>
+                </div>
                 <div class="container-fluid">
                     <div >
                         <h1>Functional Electrical Stimulation (FES) </h1>
                         <br> 
+                        <button id="test_stimulator" class="btn btn-primary"> Test Stimulator </button>              
+                    </div>
+                    <br> 
+                        <!-- Joint Charts-->
+                    <div id = "jointCharts" class="card shadow mb-4">
+
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="text-primary font-weight-bold m-0">Right Hip</h6>
+                        </div>
                         <div class="card-body">
-                            <form>
-                                <div class="form-row">
-                                    <div class="col">
-                                        <div class="form-group">
-                                            <label for="channels">
-                                                <strong>Channels</strong>
-                                            </label>
-                                            <input class="form-control" id="channels" type="text" placeholder="0000001">
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="form-group">
-                                            <label for="stimulation_point">
-                                                <strong>Stimulation angle point (stimulate +-10)</strong>
-                                            </label>
-                                            <input class="form-control" id="stimulation_point" type="number" placeholder="25">
-                                        </div>
-                                    </div>
+                            <div class="chart-area">
+                                <div id = "rightLeftHip">
+                                    <canvas id="r_hip_chart"></canvas> 
                                 </div>
-                                <div class="form-row">
-                                    <div class="col">
-                                        <div class="form-group">
-                                            <label for="current">
-                                                <strong>Current (mA)</strong>
-                                            </label>
-                                            <input class="form-control" id="current" type="number" placeholder="6">
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="form-group">
-                                            <label for="leg_length">
-                                                <strong>Pulse width (us)</strong>
-                                            </label>
-                                            <input class="form-control" id="pw" type="number" placeholder="250">
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="form-group">
-                                            <label for="main_freq">
-                                                <strong>Main frequency</strong>
-                                            </label>
-                                            <input class="form-control" id="main_freq" type="number" placeholder="40">
-                                        </div>
-                                    </div>
+                            </div>
+                        </div>
+
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="text-primary font-weight-bold m-0">Left Hip</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-area">
+                                <div id = "LeftHip">
+                                    <canvas id="l_hip_chart"></canvas>
                                 </div>
-                                <div class="form-row">
-                                    <div class="col">
-                                        <div class="form-group">
-                                            <label for="group_time">
-                                                <strong>Attendance frequency between groups (doublets and triplets)</strong>
-                                            </label>
-                                            <input class="form-control" id="group_time" type="number" placeholder="0">
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="form-group">
-                                            <label for="mode">
-                                                <strong>Mode of assistance: single pulses(0) | doublets(1) | triplets(2) </strong>
-                                            </label>
-                                            <input class="form-control" id="mode" type="number" placeholder="0">
-                                        </div>
-                                    </div>
+                            </div>
+                        </div>
+                        
+
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="text-primary font-weight-bold m-0">Right Knee</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-area">
+                                <div id = "rightLeftKnee">
+                                    <canvas id="r_knee_chart"></canvas>
                                 </div>
-                            </form>
-                            <button class="btn btn-primary btn-xl" id="fes_config" type="submit" style = "background: #0000FF">SAVE CONFIGURATION</button>
-                        </div>                
+                            </div>
+                        </div>
+
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="text-primary font-weight-bold m-0">Left Knee</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-area">
+                                <div id = "leftKnee">
+                                    <canvas id="l_knee_chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>            
             </div>
@@ -149,6 +223,9 @@
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/js/cdnjsCloudflareAjaxLibsJquery-easing141Jquery.easing.js"></script>
+    <script src="assets/js/Chart_2.9.4_bundle.js"></script>
+    <script src="assets/js/Chart_2.9.4_bundle.min.js"></script>
+
 </body>
 
 </html>

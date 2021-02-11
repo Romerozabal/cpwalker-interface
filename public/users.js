@@ -478,7 +478,7 @@ socket.on('therapistdata',function(datatherapist){
 
   $('#b_download_t').on('click', function() {
     socket.emit('download_therapist');
-    window.open('http://localhost:3000/downloadtherapists');
+    window.open('http://192.168.4.1:3000/downloadtherapists');
   });
 
   //  DELET SESSION
@@ -509,7 +509,7 @@ socket.on('therapistdata',function(datatherapist){
           console.log(i);
           console.log(checkeds[0].idtable_session);
           socket.emit('download_sessions_data', checkeds[0].idtable_session);
-          window.open('http://localhost:3000/downloadsessionsdata');
+          window.open('http://192.168.4.1:3000/downloadsessionsdata');
         };
     };
     
@@ -517,7 +517,7 @@ socket.on('therapistdata',function(datatherapist){
 
   $('#b_download_s_conf').on('click', function() {
     socket.emit('download_sessions_config');
-    window.open('http://localhost:3000/downloadsessionsconfig');
+    window.open('http://192.168.4.1:3000/downloadsessionsconfig');
   });
 
 

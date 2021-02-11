@@ -144,8 +144,6 @@ s_left_knee.on('message', function(msg, info) {
         left_knee_ref_saved.push(parseFloat(left_knee_ref))
         var d = new Date();
         time_spam.push(d.getTime() - time_start_therapy)
-    } else {
-        left_knee_saved = []
     }
 });
 // Right knee data
@@ -154,8 +152,6 @@ s_right_knee.on('message', function(msg, info) {
     if (record_therapy) {
         right_knee_saved.push(parseFloat(right_knee_real))
         right_knee_ref_saved.push(parseFloat(right_knee_ref))
-    } else {
-        right_knee_saved = []
     }
 });
 // Left hip data
@@ -164,8 +160,6 @@ s_left_hip.on('message', function(msg, info) {
     if (record_therapy) {
         left_hip_saved.push(parseFloat(left_hip_real))
         left_hip_ref_saved.push(parseFloat(left_hip_ref))
-    } else {
-        left_hip_saved = []
     }
 });
 // Right hip data
@@ -174,8 +168,6 @@ s_right_hip.on('message', function(msg, info) {
     if (record_therapy) {
         right_hip_saved.push(parseFloat(right_hip_real))
         right_hip_ref_saved.push(parseFloat(right_hip_ref))
-    } else {
-        right_hip_saved = []
     }
 });
 //TODO
@@ -617,6 +609,14 @@ io.on('connection', (socket) => {
         startTherapy();
         // Start saving joints angles
         record_therapy = true
+        left_hip_saved = []
+        left_hip_ref_saved= []
+        right_hip_saved = []
+        right_hip_ref_saved= []
+        left_knee_saved = []
+        left_knee_ref_saved= []
+        right_knee_saved = []
+        right_knee_ref_saved= []
         var d = new Date();
         time_start_therapy = d.getTime()
     });

@@ -4,7 +4,7 @@
 -- MySQL Workbench Forward Engineering
 
 -- (Pablo) Añadido y conecta a la base de datos
-ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'mysql';
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'mysql';
 
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
@@ -20,7 +20,7 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- -----------------------------------------------------
 -- Schema cpwdb
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `cpwdb` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci ;
+CREATE SCHEMA IF NOT EXISTS `cpwdb` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `cpwdb` ;
 
 -- -----------------------------------------------------
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `cpwdb`.`data_sessions` (
   PRIMARY KEY (`iddata_sessions`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
+COLLATE = utf8mb4_unicode_ci;
 
 
 -- -----------------------------------------------------
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS `cpwdb`.`tabla_pacientes` (
 ENGINE = InnoDB
 AUTO_INCREMENT = 13
 DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
+COLLATE = utf8mb4_unicode_ci;
 
 
 -- -----------------------------------------------------
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS `cpwdb`.`tabla_sesion` (
 ENGINE = InnoDB
 AUTO_INCREMENT = 5
 DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
+COLLATE = utf8mb4_unicode_ci;
 
 
 -- -----------------------------------------------------
@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS `cpwdb`.`tabla_terapeutas` (
 ENGINE = InnoDB
 AUTO_INCREMENT = 5
 DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
+COLLATE = utf8mb4_unicode_ci;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

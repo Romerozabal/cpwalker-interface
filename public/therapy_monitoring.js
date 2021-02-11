@@ -292,6 +292,11 @@ window.onload = function() {
 		ctxrkneeInstance.update();
 		ctxlkneeInstance.update();			
 	})
+
+	document.getElementById("reconnect").onclick = function() {
+		socket.emit("reconnect")		
+		$("#modal-reconnect").modal('hide');
+	};
 	
 	// Start stop interaction
 	document.getElementById("start_stop").onclick = function() {
@@ -299,22 +304,43 @@ window.onload = function() {
 		if (document.getElementById("start_stop").value == "start_position") {
 			document.getElementById("start_stop").value = "start";
 			document.getElementById("start_stop").innerHTML = "START";
-			document.getElementById("start_stop").style.background = "#4CAF50";
+			document.getElementById("start_stop").style.background = "#09c768";
 			socket.emit('monitoring:configure_robot');
 		// Start the therapy
 		} else if (document.getElementById("start_stop").value == "start") {
+				document.getElementById("save_data").style.display = 'none';
 				document.getElementById("start_stop").value = "stop";
 				document.getElementById("start_stop").innerHTML = "STOP";
-				document.getElementById("start_stop").style.background = "#FF0000"; 
+				document.getElementById("start_stop").style.background = "#fd4e4e"; 
 				socket.emit('monitoring:start');
 		// Stop the therapy
 		}  else if (document.getElementById("start_stop").value == "stop") {
+			document.getElementById("save_data").value = "not_saved";
+			document.getElementById("save_data").innerHTML = "Save Data";
+			document.getElementById("save_data").style.background = "#fd4e4e";
+			document.getElementById("save_data").style.display = 'block';
 			document.getElementById("start_stop").value = "start_position";
 			document.getElementById("start_stop").innerHTML = "MOVE TO START POSITION";
-			document.getElementById("start_stop").style.background = "#0000FF";
+			document.getElementById("start_stop").style.background = "#0968e4";
 			socket.emit('monitoring:stop'); 
 		}
 	};
+
+	// Start stop interaction
+	document.getElementById("save_data").onclick = function() {
+		if (document.getElementById("save_data").value == "not_saved") { 
+			// Change button style
+			document.getElementById("save_data").value = "saved";
+			document.getElementById("save_data").innerHTML = "Data Saved";
+			document.getElementById("save_data").style.background = "#0968e4";
+
+			// Save configurtion 
+			socket.emit('addsesiondata')
+			// Obtain gait therapy information
+
+
+		}
+	}
 
 
 	// Advise: changing window and will stop therapy
@@ -340,8 +366,15 @@ window.onload = function() {
 	};	
 
 	document.getElementById("continue-therapy").onclick = function() {
-		document.getElementById("modal-change-page").modal('hide');
+		$("#modal-change-page").modal('hide');
 	}
+	document.getElementById("reconnect_modal").onclick = function() {
+		$("#modal-reconnect").modal('show');
+	}
+	document.getElementById("dont_reconnect").onclick = function() {
+		$("#modal-reconnect").modal('hide')
+	}
+
 	document.getElementById("stop-exit-therapy").onclick = function() {
 		// Redirect to the therapy monitoring window
 		location.replace(THERAPY_MONITOR_GOTO_LINK)
@@ -397,7 +430,8 @@ socket.on('monitoring:show_therapy_settings', (data) => {
 	document.getElementById("gait_velocity").innerHTML = data.gait_velocity;
 	document.getElementById("ROM").innerHTML =  data.rom;
 	document.getElementById("PBWS").innerHTML =  data.pbws;
-	//document.getElementById("steps").innerHTML =  data.steps;
+	document.getElementById("steps").innerHTML =  data.steps;
+	document.getElementById("control_mode").innerHTML =  data.control_mode;
 	document.getElementById("right_knee_config").innerHTML =  data.right_knee_config;
 	document.getElementById("left_knee_config").innerHTML =  data.left_knee_config;
 	document.getElementById("right_hip_config").innerHTML =  data.right_hip_config;

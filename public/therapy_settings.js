@@ -99,23 +99,27 @@ window.onload = function(){
         // Second click send data
         } else if (document.getElementById("save_settings").value == "continue") {            
             // Send data to server
+            var d = new Date();
             socket.emit('settings:save_settings', {
+                date: d.getTime(),
                 therapist_name: document.getElementById("therapists-list").value,
                 patient_name: document.getElementById("patients-list").value,
                 patient_age: document.getElementById("patient_age").value,
-                gmfcs: document.getElementById("gmfcs").value,
-                leg_length: document.getElementById("leg_length").value,
                 weight: document.getElementById("weight").value,
-                observations: document.getElementById("observations").value,
+                leg_length: document.getElementById("leg_length").value,
+                hip_upper_strap: 0,
+                knee_lower_strap: 0,
+                gmfcs: document.getElementById("gmfcs").value,
+                steps: document.getElementById("steps").value,
                 gait_velocity: document.getElementById("gait_velocity").value,
                 rom: document.getElementById("rom").value,
                 pbws: document.getElementById("pbws").value,
-                steps: document.getElementById("steps").value,
                 control_mode : document.getElementById("control_mode").value,               
                 left_knee_config: document.getElementById("left_knee_config").value,
                 right_knee_config: document.getElementById("right_knee_config").value,
                 left_hip_config: document.getElementById("left_hip_config").value,
-                right_hip_config: document.getElementById("right_hip_config").value                
+                right_hip_config: document.getElementById("right_hip_config").value,                
+                observations: document.getElementById("observations").value
             })
             // Redirect to the therapy monitoring window
             location.replace("therapy_monitoring.html")

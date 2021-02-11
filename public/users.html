@@ -370,21 +370,21 @@
                             <!-- Modal Download List Therapist -->
                             <div class="modal fade" id="modaldownloadlisttherapist" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalLabel">Download Session</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">Download Session</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Do you want to download the Therapist Data List?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                            <button id="b_download_t" type="button" class="btn btn-primary" data-dismiss="modal">Download</button>
+                                        </div>
                                     </div>
-                                    <div class="modal-body">
-                                        Do you want to download the Therapist Data List?
-                                    </div>
-                                    <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                    <button id="b_download_t" type="button" class="btn btn-primary" data-dismiss="modal">Download</button>
-                                    </div>
-                                </div>
                                 </div>
                             </div> 
 
@@ -406,161 +406,176 @@
                                     </div>
                                     <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-                                    <button id="b_delete_s" type="button" class="btn btn-primary">Yes</button>
+                                    <button id="b_delete_s" type="button" class="btn btn-primary" data-dismiss="modal">Yes</button>
                                     </div>
                                 </div>
                                 </div>
                             </div> 
-                        
-                        
-                            <!-- Modal Download Session -->
-                            <div class="modal fade" id="modaldownloadsession" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+
+                            <!-- Modal Download Sessions Configurations -->
+                            <div class="modal fade" id="modaldownloadsessionscofiguration" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalLabel">Download Session</h5>
+                                    <h5 class="modal-title" id="exampleModalLabel">Download Session Configuration</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                     </div>
                                     <div class="modal-body">
-                                    ...
+                                    Do you want to download the data of the session configuration?
                                     </div>
                                     <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                    <button type="button" class="btn btn-primary">Save changes</button>
+                                    <button id="b_download_s_conf" type="button" class="btn btn-primary">Download</button>
+                                    </div>
+                                </div>
+                                </div>
+                            </div> 
+                        
+                            <!-- Modal Download Sessions Data -->
+                            <div class="modal fade" id="modaldownloadsessiondata" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Download Session Data</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    </div>
+                                    <div class="modal-body">
+                                    Do you want to download the data of the session data?
+                                    </div>
+                                    <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button id="b_download_s_data" type="button" class="btn btn-primary">Download</button>
                                     </div>
                                 </div>
                                 </div>
                             </div> 
 
 
-                        <!-- TABS PARA LA NEVEGACION DE LAS DIFERENTES TABLAS-->
-                        <ul class="nav nav-tabs" id="myTab" role="tablist">
-                            <li class="nav-item" role="presentation">
-                              <a class="nav-link active" id="home-tab" data-toggle="tab" href="#sessions" role="tab" aria-controls="home" aria-selected="true">Sessions</a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                              <a class="nav-link" id="profile-tab" data-toggle="tab" href="#patients" role="tab" aria-controls="profile" aria-selected="false">Patients</a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                              <a class="nav-link" id="contact-tab" data-toggle="tab" href="#therapist" role="tab" aria-controls="contact" aria-selected="false">Therapist</a>
-                            </li>
-                        </ul>
+                            <!-- TABS PARA LA NEVEGACION DE LAS DIFERENTES TABLAS-->
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                <a class="nav-link active" id="home-tab" data-toggle="tab" href="#sessions" role="tab" aria-controls="home" aria-selected="true">Sessions</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                <a class="nav-link" id="profile-tab" data-toggle="tab" href="#patients" role="tab" aria-controls="profile" aria-selected="false">Patients</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                <a class="nav-link" id="contact-tab" data-toggle="tab" href="#therapist" role="tab" aria-controls="contact" aria-selected="false">Therapist</a>
+                                </li>
+                            </ul>
 
-                        <div class="tab-content" id="myTabContent">
+                            <div class="tab-content" id="myTabContent">
 
-                            <div class="tab-pane fade show active" id="sessions" role="tabpanel" aria-labelledby="home-tab">
-                                <br>
-                                <div id="toolbar">
-                                    <button id="remove_session" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modaldeletedsession"  disabled><i class="fas fa-user-times"></i>  Delete Session</button>
-                                    <button id="download_session" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modaldownloadsession" disabled><i class="fas fa-download"></i>  Download Session</button> 
-                                    <button id="view_session" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modalviewsession" disabled><i class="fas fa-search"></i>  View Session</button> 
+                                <div class="tab-pane fade show active" id="sessions" role="tabpanel" aria-labelledby="home-tab">
+                                    <br>
+                                    <div id="toolbar">
+                                        <button id="remove_session" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modaldeletedsession"  disabled><i class="fas fa-user-times"></i>  Delete Session</button>
+                                        <button id="download_sessions_config" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modaldownloadsessionscofiguration" disabled><i class="fas fa-download"></i>  Download Sessions Configurations</button> 
+                                        <button id="download_session_data" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modaldownloadsessiondata" disabled><i class="fas fa-download"></i>  Download Session Data</button> 
+                                        <button id="view_session" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modalviewsession" disabled><i class="fas fa-search"></i>  View Session</button> 
+                                    </div>
+                                    <br> 
+
+                                    <div class="table-responsive ">
+                                        <style>
+                                            .table.dataTable  {
+                                            font-family: Verdana, Geneva, Tahoma, sans-serif;
+                                            font-size: 13px;
+                                            }
+                                        </style>
+                                        <table id="sessionsList" class="table table-bordered table-hover table-striped">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th></th>
+                                                    <th>
+                                                        <input type="checkbox" />
+                                                    </th>
+                                                    <th scope="col">Date Session</th>
+                                                    <th scope="col">First Name Patient</th>
+                                                    <th scope="col">Last Name Patient</th>
+                                                    <th scope="col">GMFCS</th>
+                                                    <th scope="col">Session</th>
+                                                    <th scope="col">First Name Therapist</th>
+                                                    <th scope="col">Last Name Therapist</th>
+
+                                                    
+                                                </tr>
+                                            </thead>
+                                        </table>
+                                    </div>
                                 </div>
-                                <br> 
 
-                                <div class="table-responsive ">
-                                    <style>
-                                        .table.dataTable  {
-                                        font-family: Verdana, Geneva, Tahoma, sans-serif;
-                                        font-size: 13px;
-                                        }
-                                    </style>
-                                    <table id="userList" class="table table-bordered table-hover table-striped">
-                                        <thead class="thead-light">
-                                            <tr>
-                                                <th></th>
-                                                <th>
-                                                    <input type="checkbox" />
-                                                </th>
-                                                <th scope="col">Date Session</th>
-                                                <th scope="col">First Name Patient</th>
-                                                <th scope="col">Last Name Patient</th>
-                                                <th scope="col">GMFCS</th>
-                                                <th scope="col">Session</th>
-                                                <th scope="col">First Name Therapist</th>
-                                                <th scope="col">Last Name Therapist</th>
 
-                                                
-                                            </tr>
-                                        </thead>
-                                    </table>
+                                <div class="tab-pane fade" id="patients" role="tabpanel" aria-labelledby="profile-tab">
+                                    <br>
+                                    <div id="toolbar">
+                                        <button id="add_patient" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modaladdpatient"><i class="fas fa-user-plus"></i>  Add Patient</button>
+                                        <button id="edit_patient" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modaleditpatient" disabled ><i class="fas fa-edit"></i>  Edit Patient</button>
+                                        <button id="remove_patient" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modaldeletedpatient"  disabled><i class="fas fa-user-times"></i>  Delete Patient</button>
+                                        <button id="download_list_patient" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modaldownloadlistpatients" ><i class="fas fa-download"></i>  Download List</button>
+                                        
+                                    </div>
+                                    <br> 
+
+                                    <div class="table-responsive ">
+                                        <style>
+                                            .table.dataTable  {
+                                            font-family: Verdana, Geneva, Tahoma, sans-serif;
+                                            font-size: 13px;
+                                            }
+                                        </style>
+                                        <table id="patientsList" class="table table-bordered table-hover table-striped">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th>
+                                                        <input type="checkbox" />
+                                                    </th>
+                                                    <th scope="col">First Name Patient</th>
+                                                    <th scope="col">Last Name Patient</th>
+                                                </tr>
+                                            </thead>
+                                        </table>
+                                    </div>
                                 </div>
-                            </div>
 
-
-                            <div class="tab-pane fade" id="patients" role="tabpanel" aria-labelledby="profile-tab">
-                                <br>
-                                <div id="toolbar">
-                                    <button id="add_patient" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modaladdpatient"><i class="fas fa-user-plus"></i>  Add Patient</button>
-                                    <button id="edit_patient" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modaleditpatient" disabled ><i class="fas fa-edit"></i>  Edit Patient</button>
-                                    <button id="remove_patient" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modaldeletedpatient"  disabled><i class="fas fa-user-times"></i>  Delete Patient</button>
-                                    <button id="download_list_patient" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modaldownloadlistpatients" ><i class="fas fa-download"></i>  Download List</button>
+                                <div class="tab-pane fade" id="therapist" role="tabpanel" aria-labelledby="contact-tab">
                                     
-                                </div>
-                                <br> 
+                                    <br>
+                                    <div id="toolbar">
+                                        <button id="add_therapist" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modaladdtherapist"><i class="fas fa-user-plus"></i>  Add Therapist</button>
+                                        <button id="edit_therapist" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modaledittherapist" disabled ><i class="fas fa-edit"></i>  Edit Therapist</button>
+                                        <button id="remove_therapist" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modaldeletedtherapist"  disabled><i class="fas fa-user-times"></i>  Delete Therapist</button>
+                                        <button id="download_list_therapist" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modaldownloadlisttherapist" ><i class="fas fa-download"></i>  Download List</button>
+                                        
+                                    </div>
+                                    <br> 
 
-                                <div class="table-responsive ">
-                                    <style>
-                                        .table.dataTable  {
-                                          font-family: Verdana, Geneva, Tahoma, sans-serif;
-                                          font-size: 13px;
-                                        }
-                                    </style>
-                                    <table id="patientsList" class="table table-bordered table-hover table-striped">
-                                        <thead class="thead-light">
-                                            <tr>
-                                                <th>
-                                                    <input type="checkbox" />
-                                                </th>
-                                                <th scope="col">First Name Patient</th>
-                                                <th scope="col">Last Name Patient</th>
-                                            </tr>
-                                        </thead>
-                                    </table>
+                                    <div class="table-responsive ">
+                                        <style>
+                                            .table.dataTable  {
+                                            font-family: Verdana, Geneva, Tahoma, sans-serif;
+                                            font-size: 13px;
+                                            }
+                                        </style>
+                                        <table id="therapistList" class="table table-bordered table-hover table-striped">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th>
+                                                        <input type="checkbox" />
+                                                    </th>
+                                                    <th scope="col">First Name Therapist</th>
+                                                    <th scope="col">Last Name Therapist</th>
+                                                    <th scope="col">Center</th>
+                                                </tr>
+                                            </thead>
+                                        </table>
+                                    </div>                            
                                 </div>
                             </div>
-
-                            <div class="tab-pane fade" id="therapist" role="tabpanel" aria-labelledby="contact-tab">
-                                
-                                <br>
-                                <div id="toolbar">
-                                    <button id="add_therapist" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modaladdtherapist"><i class="fas fa-user-plus"></i>  Add Therapist</button>
-                                    <button id="edit_therapist" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modaledittherapist" disabled ><i class="fas fa-edit"></i>  Edit Therapist</button>
-                                    <button id="remove_therapist" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modaldeletedtherapist"  disabled><i class="fas fa-user-times"></i>  Delete Therapist</button>
-                                    <button id="download_list_therapist" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#modaldownloadlisttherapist" ><i class="fas fa-download"></i>  Download List</button>
-                                    
-                                </div>
-                                <br> 
-
-                                <div class="table-responsive ">
-                                    <style>
-                                        .table.dataTable  {
-                                          font-family: Verdana, Geneva, Tahoma, sans-serif;
-                                          font-size: 13px;
-                                        }
-                                    </style>
-                                    <table id="therapistList" class="table table-bordered table-hover table-striped">
-                                        <thead class="thead-light">
-                                            <tr>
-                                                <th>
-                                                    <input type="checkbox" />
-                                                </th>
-                                                <th scope="col">First Name Therapist</th>
-                                                <th scope="col">Last Name Therapist</th>
-                                                <th scope="col">Center</th>
-                                            </tr>
-                                        </thead>
-                                    </table>
-                                </div>
-
-
-
-                            
-                            </div>
-                        </div>
-
-
                         </div>
                     </section>
                 </main>

@@ -39,6 +39,24 @@
                 </div>
             </div>
         </div>
+        <!-- Start Modal if click to reconect -->
+        <div id="modal-reconnect" class="modal fade" role = "dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="container card shadow-lg o-hidden border-0 my-5 p-5">
+                            <div class="text-center">
+                                <h3 class="text-dark mb-4">If you reconnect the therapy will stop. Are you sure you want to reconnect?</h3>
+                            </div>
+                            <div class="text-center">
+                                <button id="reconnect" style = "background-color: hsla(120, 100%, 25%, 0.8);" class="btn btn-primary"> Yes</button>
+                                <button id="dont_reconnect" style = "background-color: hsla(0, 100%, 50%, 0.8);" class= "btn btn-primary"> No</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
             <div class="container-fluid d-flex flex-column p-0">
                 <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
@@ -86,9 +104,13 @@
                      </div>
                 </nav>
             <div class="container-fluid">
-                <div class="enter mb-3 d-flex justify-content-between " >
+                <div class="mb-3 d-flex justify-content-between " >
                     <h3 class="text-dark mb-4">&nbsp;Therapy Monitor</h3>
-                    <button class="btn btn-primary btn-xl" value="start_position" id="start_stop" type="submit" style = "background: #0000FF">MOVE TO START POSITION</button>
+                    <button class="btn btn-primary btn-xl" value="start_position" id="start_stop" type="submit" style = "background: #0968e4">MOVE TO START POSITION</button>
+                    <button class="btn btn-primary" id="reconnect_modal" type="submit" style = "background:  #09c768">Reconnect</button>
+                </div>
+                <div class="mb-3 d-flex centered" >
+                    <button class="btn btn-primary " value="start_position" id="save_data" type="submit" style = "background: #fd4e4e; display: none">Save Data</button>
                 </div>
 
                 <!-- Joint Charts-->
@@ -182,7 +204,7 @@
                             <h6 class="text-primary font-weight-bold m-0">Therapy Sethings</h6>
                         </div>
                         <div  class="card-body">
-                            <table style = "width:100%;" class="table">
+                            <table style = "width:100%; text-align: center;" class="table">
                                 <thead>
                                   <tr>
                                     <th scope="col">Patient</th>
@@ -201,6 +223,28 @@
                                 </tbody>
                                 <thead>
                                     <tr>
+                                      <th colspan="4" scope="col">Steps</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>                                        
+                                        <td style=" text-align: center;"><p id='steps'> - </p></td>
+                                    </tr>
+                                  </tbody>
+                                </thead>
+                                <thead>
+                                    <tr>
+                                      <th colspan="4" scope="col">Control Mode</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>                                        
+                                        <td><p id='control_mode'> - </p></td>
+                                    </tr>
+                                  </tbody>
+                                </thead>
+                                <thead>
+                                    <tr>
                                       <th scope="col">Left Hip Control</th>
                                       <th scope="col">Right Hip Control</th>
                                       <th scope="col">Left Knee Control</th>
@@ -215,7 +259,8 @@
                                         <td><p id='right_knee_config'> - </p></td>
                                     </tr>
                                   </tbody>
-                              </table>
+                                </thead>
+                            </table>
                         </div>
                         <div class="card-body">
                             <div class="card-body">

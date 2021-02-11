@@ -69,7 +69,7 @@ socket.on('datostabla', function(datas) {
     
 
     //Creación de DataTables
-    let $dt = $('#userList');
+    let $dt = $('#sessionsList');
     let dt = $dt.DataTable({
         "data": datas,
         "columns": [
@@ -90,8 +90,8 @@ socket.on('datostabla', function(datas) {
             { data: 'date' },
             { data: 'NombrePaciente' },
             { data: 'ApellidoPaciente'},
-            { data: 'escala_clinica'},
-            { data: 'NumeroSesion'},
+            { data: 'gmfcs'},
+            { data: 'NumberSession'},
             { data: 'NombreTerapeuta'},
             { data: 'ApellidoTerapeuta'},
             ],
@@ -125,11 +125,13 @@ socket.on('datostabla', function(datas) {
         //console.log(info.checked);
         if (this.checked){
             document.getElementById("remove_session").disabled = false;
-            document.getElementById("download_session").disabled = false; 
+            document.getElementById("download_sessions_config").disabled = false; 
+            document.getElementById("download_session_data").disabled = false; 
             document.getElementById("view_session").disabled = false;
         }else{
             document.getElementById("remove_session").disabled = true;
-            document.getElementById("download_session").disabled = true;
+            document.getElementById("download_sessions_config").disabled = true; 
+            document.getElementById("download_session_data").disabled = true; 
             document.getElementById("view_session").disabled = true;
         }       
     });
@@ -167,30 +169,31 @@ socket.on('datostabla', function(datas) {
           '<th>Cadence:</th>'+
           '<th>PBWS:</th>'+
           '<th>Control Mode:</th>'+
-          //'<th>Right Hip Config:</th>'+
-          //'<th>Right Knee Config:</th>'+
-          //'<th>Left Hip Config:</th>'+
-          //'<th>Left Knee Config:</th>'+
+          '<th>Right Hip Config:</th>'+
+          '<th>Right Knee Config:</th>'+
+          '<th>Left Hip Config:</th>'+
+          '<th>Left Knee Config:</th>'+
           '<th>Observations:</th>'+
           
         '</tr>'+
       '</thead>'+
       '<tbody>'+
         '<tr>'+
-          '<td>'+d.peso_paciente+'</td>'+
-          '<td>'+d.edad_paciente+'</td>'+
+          '<td>'+d.patient_weight+'</td>'+
+          '<td>'+d.patient_age+'</td>'+
           '<td>'+d.leg_length+'</td>'+
           '<td>'+d.hip_upper_strap+'</td>'+
           '<td>'+d.knee_lower_strap+'</td>'+
           '<td>'+d.steps+'</td>'+
           '<td>'+d.ROM+'</td>'+
-          '<td>'+d.cadence+'</td>'+
+          '<td>'+d.gait_velocity+'</td>'+
           '<td>'+d.PBWS+'</td>'+
+          '<td>'+d.control_mode+'</td>'+
           '<td>'+d.right_hip_config+'</td>'+
-          //'<td>'+d.right_knee_config+'</td>'+
-          //'<td>'+d.left_hip_config+'</td>'+
-          //'<td>'+d.left_knee_config+'</td>'+
-          '<td>'+d.observaciones+'</td>'+
+          '<td>'+d.right_knee_config+'</td>'+
+          '<td>'+d.left_hip_config+'</td>'+
+          '<td>'+d.left_knee_config+'</td>'+
+          '<td>'+d.observations+'</td>'+
         '</tr>'+
       '</tbody>'+
       '</table>';
@@ -272,7 +275,7 @@ socket.on('patientdata',function(datapatient){
       });
 
 
-    //  suscribimos un listener al click del boton del modal add patient
+    //ADD PATIENT
     $('#b_add_p').on('click', function() {
       let patfname = document.getElementById("FNPatient").value;
       let patlname = document.getElementById("LNPatient").value;
@@ -476,6 +479,45 @@ socket.on('therapistdata',function(datatherapist){
   $('#b_download_t').on('click', function() {
     socket.emit('download_therapist');
     window.open('http://localhost:3000/downloadtherapists');
+  });
+
+  //  DELET SESSION
+  $('#b_delete_s').on('click', function() {
+    let dt = $('#sessionsList').DataTable();
+    let vars = dt.data().toArray();
+    let checkeds = dt.data().toArray().filter((data) => data.checked);
+    for (i = 0; i < vars.length; i++) {
+        if (checkeds[0].idtable_session == vars[i].idtable_session){
+          console.log(i);
+          var indexrow = i;
+        };
+    };
+    console.log()
+    dt.row(indexrow).remove().draw();
+    socket.emit('deleted_session',checkeds[0].idtable_session);
+  });
+
+  // DOWNLOAD DATA SESSION
+  $('#b_download_s_data').on('click', function() {
+    console.log("Download Data")
+    let dt = $('#sessionsList').DataTable();
+    let vars = dt.data().toArray();
+    let checkeds = dt.data().toArray().filter((data) => data.checked);
+
+    for (i = 0; i < vars.length; i++) {
+        if (checkeds[0].idtable_session == vars[i].idtable_session){
+          console.log(i);
+          console.log(checkeds[0].idtable_session);
+          socket.emit('download_sessions_data', checkeds[0].idtable_session);
+          window.open('http://localhost:3000/downloadsessionsdata');
+        };
+    };
+    
+  })
+
+  $('#b_download_s_conf').on('click', function() {
+    socket.emit('download_sessions_config');
+    window.open('http://localhost:3000/downloadsessionsconfig');
   });
 
 

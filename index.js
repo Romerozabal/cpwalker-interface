@@ -634,14 +634,17 @@ io.on('connection', (socket) => {
     // Update joint chart plots.
     socket.on('FES:configuration', function(data) {
         //console.log(data.channels, data.current, data.pw, data.main_freq, data.group_time, data.mode)
-        var trama =  configFES(data.channels, data.current, data.pw, data.main_freq, data.group_time, data.mode);;
+        var [trama_init, trama_update, trama_stop]  =  configFES(data.channels, data.current, data.pw, data.main_freq, data.group_time, data.mode);;
+        console.log(trama_init)
+        console.log(trama_update)
+        console.log(trama_stop)
         if (data.configuration == "test") {
-            sendUDP(trama,6000,LOCAL_IP);
+            sendUDP(trama_init.concat(trama_update),6000,LOCAL_IP);
             (async () => {
                 await new Promise(resolve => setTimeout(resolve, 50));        
             })();       
         } else {
-            stimulationPoints.push(new stimulationFES(data.configuration, data.index, trama));
+            stimulationPoints.push(new stimulationFES(data.configuration, data.index, trama_init, trama_update, trama_stop));
             console.log(stimulationPoints)
             socket.emit('FES:stimulation_points', {
                 stimulationPoints: stimulationPoints
@@ -664,77 +667,105 @@ function resetTexas() {
     sendUDP(255,9999,CPWALKER_IP);
 }
 
-function configFES (channels, current, pw ,main_freq, group_time, mode) {   
-    // channels: Stimulator channels to be sued (example:'00100011' // Canales activos, segun orden descendente:1 (tibial), 2(Gastrocnemios) y 5 (Cuádriceps))    
+function configFES (channels_Stim, current, pw ,main_freq, group_time, mode) {   
+    // channels_Stim: Stimulator channels to be sued (example:'00100011' // Canales activos, segun orden descendente:1 (tibial), 2(Gastrocnemios) y 5 (Cuádriceps))    
     // current: Stimulation Current [mA]
     // pw: Pulse width [us]
     // main_freq: Attendance frequency [hz]
-    // group_time: Attendance frequency between groups (doublets and triplets)
-    // mode: Mode of assistance: single pulses, doublets and triplets
-    
-    //console.log(channels, current, pw, main_freq, group_time, mode)
-    // Channels:
-    channels_dec = parseInt(channels,2); 
-    //console.log("channels: " + channels);
-    //console.log("channels_dec: " + channels_dec);
+    // group_time: Attendance frequency between groups
+    // mode: Mode of assistance (single pulses, doublets and triplets)   
+
+    // Channels list:
+    var channels_Stim_dec = parseInt(channels_Stim,2); 
+
+    // Channels Low Frequency: (defines the low frequency channels)
+    var channels_Lf = '0000000';
+    var channels_Lf_dec = parseInt(channels_Lf, 2);
+
+    // N Factor: How many times the stimulation is skipped for channels specified in Channel_Lf and Channel_Stim
+    // 0 = no skip
+    // 1 = skip once
+    // 7 = skip seven times
+    var n_factor_dec = 0;
+    var n_factor_bin = binaryResize(n_factor_dec.toString(2),3)
+    console.log(n_factor_bin)
 
     // Main frequency
-    period = Math.abs((1/parseInt(main_freq))*1000); // sec to msec
-    //console.log("period: " + period);
-    period_mod = period-1;             // Datasheet: period=main_time*.5ms + 1ms
-    //console.log("period_mod: " + period_mod);
-    main_time = period_mod/.5;
-    //console.log("main_time: " + main_time);
-    main_time_bin = parseInt(main_time,10).toString(2); 
-    //console.log("main_time_bin: " + main_time_bin);
+    // From RehaStim datasheet (size 11 bits): main_time = (ts1 + 1) / 0.5 // Main period ts1 in (ms)
+    main_time_dec = (Math.abs((1/parseInt(main_freq))*1000) - 1)/.5;
+    main_time_bin = parseInt(main_time_dec,10).toString(2); 
     main_time_bin = binaryResize (main_time_bin, 11)
-    //console.log("main_time_bin (11): " + main_time_bin);
 
-    // Group frequency (neceista tamaño 8 bits)
-    group_time = parseInt(group_time);
-    //console.log("group_time: " + group_time);
-    group_time_bin = parseInt(group_time).toString(2); // Conver to binary
-    //console.log("group_time_bin: " + group_time_bin);
-    group_time_bin = binaryResize (group_time_bin, 8); // Resize binary number
-    //console.log("group_time_bin (8): " + group_time_bin);
+    // Group frequency
+    // From RehaStim datasheet (size 5 bits): group_time = (ts2 - 1.5) / 0.5 // In (ms)
+    group_time_dec = parseInt(group_time);
+    group_time_bin = parseInt(group_time_dec).toString(2); // Conver to binary
+    group_time_bin = binaryResize (group_time_bin, 5); // Resize binary number
 
-    // Frequency configuration   
-    //console.log(channels_dec + main_time + group_time)
-    var modulo_8 = (channels_dec + main_time + group_time) % 8;
-    //console.log("modulo_8: " + modulo_8)
-    var crc_second = binaryResize(parseInt((channels_dec + main_time + group_time) % 8).toString(2), 3);
-	//console.log("crc_second: " + crc_second)
-    var crc_tren_bin = ('100' + binaryResize(parseInt((channels_dec + main_time + group_time) % 8).toString(2), 3) + '00'); // Update sequence
-    var crc_tren =  parseInt(crc_tren_bin, 2);
-    //console.log("crc_tren: " + crc_tren);
-    //console.log("crc_tren_bin: " + crc_tren_bin);
-
-    var tren_set = [crc_tren,  parseInt('00'+channels.substr(0,channels.length-2),2) , parseInt('0'+channels.substr(channels.length-2,2)+'00000',2) , parseInt('000000'+ group_time_bin.substr(0,2),2) , parseInt('0'+group_time_bin.substr(group_time.length-2,2)+main_time_bin.substr(0,4),2) , parseInt('0'+main_time_bin.substr(4,main_time_bin.length-4),2)]; // Attendance sequence    
+    // Mode:
+    // 0 = single pulse
+    // 1 = doublet 
+    // 2 = triplet
+    mode = parseInt(mode);
+    mode_bin = binaryResize(mode.toString(2), 2)
 
     // Pulse width
 	pw = parseInt(pw);
-    pw_bin=parseInt(pw).toString(2); 
-    pw_bin = binaryResize(pw_bin,9);
-    //console.log(pw);
-    //console.log("pw_bin: " + pw_bin);
+    pw_bin=binaryResize(pw.toString(2),9) 
 
+    // Current:
+    // Current in mA
+    current = parseInt(current);
+    current_bin = binaryResize(current.toString(2), 7)
 
-    // Current
-	current = parseInt(current);
-    console.log(current);
-    //console.log("Mode:");
-	mode = parseInt(mode);
-    //console.log(mode);
-	//console.log(pw + current + mode);
+    // Control modes
+    // Ident == '00' (Channel list Initialization mode)
+    // Ident == '01' (Channel list Update mode)
+    // Ident == '10' (Channel list Stop mode)
+    // Ident == '11' (Single Pulse Generator mode)
+    //    
+    // Channel list Initialization Command (ccl_init):
+    var Ident = '00';
+    var check_init =  binaryResize(parseInt((channels_Stim_dec + channels_Lf_dec + group_time_dec + main_time_dec) % 8).toString(2),3); // Datasheet formula
+    var byte_1 = ('1' + Ident + check_init + n_factor_bin.substr(0,2)); 
+    var byte_1_dec =  parseInt(byte_1, 2);
+    var byte_2 = '0' + n_factor_bin.charAt(2) + channels_Stim.substring(0,6)
+    var byte_2_dec = parseInt(byte_2, 2);
+    var byte_3 = '0' + channels_Stim.substring(6,8) + channels_Lf.substring(0,5)
+    var byte_3_dec = parseInt(byte_3, 2);
+    var byte_4 = '0' + channels_Lf.substring(5,8) + '00' + group_time_bin.substring(0,2)
+    var byte_4_dec = parseInt(byte_4, 2);
+    var byte_5 = '0' + group_time_bin.substring(2,5) + main_time_bin.substring(0, 4)
+    var byte_5_dec = parseInt(byte_5, 2);
+    var byte_6 = '0' + main_time_bin.substring(4,11)
+    var byte_6_dec = parseInt(byte_6, 2);
+    var ccl_init = [byte_1_dec, byte_2_dec, byte_3_dec, byte_4_dec, byte_5_dec, byte_6_dec]
+    //
+    // Channel list Update Command (ccl_update):
+    var Ident = '01';
+    var check_update = binaryResize(parseInt((mode + pw + current) % 32).toString(2), 5);
+    var byte_1 = '1' + Ident + check_update; 
+    var byte_1_dec =  parseInt(byte_1, 2);
+    var byte_2 = '0' + mode_bin + '000' + pw_bin.substring(0,2)
+    var byte_2_dec = parseInt(byte_2, 2);
+    var byte_3 = '0' + pw_bin.substring(2,9)
+    var byte_3_dec = parseInt(byte_3, 2);
+    var byte_4 = '0' + current_bin
+    var byte_4_dec = parseInt(byte_4, 2);
+    var ccl_update = [byte_1_dec, byte_2_dec, byte_3_dec, byte_4_dec]
     crc_update_bin = '101' + binaryResize(((pw + current + mode) % 32).toString(2), 5);
     crc_update = parseInt(crc_update_bin, 2);
-    tramaStim  = [crc_update, parseInt('0' + binaryResize(parseInt(mode).toString(2),2) + '000' + pw_bin.substr(0,2), 2), parseInt('0' + pw_bin.substr(2,pw_bin.length), 2), current, 0, 0, 0, 0, 0, 0];
-    trama = tren_set.concat(tramaStim);
-    //console.log("crc_update_bin (8): " + crc_update_bin);
-    //console.log("tramaStim: " + tramaStim);
-    //console.log("tren_set: " + tren_set);
-    //console.log("trama: " + trama);
-    return trama;
+    //
+    // Channel list Stop Command (ccl_stop):
+    var Ident = '10';
+    var check_stop = binaryResize(parseInt(0).toString(2), 5);
+    var byte_1 = '1' + Ident + check_stop; 
+    var byte_1_dec =  parseInt(byte_1, 2);
+    var ccl_stop = [byte_1_dec]
+    
+    // Final command generation:
+    trama = ccl_init.concat(ccl_update);
+    return [ccl_init, ccl_update_active, ccl_stop];
 }
 
 function binaryResize (data, size) {

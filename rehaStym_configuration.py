@@ -15,7 +15,7 @@ sock.bind((CPWALKER_IP, PORT_FES))
 serial_ports = glob.glob('/dev/tty[A-Za-z]*')
 print(serial_ports)
 
-while True: 
+while True:
 	#Chech available serial devices
 	serial_ports = glob.glob('/dev/tty[A-Za-z]*')
 	if (any('/dev/ttyUSB0' == serial_port for serial_port in serial_ports)):
@@ -27,7 +27,7 @@ while True:
 				stopbits=serial.STOPBITS_ONE,
 				bytesize=serial.EIGHTBITS
 		)
-		trama_fes = sock.recvfrom(1024) 
+		trama_fes = sock.recvfrom(1024)
 		trama_fes = bytearray(trama_fes[0])
 		print(len(trama_fes))
 		print("Trama: ")
@@ -35,5 +35,6 @@ while True:
 			print(data)
 		ser.write(trama_fes)
 	else:
-		continue
-	
+		# Advise server that could not send data to RehaStym
+		sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
+		sock.sendto(bytes(MESSAGE, "utf-8"), (UDP_IP, UDP_PORT))

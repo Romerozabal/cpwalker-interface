@@ -49,7 +49,7 @@
                             <li class="nav-item dropdown no-arrow mx-1" role="presentation">
                                 <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#"><i class="fas fa-user-md"></i></a>
                             </li>
-                            
+
                             <div class="d-none d-sm-block topbar-divider"></div>
                             <li class="nav-item dropdown no-arrow" role="presentation">
                                 <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#"><img class="img" src="assets/img/letras.png" style= "height:50%"><img class="img" src="assets/img/logoblanco.png" style= "height:80%"></a>
@@ -68,14 +68,13 @@
                     <div class="modal-dialog">
                         <div class="modal-content" >
                             <div class="modal-body">
-                                <h3 id = "modal_fes_config_title">Test Stimulator </h3>
-                                <button id= "fes_angle" class="btn btn-outline-primary" value="-1"> Angle: 0 </button>
-                                <br> 
+                                <h3>Test Stimulator </h3>
+                                <br>
                                 <form>
                                     <div class="form-row">
                                         <div class="col">
                                             <div class="form-group">
-                                                <label for="channels" class = "centered"> <strong>Channels:</strong></label>
+                                                <label for="channels" class = "centered"> <strong>Select channels:</strong></label>
                                                 <div class="form-row">
                                                     <div class="col">
                                                         <div class="btn btn-secondary" id="channel0" value="0" > Channel 0 </div>
@@ -89,7 +88,7 @@
                                                         <br>
                                                         <div class="btn btn-secondary" id="channel3" value="0"> Channel 3 </div>
                                                     </div>
-                                                    <div class="col">                                                        
+                                                    <div class="col">
                                                         <div class="btn btn-secondary" id="channel4" value="0"> Channel 4 </div>
                                                         <br>
                                                         <br>
@@ -151,18 +150,165 @@
                                     </div>
                                 </form>
                                 <button class="btn btn-primary btn-xl" id="fes_config" value="test" type="submit" >Test</button>
-                            </div>  
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="container-fluid">
                     <div >
                         <h1>Functional Electrical Stimulation (FES) </h1>
-                        <br> 
-                        <button id="test_stimulator" class="btn btn-primary"> Test Stimulator </button>              
+                        <br>
+                          <div class="form-row">
+                            <button id="test_stimulator" class="btn btn-primary"> Test Stimulator </button>
+                            <div id="posts">
+                              <div class = "col">
+                                  <label for="serial_port_select" class = "centered"> <strong>USB ports:</strong></label>
+                              </div>
+                              <div class = "col">
+                                  <select class="btn  btn-outline-primary" id="serial_port_list" class="form-control">
+                                    <option selected value="1"> Select USB </option>
+                                  </select>
+                              </div>
+                            </div>
+                          </div>
+                        <br>
+                        <br>
+
+                        <h3>General FES Configuration </h3>
+                        <form>
+                            <div class="form-row">
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label for="channels" class = "centered"> <strong>Channels:</strong></label>
+                                        <div class="form-row">
+                                            <div class="col">
+                                                <div class="btn btn-secondary" id="channel0" value="0" > Channel 0 </div>
+                                                <br>
+                                                <br>
+                                                <div class="btn btn-secondary" id="channel1" value="0"> Channel 1 </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="btn btn-secondary" id="channel2" value="0"> Channel 2 </div>
+                                                <br>
+                                                <br>
+                                                <div class="btn btn-secondary" id="channel3" value="0"> Channel 3 </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="btn btn-secondary" id="channel4" value="0"> Channel 4 </div>
+                                                <br>
+                                                <br>
+                                                <div class="btn btn-secondary" id="channel5" value="0"> Channel 5 </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="btn btn-secondary" id="channel6" value="0"> Channel 6 </div>
+                                                <br>
+                                                <br>
+                                                <div class="btn btn-secondary" id="channel7" value="0"> Channel 7 </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label for="main_freq">
+                                            <strong>Main frequency</strong>
+                                        </label>
+                                        <input class="form-control" id="main_freq" type="number" placeholder="40">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label for="group_time">
+                                            <strong>Attendance frequency between groups (doublets and triplets)</strong>
+                                        </label>
+                                        <input class="form-control" id="group_time" type="number" placeholder="0">
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        <button class="btn btn-primary btn-xl" id="fes_general_config" type="submit" >Save general configuration</button>
                     </div>
-                    <br> 
-                        <!-- Joint Charts-->
+                    <br>
+                    <h3>Create stimulation pattern</h3>
+                    <h6> Click in any gait phase and select the desired the channel, current, pulse width and mode</h6>
+                    <!-- Create pattern modal  -->
+                    <div id="modal_fes_patern" class="modal fade" role="dialog" >
+                        <div class="modal-dialog">
+                            <div class="modal-content" >
+                                <div class="modal-body">
+                                    <h3>Configurate channel</h3>
+                                    <button id= "fes_angle" class="btn btn-outline-primary" value="-1"> Angle: 0 </button>
+                                    <br>
+                                    <form>
+                                        <div class="form-row">
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label for="channels" class = "centered"> <strong>Select channels:</strong></label>
+                                                    <div class="form-row">
+                                                        <div class="col">
+                                                            <div class="btn btn-secondary" id="channel0_stim" value="0" > Channel 0 </div>
+                                                            <br>
+                                                            <br>
+                                                            <div class="btn btn-secondary" id="channel1_stim" value="0"> Channel 1 </div>
+                                                        </div>
+                                                        <div class="col">
+                                                            <div class="btn btn-secondary" id="channel2_stim" value="0"> Channel 2 </div>
+                                                            <br>
+                                                            <br>
+                                                            <div class="btn btn-secondary" id="channel3_stim" value="0"> Channel 3 </div>
+                                                        </div>
+                                                        <div class="col">
+                                                            <div class="btn btn-secondary" id="channel4_stim" value="0"> Channel 4 </div>
+                                                            <br>
+                                                            <br>
+                                                            <div class="btn btn-secondary" id="channel5_stim" value="0"> Channel 5 </div>
+                                                        </div>
+                                                        <div class="col">
+                                                            <div class="btn btn-secondary" id="channel6_stim" value="0"> Channel 6 </div>
+                                                            <br>
+                                                            <br>
+                                                            <div class="btn btn-secondary" id="channel7_stim" value="0"> Channel 7 </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label for="current">
+                                                        <strong>Current (mA)</strong>
+                                                    </label>
+                                                    <input class="form-control" id="current_stim" type="number" placeholder="6">
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label for="leg_length">
+                                                        <strong>Pulse width (us)</strong>
+                                                    </label>
+                                                    <input class="form-control" id="pw_stim" type="number" placeholder="250">
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label for="mode">
+                                                        <strong>Mode of assistance: single pulses(0) | doublets(1) | triplets(2) </strong>
+                                                    </label>
+                                                    <input class="form-control" id="mode_stim" type="number" placeholder="0">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <button class="btn btn-primary btn-xl" id="save_fes_stimulation"  type="submit" >Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Joint Charts-->
                     <div id = "jointCharts" class="card shadow mb-4">
 
                         <div class="card-header d-flex justify-content-between align-items-center">
@@ -171,7 +317,7 @@
                         <div class="card-body">
                             <div class="chart-area">
                                 <div id = "rightLeftHip">
-                                    <canvas id="r_hip_chart"></canvas> 
+                                    <canvas id="r_hip_chart"></canvas>
                                 </div>
                             </div>
                         </div>
@@ -186,7 +332,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
 
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h6 class="text-primary font-weight-bold m-0">Right Knee</h6>
@@ -210,7 +356,7 @@
                             </div>
                         </div>
                     </div>
-                </div>            
+                </div>
             </div>
             <footer class="bg-white sticky-footer">
                 <div class="container my-auto">

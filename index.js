@@ -701,11 +701,9 @@ io.on('connection', (socket) => {
 
     // Send test FES configuration
     socket.on('FES:configuration_test', function(data) {
-        //console.log(data.channels, data.current, data.pw, data.main_freq, data.group_time, data.mode)
         var [trama_init, trama_update, trama_stop]  = configFES(data.channels, data.current, data.pw, data.main_freq, data.group_time, data.mode);
-        console.log(trama_init)
-        console.log(trama_update)
-        console.log(trama_stop)
+        console.log(trama_init);
+        console.log(trama_update);
         (async () => {
             await new Promise(resolve => setTimeout(resolve, 50));
             sendUDP(trama_init.concat(trama_update),TRAMA_PORT,LOCAL_IP);

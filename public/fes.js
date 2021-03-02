@@ -562,16 +562,13 @@ window.onload = function(){
 			channels[0] = 1
 		}
 		channels = channels.join("").toString()
-		var joint = document.getElementById("fes_config_test").value;
 		var current = document.getElementById("current").value;
 		var pw = document.getElementById("pw").value;
 		var group_time = document.getElementById("group_time").value;
 		var mode = document.getElementById("mode").value;
 		var main_freq = document.getElementById("main_freq").value;
-		console.log(configuration)
 		var index = document.getElementById("fes_angle").value;
 		socket.emit('FES:configuration_test', {
-		joint: joint,
 		channels: channels,
 		current : current,
 		pw : pw,

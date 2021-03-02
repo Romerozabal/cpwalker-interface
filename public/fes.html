@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="assets/css/fontawesome-all.min.css">
     <link rel="stylesheet" href="assets/css/google-fonts-montserrat.css">
     <link rel="stylesheet" href="assets/css/cloudflareAjaxBaguetteboxbaguetteBox.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <!-- Solid Fontawesome icons-->
     <script src="assets/js/v5.15.1jsall.js" data-auto-replace-svg></script>
@@ -64,7 +65,7 @@
                      </div>
                 </nav>
                 <!-- Start Modal if click on Test Stimulator  -->
-                <div id="modal_fes_config" class="modal fade" role="dialog" >
+                <div id="modal_fes_config_test" class="modal fade" role="dialog" >
                     <div class="modal-dialog">
                         <div class="modal-content" >
                             <div class="modal-body">
@@ -149,7 +150,7 @@
                                         </div>
                                     </div>
                                 </form>
-                                <button class="btn btn-primary btn-xl" id="fes_config" value="test" type="submit" >Test</button>
+                                <button class="btn btn-primary btn-xl" id="fes_config_test" value="test" type="submit" >Test</button>
                             </div>
                         </div>
                     </div>
@@ -166,7 +167,9 @@
                               </div>
                               <div class = "col">
                                   <select class="btn  btn-outline-primary" id="serial_port_list" class="form-control">
-                                    <option selected value="1"> Select USB </option>
+                                    <serialports id="usbs">
+                                        <option selected value="1"> Select USB </option>
+                                    </serialports>
                                   </select>
                               </div>
                             </div>
@@ -182,28 +185,28 @@
                                         <label for="channels" class = "centered"> <strong>Channels:</strong></label>
                                         <div class="form-row">
                                             <div class="col">
-                                                <div class="btn btn-secondary" id="channel0" value="0" > Channel 0 </div>
+                                                <div class="btn btn-secondary" id="channel0_general" value="0" > Channel 0 </div>
                                                 <br>
                                                 <br>
-                                                <div class="btn btn-secondary" id="channel1" value="0"> Channel 1 </div>
+                                                <div class="btn btn-secondary" id="channel1_general" value="0"> Channel 1 </div>
                                             </div>
                                             <div class="col">
-                                                <div class="btn btn-secondary" id="channel2" value="0"> Channel 2 </div>
+                                                <div class="btn btn-secondary" id="channel2_general" value="0"> Channel 2 </div>
                                                 <br>
                                                 <br>
-                                                <div class="btn btn-secondary" id="channel3" value="0"> Channel 3 </div>
+                                                <div class="btn btn-secondary" id="channel3_general" value="0"> Channel 3 </div>
                                             </div>
                                             <div class="col">
-                                                <div class="btn btn-secondary" id="channel4" value="0"> Channel 4 </div>
+                                                <div class="btn btn-secondary" id="channel4_general" value="0"> Channel 4 </div>
                                                 <br>
                                                 <br>
-                                                <div class="btn btn-secondary" id="channel5" value="0"> Channel 5 </div>
+                                                <div class="btn btn-secondary" id="channel5_general" value="0"> Channel 5 </div>
                                             </div>
                                             <div class="col">
-                                                <div class="btn btn-secondary" id="channel6" value="0"> Channel 6 </div>
+                                                <div class="btn btn-secondary" id="channel6_general" value="0"> Channel 6 </div>
                                                 <br>
                                                 <br>
-                                                <div class="btn btn-secondary" id="channel7" value="0"> Channel 7 </div>
+                                                <div class="btn btn-secondary" id="channel7_general" value="0"> Channel 7 </div>
                                             </div>
                                         </div>
                                     </div>
@@ -213,9 +216,9 @@
                                 <div class="col">
                                     <div class="form-group">
                                         <label for="main_freq">
-                                            <strong>Main frequency</strong>
+                                            <strong>Main frequency (Hz)</strong>
                                         </label>
-                                        <input class="form-control" id="main_freq" type="number" placeholder="40">
+                                        <input class="form-control" id="main_freq_general" type="number" placeholder="40">
                                     </div>
                                 </div>
                                 <div class="col">
@@ -223,7 +226,7 @@
                                         <label for="group_time">
                                             <strong>Attendance frequency between groups (doublets and triplets)</strong>
                                         </label>
-                                        <input class="form-control" id="group_time" type="number" placeholder="0">
+                                        <input class="form-control" id="group_time_general" type="number" placeholder="0">
                                     </div>
                                 </div>
                             </div>
@@ -248,7 +251,7 @@
                                                     <label for="channels" class = "centered"> <strong>Select channels:</strong></label>
                                                     <div class="form-row">
                                                         <div class="col">
-                                                            <div class="btn btn-secondary" id="channel0_stim" value="0" > Channel 0 </div>
+                                                            <div class="btn btn-secondary" id="channel0_stim" value="0"> Channel 0 </div>
                                                             <br>
                                                             <br>
                                                             <div class="btn btn-secondary" id="channel1_stim" value="0"> Channel 1 </div>
@@ -367,8 +370,8 @@
     <script src="socket.io/socket.io.js"></script>
     <script src="fes.js"></script>
     <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/js/cdnjsCloudflareAjaxLibsJquery-easing141Jquery.easing.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/js/Chart_2.9.4_bundle.js"></script>
     <script src="assets/js/Chart_2.9.4_bundle.min.js"></script>
 

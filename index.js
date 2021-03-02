@@ -4,7 +4,6 @@ const express = require('express'); // Configurar express
 const fs = require('fs'); //  File System module
 const {spawn} = require ('child_process');
 const {exec} = require ('child_process');
-const SerialPort = require('serialport')
 
 
 
@@ -202,65 +201,79 @@ s_pos.bind(10007);
 var last_trama = [];
 var trama = [];
 const equals = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+var interval_last = 0;
 setInterval(function () {
-    last_trama = trama;
-    trama = []
-    var element
-    var stimList = []
-    for (let i = 0; i < stimulationPoints.length; i++) {
-      element = stimulationPoints[i]
-      joint = element.joint
-      index = element.index
-      right_hip_ref = 141
-      if (joint == "l_hip") {
-        if ((left_hip_ref[index] > (left_hip_ref - 2.5) && (hip_trajectory[index] < (left_hip_ref + 2.5)))) {
-          stimList.push(i)
+    // When the therapy starts
+    if (record_therapy) { 
+        var interval = new Date();
+        /*
+        if (interval_last != 0)
+            console.log("interval")
+            console.log(interval.getTime() - interval_last)
+        interval_last = interval.getTime()
+        */
+        last_trama = trama;
+        trama = []
+        var element
+        var stimList = []
+        // Get stimulation objects that must be activated 
+        for (let i = 0; i < stimulationPoints.length; i++) {
+            element = stimulationPoints[i]
+            joint = element.joint
+            index = parseInt(element.index)
+            var margin = 5
+            if (joint == "l_hip") {
+                if ((left_hip_ref > (hip_trajectory[index] - margin) && (left_hip_ref < (hip_trajectory[index] + margin)))) {
+                    stimList.push(i)
+                }
+            } else if (joint == "r_hip") {
+                if (( right_hip_ref > (hip_trajectory[index] - margin) && (right_hip_ref < (hip_trajectory[index] + margin)))) {
+                    stimList.push(i)
+                }
+            } else if (joint == "l_knee") {
+                if ((left_knee_ref > (knee_trajectory[index] - margin) && (left_knee_ref < (knee_trajectory[index] + margin)))) {
+                    stimList.push(i)
+                }
+            } else if (joint == "r_knee") {
+                if (( right_knee_ref > (knee_trajectory[index] - margin) && (right_knee_ref < (knee_trajectory[index] + margin)))) {
+                    stimList.push(i)
+                }
+            }
         }
-      } else if (joint == "r_hip") {
-        if ((right_hip_ref[index] > (right_hip_ref - 2.5) && (right_hip_ref[index] < (right_hip_ref + 2.5)))) {
-          stimList.push(i)
+        // FES update trama
+        // Calculate the check command for the RehaStim update tramma
+        var check = 0;
+        for (var i = 0; i < stimList.length; i++) {
+            check = check + stimulationPoints[stimList[i]].mode + stimulationPoints[stimList[i]].current + stimulationPoints[stimList[i]].pw;
         }
-      } else if (joint == "l_knee") {
-        if ((left_knee_ref[index] > (left_knee_ref - 2.5) && (knee_trajectory[index] < (left_knee_ref + 2.5)))) {
-          stimList.push(i)
+        //First byte
+        var byte_1 = parseInt('101' + binaryResize((check % 32).toString(2), 5), 2);
+        trama.push(byte_1)
+        // Get channels to be activated or deactivated
+        var update;
+        const channels = 8;
+        for (let i = 0; i < channels; i++) {
+            update = false;
+            // Check if any channel of the activated stimulation objects matches
+            for (var j = 0; j < stimList.length; j++) {
+                if (stimulationPoints[stimList[j]].channels.charAt(7 - i) == '1') {
+                    trama.push(stimulationPoints[stimList[j]].ccl_update);
+                    update = true;
+                    break
+                }
+            }
+            // If no channel matches then add the 0 update command ("stop stimulation in that channel")
+            if (update == false) {
+                trama.push(0,0,0);
+            }
         }
-      } else if (joint == "r_knee") {
-        if ((right_knee_ref[index] > (right_knee_ref - 2.5) && (knee_trajectory[index] < (right_knee_ref + 2.5)))) {
-          stimList.push(i)
+        // Do not repeate same last command
+        if (equals(last_trama,trama) == false) {
+        // Send final command to the stimulator
+        sendUDP(trama,TRAMA_PORT,LOCAL_IP);
         }
-      }
     }
-    var check = 0;
-    for (var i = 0; i < stimList.length; i++) {
-      check = check + stimulationPoints[stimList[i]].mode + stimulationPoints[stimList[i]].current + stimulationPoints[stimList[i]].pw;
-    }
-    // FES update trama
-    //First byte
-    var byte_1 = parseInt('101' + binaryResize((check % 32).toString(2), 5), 2);
-    //
-    const channels = 8;
-    trama.push(byte_1)
-    var update;
-    for (let i = 0; i < channels; i++) {
-      update = false;
-      // Check if any channel of the activated stimulation objects matches
-      for (var j = 0; j < stimList.length; j++) {
-        if (stimulationPoints[stimList[j]].channels.charAt(7 - i) == '1') {
-          trama.push(stimulationPoints[stimList[i]].ccl_update);
-          update = true;
-          break
-        }
-      }
-      // If no channel matches then add the 0 update command ("stop stimulation in that channel")
-      if (update == false) {
-        trama.push(0,0,0);
-      }
-    }
-    if (equals(last_trama,trama) == false) {
-      // Send final command to the stimulator
-      sendUDP(trama,TRAMA_PORT,LOCAL_IP);
-    }
-}, 50);
+}, 0);
 
 ///////////////////////////////////////
 //*** Server-Client communication ***//
@@ -400,8 +413,8 @@ io.on('connection', (socket) => {
         console.log("Add session data")
         var sql = "INSERT INTO tabla_sesion (idPaciente, NumberSession, idTerapeuta, patiente_age, patiente_weight, leg_length, hip_upper_strap, knee_lower_strap, gait_velocity, gmfcs, steps, ROM, PBWS, control_mode, right_knee_config, left_knee_config, right_hip_config, left_hip_config, observations) VALUES (?)";
         // Read therapy configuration from conf file
-        fs.readFile('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', (err, data) => {
-        //fs.readFile('config/therapySettings.json', (err, data) => {
+        //fs.readFile('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', (err, data) => {
+        fs.readFile('config/therapySettings.json', (err, data) => {
             if (err) throw err;
             var config = JSON.parse(data);
             var terapist_id = "SELECT idtabla_terapeutas from tabla_terapeutas where NombreTerapeuta in ('" + (config.therapist_name.split(" "))[0] +"') AND ApellidoTerapeuta in ('" + (config.therapist_name.split(" "))[1] +"'); ";
@@ -551,8 +564,8 @@ io.on('connection', (socket) => {
 
     // Save therapy settings in a JSON file.
     socket.on('settings:save_settings', (data) => {
-        fs.writeFileSync('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', JSON.stringify(data), function (err){
-        //fs.writeFileSync('config/therapySettings.json', JSON.stringify(data), function (err){
+        //fs.writeFileSync('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', JSON.stringify(data), function (err){
+        fs.writeFileSync('config/therapySettings.json', JSON.stringify(data), function (err){
             if (err) throw err;
             console.log('Therapy settings saved!')
         })
@@ -561,8 +574,8 @@ io.on('connection', (socket) => {
     // Show therapy settings in the monitoring screen.
     socket.on('monitoring:ask_therapy_settings', function(callbackFn) {
         // Read therappy settings from config file.
-        fs.readFile('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', (err, data) => {
-        //fs.readFile('config/therapySettings.json', (err, data) => {
+        //fs.readFile('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', (err, data) => {
+        fs.readFile('config/therapySettings.json', (err, data) => {
             if (err) throw err;
             let config = JSON.parse(data);
             console.log(config);
@@ -676,32 +689,47 @@ io.on('connection', (socket) => {
         console.log(left_knee_saved.length)
     });
 
-    // Update joint chart plots.
-    socket.on('FES:configuration', function(data) {
+    // Send test FES configuration
+    socket.on('FES:general_config_stim', function(data) {
+        //console.log(data.channels, data.current, data.pw, data.main_freq, data.group_time, data.mode)
+        var ccl_init  = initCmdFES(data.channels, data.main_freq, data.group_time);
+        (async () => {
+            await new Promise(resolve => setTimeout(resolve, 50));
+            sendUDP(ccl_init,TRAMA_PORT,LOCAL_IP);
+        })();
+    });
+
+    // Send test FES configuration
+    socket.on('FES:configuration_test', function(data) {
         //console.log(data.channels, data.current, data.pw, data.main_freq, data.group_time, data.mode)
         var [trama_init, trama_update, trama_stop]  = configFES(data.channels, data.current, data.pw, data.main_freq, data.group_time, data.mode);
         console.log(trama_init)
         console.log(trama_update)
         console.log(trama_stop)
-        sendUDP(trama_init.concat(trama_update),TRAMA_PORT,LOCAL_IP);
         (async () => {
             await new Promise(resolve => setTimeout(resolve, 50));
+            sendUDP(trama_init.concat(trama_update),TRAMA_PORT,LOCAL_IP);
         })();
     });
-    // Update joint chart plots.
+
+    // Save point FES stimulation
     socket.on('FES:save_stim', function(data) {
         var [ccl_update, ccl_zero]  =  updateCmdFES(data.mode, data.current, data.pw)
-        stimulationPoints.push(new stimulationFES(data.channels, data.joint, data.index,data.mode, data.current, data.pw, ccl_update, ccl_zero))
+        stimulationPoints.push(new stimulationFES(data.channels, data.joint, data.index,data.mode, data.pw, data.current, ccl_update, ccl_zero))
         console.log(stimulationPoints)
     });
 
-    // Update joint chart plots.
+    // Ask for the serial ports connected
     socket.on('FES:ask_serial_port', function() {
         // List ttyUSB devices. Devices which show up in /dev have a dev file in
         // their /sys directory. So we search for directories matching this criteria.
         var serialPorts = []
         exec('find /sys/bus/usb/devices/usb*/ -name tty', (err, stdout, stderr) => {
           if (err) {
+            var serialPorts = ["ttyUSB0", "ttyUSB1"]
+            socket.emit('FES:get_serial_port', {
+                serialPorts: serialPorts
+            })
             console.log(`stderr: ${stderr}`);
             return;
           }
@@ -751,7 +779,7 @@ function updateCmdFES ( current, pw , mode) {
     mode_bin = binaryResize(mode.toString(2), 2)
 
     // Pulse width
-	  pw = parseInt(pw);
+	pw = parseInt(pw);
     pw_bin=binaryResize(pw.toString(2),9)
 
     // Current:
@@ -785,6 +813,64 @@ function updateCmdFES ( current, pw , mode) {
     return [ccl_update, ccl_zero];
 }
 
+function initCmdFES (channels_Stim, main_freq, group_time) {
+    // channels_Stim: Stimulator channels to be sued (example:'00100011' // Canales activos, segun orden descendente:1 (tibial), 2(Gastrocnemios) y 5 (Cuádriceps))
+    // main_freq: Attendance frequency [hz]
+    // group_time: Attendance frequency between groups
+
+    // Channels list:
+    console.log(channels_Stim_dec)
+    var channels_Stim_dec = parseInt(channels_Stim,2);
+
+    // Channels Low Frequency: (defines the low frequency channels)
+    var channels_Lf = '0000000';
+    var channels_Lf_dec = parseInt(channels_Lf, 2);
+
+    // N Factor: How many times the stimulation is skipped for channels specified in Channel_Lf and Channel_Stim
+    // 0 = no skip
+    // 1 = skip once
+    // 7 = skip seven times
+    var n_factor_dec = 0;
+    var n_factor_bin = binaryResize(n_factor_dec.toString(2),3)
+    console.log(n_factor_bin)
+
+    // Main frequency
+    // From RehaStim datasheet (size 11 bits): main_time = (ts1 + 1) / 0.5 // Main period ts1 in (ms)
+    main_time_dec = (Math.abs((1/parseInt(main_freq))*1000) - 1)/.5;
+    main_time_bin = parseInt(main_time_dec,10).toString(2);
+    main_time_bin = binaryResize (main_time_bin, 11)
+
+    // Group frequency
+    // From RehaStim datasheet (size 5 bits): group_time = (ts2 - 1.5) / 0.5 // In (ms)
+    group_time_dec = parseInt(group_time);
+    group_time_bin = parseInt(group_time_dec).toString(2); // Conver to binary
+    group_time_bin = binaryResize (group_time_bin, 5); // Resize binary number
+
+    // Control modes
+    // Ident == '00' (Channel list Initialization mode)
+    // Ident == '01' (Channel list Update mode)
+    // Ident == '10' (Channel list Stop mode)
+    // Ident == '11' (Single Pulse Generator mode)
+    //
+    // Channel list Initialization Command (ccl_init):
+    var Ident = '00';
+    var check_init =  binaryResize(parseInt((channels_Stim_dec + channels_Lf_dec + group_time_dec + main_time_dec) % 8).toString(2),3); // Datasheet formula
+    var byte_1 = ('1' + Ident + check_init + n_factor_bin.substr(0,2));
+    var byte_1_dec =  parseInt(byte_1, 2);
+    var byte_2 = '0' + n_factor_bin.charAt(2) + channels_Stim.substring(0,6)
+    var byte_2_dec = parseInt(byte_2, 2);
+    var byte_3 = '0' + channels_Stim.substring(6,8) + channels_Lf.substring(0,5)
+    var byte_3_dec = parseInt(byte_3, 2);
+    var byte_4 = '0' + channels_Lf.substring(5,8) + '00' + group_time_bin.substring(0,2)
+    var byte_4_dec = parseInt(byte_4, 2);
+    var byte_5 = '0' + group_time_bin.substring(2,5) + main_time_bin.substring(0, 4)
+    var byte_5_dec = parseInt(byte_5, 2);
+    var byte_6 = '0' + main_time_bin.substring(4,11)
+    var byte_6_dec = parseInt(byte_6, 2);
+    var ccl_init = [byte_1_dec, byte_2_dec, byte_3_dec, byte_4_dec, byte_5_dec, byte_6_dec]
+
+    return ccl_init;
+}
 
 function configFES (channels_Stim, current, pw ,main_freq, group_time, mode) {
     // channels_Stim: Stimulator channels to be sued (example:'00100011' // Canales activos, segun orden descendente:1 (tibial), 2(Gastrocnemios) y 5 (Cuádriceps))
@@ -941,8 +1027,8 @@ function configureStartPos() {
     var pat_weight
     var pbws;
     // Get therapy settings from json file
-    fs.readFile('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', (err, data) => {
-    //fs.readFile('config/therapySettings.json', (err, data) => {
+    //fs.readFile('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', (err, data) => {
+    fs.readFile('config/therapySettings.json', (err, data) => {
         if (err) throw err;
         // Get json object
         let config = JSON.parse(data);
@@ -1016,8 +1102,8 @@ function startTherapy() {
     var check_gauges;
     var weight_ref;
     // Read therappy settings from config file.
-    fs.readFile('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', (err, data) => {
-    //fs.readFile('config/therapySettings.json', (err, data) => {
+    //fs.readFile('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', (err, data) => {
+    fs.readFile('config/therapySettings.json', (err, data) => {
         if (err) throw err;
         // Get json object
         let config = JSON.parse(data);

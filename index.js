@@ -258,8 +258,11 @@ var encoder_right_wheel;
 
 // CPWalker data
 s_msg.on('message', function(msg, info) {
+    //console.log(msg);
     [left_knee_real, left_knee_ref, right_knee_real, right_knee_ref, left_hip_real, left_hip_ref, right_hip_real, right_hip_ref, left_leg_index, right_leg_index, torque_left_knee, torque_right_knee, torque_left_hip, torque_right_hip, weight, pistons, traction_ref, encoder_left_wheel, encoder_right_wheel] = decodemsg(msg);
-    
+    //console.log(left_leg_index);
+    //console.log(right_leg_index);
+        
     if (record_therapy) {
         left_knee_vector.push(parseFloat(left_knee_real));
         left_knee_ref_vector.push(parseFloat(left_knee_ref));
@@ -1197,7 +1200,7 @@ function configureStartPos() {
 
         // Exoskeleton config and move to initial position.
         exo_config = [0,0,0,0,0,0,0,0];
-        exo_config[1] = 1; // Start motion 
+        exo_config[1] = 0; // Start motion 
         exo_config[2] = parseInt(config.steps);
         exo_config[3] = parseInt(config.gait_velocity);
         exo_config[4] = parseInt(config.rom);
@@ -1269,7 +1272,7 @@ function startTherapy() {
          exo_config[5] = parseInt(config.leg_length);
 
         // Encode joint control mode 
-        var joint_control_mode = [encodeControlModes(config.left_hip_config), encodeControlModes(config.right_hip_config), encodeControlModes(config.left_knee_config), encodeControlModes(config.right_knee_config)];
+        var joint_control_mode = [encodeControlModes(config.left_knee_config), encodeControlModes(config.right_knee_config), encodeControlModes(config.left_hip_config), encodeControlModes(config.right_hip_config)];
 
         // Send data to the robot
         (async () => {
@@ -1505,6 +1508,7 @@ function decodemsg(msg) {
     // [left_knee_real, left_knee_ref, right_knee_real, right_knee_ref, left_hip_real, left_hip_ref, right_hip_real, right_hip_ref, ...
     // right_leg_index, left_leg_index , torque_left_knee, torque_right_knee, torque_left_hip, torque_right_hip, weight, pistons, ...
     // raction_ref, encoder_left_wheel, encoder_right_wheel]
+    
                                                                                                                                                                                                                                                                                                    
     msg = msg.toString('hex');                                                                                                                                                                                                                                                                                                
     // Transform the coded_number of type string to an hex number array                                                                                                                                                                                                                                                                              
@@ -1514,7 +1518,7 @@ function decodemsg(msg) {
         //console.log(msg.charAt(i) + msg.charAt(i + 1));
         //console.log(msg_vector[msg_vector.length - 1]);                                                                                                                                                                                                                                                                        
     }
-    //console.log(msg_vector);
+    //console.log(msg);
     msg_data = [];                                                                                                                                                                                                                                                                                                               
     let index = 0;
     while (index < msg_vector.length) {
@@ -1528,8 +1532,10 @@ function decodemsg(msg) {
         // Data intergers:  right_leg_index, left_leg_index                                                                                                                                                                                                                                                                          
         else if (index < (8 * 4) + (2)) {
             //console.log("index");
-            //console.log(index);  
+            //console.log(index);
             msg_data.push(data2interger(msg_vector[index]));
+            //console.log("value");
+            //console.log(msg_vector[index])
             index = index + 1;                                                                                                                                                                                                                                                                                                       
         }                                                                                                                                                                                                                                                                                                                            
         // Data doubles:  torque_left_knee, torque_right_knee, torque_left_hip, torque_right_hip, weight

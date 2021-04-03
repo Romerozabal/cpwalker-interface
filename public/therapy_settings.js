@@ -73,8 +73,11 @@ window.onload = function(){
    
     // Updates the value of the "gait_velocity" range input
     document.getElementById("gait_velocity").onclick = function() {
-        var gait_velocity = document.getElementById("gait_velocity").value;
-        document.getElementById("gait_velocity_value").innerHTML = gait_velocity + "%";
+        var max_gait_vel = 0.6;
+        var gait_velocity_percentage = document.getElementById("gait_velocity").value;
+        var leg_length = document.getElementById("leg_length").value;
+        document.getElementById("gait_velocity_value").innerHTML = (parseFloat(max_gait_vel) * (parseFloat(gait_velocity_percentage)/100)).toFixed(2).toString() + "(m/s)";     
+        document.getElementById("gait_velocity_percentage").innerHTML = gait_velocity_percentage + "%";
     };
 
     // Updates the value of the "rom" range input

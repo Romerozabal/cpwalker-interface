@@ -6,11 +6,10 @@ const {spawn} = require ('child_process');
 const {exec} = require ('child_process');
 
 
-
 // Execute python program to control the rehaStym when server starts
 const python = spawn('python', ['rehaStym_configuration.py']);
 
-var PLOTSAMPLINGTIME = 35; //ms
+var PLOTSAMPLINGTIME = 100; //ms
 
 /////////////////////
 //** UDP Network **//
@@ -31,8 +30,8 @@ var s_right_knee = dgram.createSocket('udp4');
 var s_left_hip = dgram.createSocket('udp4');
 var s_right_hip = dgram.createSocket('udp4');
 var s_weight = dgram.createSocket('udp4');
-var s_can = dgram.createSocket('udp4');
-var s_pos = dgram.createSocket('udp4');
+var s_r_index = dgram.createSocket('udp4');
+var s_l_index = dgram.createSocket('udp4');
 // UDP constants to send data
 const CPWALKER_IP = '192.168.4.2';
 const LOCAL_IP = 'localhost';
@@ -41,7 +40,6 @@ const WEIGHT_PORT = 50015; //Patient weight control
 const TRACTION_PORT = 50012; //Traction control
 const IMPEDANCE_PORT = 50016; //Impedance control
 const TRAMA_PORT = 6000; //FES stimulation command
-const SERIAL_PORT = 6001; // Serial Port connected to Raspberry
 
 /////////////////////////////////
 //** Webserver configuration **//
@@ -114,8 +112,8 @@ class stimulationFES {
 // - port: 10003 -> left hip angles (real position, reference position)
 // - port: 10004 -> righ hip angles (real position, reference position)
 // - port: 10005 -> Strain gauge wheight
-// - port: 10006 -> CAN error
-// - port: 10007 -> Position error
+// - port: 10006 -> Gait % Right Leg
+// - port: 10007 -> Gait % Left Leg
 //
 // Received data format:
 // Joint data: 8 bytes in hexadecimal => [sign_real_pos, interger_real_pos, decimals_1_real_pos, decimals_2_real_pos, sign_ref_pos, interger_ref_pos, decimals_1_ref_pos, decimals_2_ref_pos]
@@ -125,6 +123,8 @@ class stimulationFES {
 var record_therapy = false
 var time_spam = []
 var time_start_therapy = 0;
+var right_leg_gait = []; // Vector of right leg gait phase (0-200) of the reference trajectory
+var left_leg_gait = []; // Vector of left leg gait phase (0-200) of the reference trajectory
 var left_knee_saved = [];
 var right_knee_saved= [];
 var left_hip_saved= [];
@@ -136,6 +136,8 @@ var right_hip_ref_saved= [];
 
 const hip_trajectory = [36.5585, 36.5259, 36.4962, 36.4689, 36.4408, 36.3909, 36.335, 36.271, 36.1943, 36.0842, 35.9539, 35.8015, 35.6229, 35.3996, 35.1472, 34.8671, 34.5588, 34.2085, 33.8337, 33.4375, 33.021, 32.5716, 32.1055, 31.6253, 31.1309, 30.6092, 30.0759, 29.5333, 28.982, 28.4101, 27.8326, 27.2519, 26.6686, 26.0712, 25.4745, 24.881, 24.2907, 23.6928, 23.0991, 22.5103, 21.9251, 21.3314, 20.7416, 20.1566, 19.576, 18.9904, 18.4092, 17.8328, 17.26, 16.6806, 16.1042, 15.5317, 14.9625, 14.3888, 13.8194, 13.2551, 12.6957, 12.1344, 11.5788, 11.0296, 10.4863, 9.943, 9.4059, 8.8751, 8.35, 7.8256, 7.307, 6.7943, 6.2873, 5.782, 5.2825, 4.789, 4.3013, 3.8162, 3.3365, 2.8623, 2.3931, 1.9264, 1.4649, 1.0089, 0.55876, 0.11339, -0.32492, -0.75545, -1.1777, -1.592, -1.9966, -2.3906, -2.7733, -3.1449, -3.503, -3.8462, -4.1732, -4.483, -4.7732, -5.0422, -5.2883, -5.5107, -5.7056, -5.8703, -6.0025, -6.1013, -6.1635, -6.1873, -6.1715, -6.117, -6.0199, -5.8784, -5.691, -5.4588, -5.1776, -4.8459, -4.4624, -4.0296, -3.5434, -3.0028, -2.408, -1.7637, -1.0667, -0.31824, 0.47919, 1.3179, 2.1989, 3.1186, 4.0724, 5.0499, 6.0517, 7.0737, 8.1109, 9.1527, 10.2008, 11.2518, 12.3017, 13.3403, 14.3718, 15.3946, 16.4062, 17.397, 18.3728, 19.3328, 20.2749, 21.189, 22.0824, 22.9548, 23.805, 24.6222, 25.4163, 26.1884, 26.9377, 27.6538, 28.3466, 29.0165, 29.6621, 30.2707, 30.8549, 31.416, 31.9538, 32.4557, 32.9354, 33.3942, 33.8315, 34.2332, 34.613, 34.9714, 35.3072, 35.6047, 35.8803, 36.136, 36.3716, 36.5725, 36.7541, 36.9172, 37.0604, 37.1663, 37.2525, 37.3207, 37.3704, 37.3856, 37.3845, 37.3695, 37.3407, 37.2817, 37.2124, 37.1364, 37.0547, 36.9514, 36.8478, 36.7477, 36.6527, 36.5465, 36.4502, 36.367, 36.2969, 36.2222, 36.1618, 36.1168, 36.085, 36.046, 36.0174, 35.9986, 35.9863];
 const knee_trajectory = [6.1418, 6.7972, 7.4686, 8.1689, 8.9067, 9.6842, 10.4966, 11.3337, 12.182, 13.0189, 13.8396, 14.6336, 15.3915, 16.1046, 16.7657, 17.3684, 17.9076, 18.3745, 18.7741, 19.1077, 19.3771, 19.5806, 19.725, 19.8135, 19.8487, 19.828, 19.7606, 19.6507, 19.5023, 19.3141, 19.0962, 18.8534, 18.5896, 18.303, 18.0026, 17.692, 17.3728, 17.0405, 16.7037, 16.3641, 16.0224, 15.6729, 15.3231, 14.9743, 14.6265, 14.2733, 13.9225, 13.5755, 13.2325, 12.8872, 12.5471, 12.213, 11.885, 11.5564, 11.2348, 10.9213, 10.6157, 10.3121, 10.0171, 9.7313, 9.4541, 9.1793, 8.9136, 8.6575, 8.4108, 8.1681, 7.9356, 7.7143, 7.5041, 7.2999, 7.108, 6.9295, 6.7647, 6.6084, 6.4679, 6.3452, 6.2412, 6.1513, 6.0831, 6.0383, 6.018, 6.0166, 6.0428, 6.0985, 6.185, 6.2962, 6.4408, 6.6206, 6.8362, 7.0798, 7.3613, 7.6824, 8.0437, 8.4363, 8.8715, 9.3514, 9.8765, 10.4366, 11.0446, 11.7028, 12.4117, 13.1596, 13.9608, 14.8179, 15.7311, 16.6869, 17.701, 18.7756, 19.9101, 21.0885, 22.3263, 23.6239, 24.9787, 26.3711, 27.8151, 29.3086, 30.8466, 32.4058, 33.9996, 35.624, 37.2719, 38.9172, 40.5709, 42.2259, 43.8718, 45.4793, 47.0568, 48.5956, 50.0841, 51.4928, 52.8325, 54.0975, 55.2796, 56.3539, 57.3346, 58.2194, 59.0042, 59.6669, 60.2264, 60.6839, 61.0388, 61.2726, 61.407, 61.4458, 61.3902, 61.2232, 60.9669, 60.6248, 60.1978, 59.6684, 59.0586, 58.3722, 57.6101, 56.7555, 55.8304, 54.839, 53.7822, 52.6441, 51.4464, 50.193, 48.8851, 47.5074, 46.0817, 44.6124, 43.1012, 41.5343, 39.9329, 38.3016, 36.6427, 34.943, 33.2247, 31.4935, 29.753, 27.9924, 26.2345, 24.4865, 22.7541, 21.028, 19.3339, 17.6818, 16.0799, 14.5222, 13.0349, 11.629, 10.3133, 9.0819, 7.9609, 6.9607, 6.0887, 5.3415, 4.7328, 4.2657, 3.9404, 3.7431, 3.6892, 3.7775, 4.0008, 4.3424, 4.7836, 5.2959, 5.8453];
+var right_leg_index = 0; // Current right leg gait phase (0-200) of the reference trajectory
+var left_leg_index = 0; // Current left leg gait phase (0-200) of the reference trajectory
 var left_knee_real; // Real value of the knee angular position
 var left_knee_ref; // Reference value (setpoint)
 var right_knee_real; // Real value of the knee angular position
@@ -178,14 +180,28 @@ s_right_hip.on('message', function(msg, info) {
         right_hip_ref_saved.push(parseFloat(right_hip_ref))
     }
 });
-//TODO
+// Patient weight
 s_weight.on('message', function(msg, info) {
+    /*var weight = [];
+    for (i = 0 ; i < String(msg).length; i++) {
+        weight.push(String(msg).charCodeAt(i));
+    }
+    console.log(weight);
+    */
 });
-//TODO
-s_can.on('message', function(msg, info) {
+// Right leg % gait
+s_r_index.on('message', function(msg, info) {
+    if (record_therapy) {
+        right_leg_index = msg.readUInt8(0);
+        right_leg_gait.push(right_leg_index);
+    }
 });
-//TODO
-s_pos.on('message', function(msg, info) {
+// Left leg % gait
+s_l_index.on('message', function(msg, info) {
+    if (record_therapy) {
+        left_leg_index = msg.readUInt8(0);
+        left_leg_gait.push(left_leg_index);
+    }
 });
 // Bind the UDP ports
 s_left_knee.bind(10001);
@@ -193,8 +209,8 @@ s_right_knee.bind(10002);
 s_left_hip.bind(10003);
 s_right_hip.bind(10004);
 s_weight.bind(10005);
-s_can.bind(10006);
-s_pos.bind(10007);
+s_r_index.bind(10006);
+s_l_index.bind(10007);
 
 
 
@@ -203,15 +219,9 @@ var trama = [];
 const equals = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 var interval_last = 0;
 setInterval(function () {
-    // When the therapy starts
+    // When therapy starts
     if (record_therapy) { 
         var interval = new Date();
-        /*
-        if (interval_last != 0)
-            console.log("interval")
-            console.log(interval.getTime() - interval_last)
-        interval_last = interval.getTime()
-        */
         last_trama = trama;
         trama = []
         var element
@@ -221,7 +231,21 @@ setInterval(function () {
             element = stimulationPoints[i]
             joint = element.joint
             index = parseInt(element.index)
-            var margin = 5
+            var margin = 2
+
+            if ((joint == "l_hip") | (joint == "l_knee")) {
+                if ((left_leg_index > (index - margin) && (left_leg_index < (index + margin)))) {
+                    stimList.push(i)
+                }
+            } else if ((joint == "r_hip") | (joint == "r_knee")) {
+                if (( right_leg_index > (index - margin) && (right_leg_index < (index + margin)))) {
+                    stimList.push(i)
+                }
+            }
+        }
+
+        /*
+        // Stimulation working
             if (joint == "l_hip") {
                 if ((left_hip_ref > (hip_trajectory[index] - margin) && (left_hip_ref < (hip_trajectory[index] + margin)))) {
                     stimList.push(i)
@@ -240,24 +264,36 @@ setInterval(function () {
                 }
             }
         }
+        */
         // FES update trama
         // Calculate the check command for the RehaStim update tramma
         var check = 0;
         for (var i = 0; i < stimList.length; i++) {
-            check = check + stimulationPoints[stimList[i]].mode + stimulationPoints[stimList[i]].current + stimulationPoints[stimList[i]].pw;
+            check = check + parseInt(stimulationPoints[stimList[i]].mode) + parseInt(stimulationPoints[stimList[i]].current) + parseInt(stimulationPoints[stimList[i]].pw);
         }
         //First byte
-        var byte_1 = parseInt('101' + binaryResize((check % 32).toString(2), 5), 2);
-        trama.push(byte_1)
+        var Ident = '01';
+        var check_update = binaryResize(parseInt((check) % 32).toString(2), 5);
+        //console.log("check_update");
+        //console.log(check_update);
+        var byte_1 = '1' + Ident + check_update;
+        var byte_1_dec = parseInt(byte_1,2)
+        //console.log("byte_1 bin");
+        //console.log(byte_1);
+        //console.log("byte_1");
+        //console.log(byte_1_dec);
+        trama.push(byte_1_dec)
         // Get channels to be activated or deactivated
         var update;
         const channels = 8;
-        for (let i = 0; i < channels; i++) {
+        for (let i = 0; i < channels - 1; i++) {
             update = false;
             // Check if any channel of the activated stimulation objects matches
             for (var j = 0; j < stimList.length; j++) {
                 if (stimulationPoints[stimList[j]].channels.charAt(7 - i) == '1') {
-                    trama.push(stimulationPoints[stimList[j]].ccl_update);
+                    trama.push(stimulationPoints[stimList[j]].ccl_update[0]);
+                    trama.push(stimulationPoints[stimList[j]].ccl_update[1]);
+                    trama.push(stimulationPoints[stimList[j]].ccl_update[2]);
                     update = true;
                     break
                 }
@@ -558,8 +594,11 @@ io.on('connection', (socket) => {
             right_knee_real: right_knee_real,
             right_knee_ref: right_knee_ref,
             left_knee_real: left_knee_real,
-            left_knee_ref: left_knee_ref
+            left_knee_ref: left_knee_ref,
+            right_leg_index: right_leg_index,
+            left_leg_index: left_leg_index
         })
+        //console.log(left_leg_index);
     }, PLOTSAMPLINGTIME);
 
     // Save therapy settings in a JSON file.
@@ -632,31 +671,6 @@ io.on('connection', (socket) => {
             });
     });
 
-    //INSERTAR PACIENTE QUE SE TRAE DESDE LA WEB HACIA LA BASE DE DATOS.
-    socket.on('insertPatient', function(patient) {
-        console.log(patient);
-        var con = mysql.createConnection({
-            host: "localhost",
-            user: "root",
-            password: "mysql",
-            database: "cpwdb",
-            multipleStatements: true
-          });
-            con.connect(function(err) {
-                if (err) throw err;
-                console.log("Agregado");
-                console.log(patient[0]);
-                console.log(patient[1]);
-                var sql = "INSERT INTO tabla_pacientes (NombrePaciente, ApellidoPaciente) VALUES (?)";
-                con.query(sql,[patient], function (err, result) {
-                  if (err) throw err;
-                  console.log("1 record inserted");
-                //  socket.emit('datostabla', result);
-                });
-
-            });
-    });
-
     // Configure the robot.
     socket.on('monitoring:configure_robot', function(callbackFn) {
         configureStartPos();
@@ -675,6 +689,8 @@ io.on('connection', (socket) => {
         left_knee_ref_saved= []
         right_knee_saved = []
         right_knee_ref_saved= []
+        right_leg_gait = []
+        left_leg_gait = []
         var d = new Date();
         time_start_therapy = d.getTime()
     });
@@ -683,20 +699,20 @@ io.on('connection', (socket) => {
     socket.on('monitoring:stop', function(callbackFn) {
         stopTherapy();
         record_therapy = false
-        console.log(right_hip_saved)
+        console.log("Saved vector sizes: r_h , l_h, r_k, l_k, r_index, l_index")
+        console.log(right_hip_saved.length)
         console.log(left_hip_saved.length)
         console.log(right_knee_saved.length)
         console.log(left_knee_saved.length)
+        console.log(right_leg_gait.length);
+        console.log(left_leg_gait.length);
     });
 
     // Send test FES configuration
     socket.on('FES:general_config_stim', function(data) {
         //console.log(data.channels, data.current, data.pw, data.main_freq, data.group_time, data.mode)
         var ccl_init  = initCmdFES(data.channels, data.main_freq, data.group_time);
-        (async () => {
-            await new Promise(resolve => setTimeout(resolve, 50));
-            sendUDP(ccl_init,TRAMA_PORT,LOCAL_IP);
-        })();
+        sendUDP(ccl_init,TRAMA_PORT,LOCAL_IP);
     });
 
     // Send test FES configuration
@@ -704,10 +720,7 @@ io.on('connection', (socket) => {
         var [trama_init, trama_update, trama_stop]  = configFES(data.channels, data.current, data.pw, data.main_freq, data.group_time, data.mode);
         console.log(trama_init);
         console.log(trama_update);
-        (async () => {
-            await new Promise(resolve => setTimeout(resolve, 50));
-            sendUDP(trama_init.concat(trama_update),TRAMA_PORT,LOCAL_IP);
-        })();
+        sendUDP(trama_init.concat(trama_update),TRAMA_PORT,LOCAL_IP);
     });
 
     // Save point FES stimulation
@@ -750,7 +763,7 @@ io.on('connection', (socket) => {
 
     });
 
-    socket.on('reconnect', function(err) {
+    socket.on('monitoring:calibrate_gauges', function(err) {
         resetTexas();
     });
 })
@@ -764,7 +777,7 @@ function resetTexas() {
     sendUDP(255,9999,CPWALKER_IP);
 }
 
-function updateCmdFES ( current, pw , mode) {
+function updateCmdFES (mode, current, pw) {
     // current: Stimulation Current [mA]
     // pw: Pulse width [us]
     // mode: Mode of assistance (single pulses, doublets and triplets)
@@ -791,22 +804,22 @@ function updateCmdFES ( current, pw , mode) {
     // Ident == '10' (Channel list Stop mode)
     // Ident == '11' (Single Pulse Generator mode)
     // Channel list Update Command (ccl_update):
-    var Ident = '01';
-    var check_update = binaryResize(parseInt((mode + pw + current) % 32).toString(2), 5);
-    var byte_1 = '1' + Ident + check_update;
-    var byte_1_dec =  parseInt(byte_1, 2);
-    var byte_2 = '0' + mode_bin + '000' + pw_bin.substring(0,2)
+
+    //var Ident = '01';
+    //var check_update = binaryResize(parseInt((mode + pw + current) % 32).toString(2), 5);
+    //var byte_1 = '1' + Ident + check_update;
+    //var byte_1_dec =  parseInt(byte_1, 2);
+
+    var byte_1 = '0' + mode_bin + '000' + pw_bin.substring(0,2)
+    var byte_1_dec = parseInt(byte_1, 2);
+    var byte_2 = '0' + pw_bin.substring(2,9)
     var byte_2_dec = parseInt(byte_2, 2);
-    var byte_3 = '0' + pw_bin.substring(2,9)
+    var byte_3 = '0' + current_bin
     var byte_3_dec = parseInt(byte_3, 2);
-    var byte_4 = '0' + current_bin
-    var byte_4_dec = parseInt(byte_4, 2);
-    var ccl_update = [byte_1_dec, byte_2_dec, byte_3_dec, byte_4_dec]
-    crc_update_bin = '101' + binaryResize(((pw + current + mode) % 32).toString(2), 5);
-    crc_update = parseInt(crc_update_bin, 2);
+    var ccl_update = [byte_1_dec, byte_2_dec, byte_3_dec]
     //
     // Channel list Zero Command (ccl_stop):
-    var ccl_zero = [0, 0, 0, 0]
+    var ccl_zero = [0, 0, 0]
 
     return [ccl_update, ccl_zero];
 }
@@ -913,7 +926,7 @@ function configFES (channels_Stim, current, pw ,main_freq, group_time, mode) {
     mode_bin = binaryResize(mode.toString(2), 2)
 
     // Pulse width
-	  pw = parseInt(pw);
+	pw = parseInt(pw);
     pw_bin=binaryResize(pw.toString(2),9)
 
     // Current:
@@ -947,8 +960,16 @@ function configFES (channels_Stim, current, pw ,main_freq, group_time, mode) {
     // Channel list Update Command (ccl_update):
     var Ident = '01';
     var check_update = binaryResize(parseInt((mode + pw + current) % 32).toString(2), 5);
+    console.log("Check");
+    console.log(parseInt(mode + pw + current));
+    console.log("check_update");
+    console.log(check_update);
     var byte_1 = '1' + Ident + check_update;
     var byte_1_dec =  parseInt(byte_1, 2);
+    console.log("byte_1_dec");
+    console.log(byte_1_dec);
+    console.log("byte_1_bin");
+    console.log(byte_1);
     var byte_2 = '0' + mode_bin + '000' + pw_bin.substring(0,2)
     var byte_2_dec = parseInt(byte_2, 2);
     var byte_3 = '0' + pw_bin.substring(2,9)
@@ -956,8 +977,6 @@ function configFES (channels_Stim, current, pw ,main_freq, group_time, mode) {
     var byte_4 = '0' + current_bin
     var byte_4_dec = parseInt(byte_4, 2);
     var ccl_update = [byte_1_dec, byte_2_dec, byte_3_dec, byte_4_dec]
-    crc_update_bin = '101' + binaryResize(((pw + current + mode) % 32).toString(2), 5);
-    crc_update = parseInt(crc_update_bin, 2);
     //
     // Channel list Stop Command (ccl_stop):
     var Ident = '10';
@@ -1005,8 +1024,8 @@ function moveManually(data) {
     stopExo();
     (async () => {
         await new Promise(resolve => setTimeout(resolve, 50));
+        sendUDP(trac_manual, TRACTION_PORT, CPWALKER_IP);
     })();
-    sendUDP(trac_manual, TRACTION_PORT, CPWALKER_IP);
 }
 
 // Configure robot with the therapy settings and move to start position.
@@ -1041,6 +1060,8 @@ function configureStartPos() {
         pat_weight = parseInt(config.weight);
         pbws =  parseInt(config.pbws);
         weight_conf = [calibrate, pat_weight, pbws, 0];
+        // Impedance calibration reset
+        var imp_config_calibrate = [0, 0, 0, 0];
         // Exoskeleton config and move to initial position.
         exo_config = [0,0,0,0,0,0,0,0];
         // Encode selected joints.
@@ -1066,17 +1087,13 @@ function configureStartPos() {
         // Send data to the robot
         (async () => {
             await new Promise(resolve => setTimeout(resolve, 50));
-        })();
-        sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP);
-        (async () => {
+            sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP);
             await new Promise(resolve => setTimeout(resolve, 50));
-        })();
-        sendUDP(weight_conf, WEIGHT_PORT, CPWALKER_IP);
-        (async () => {
+            sendUDP(weight_conf, WEIGHT_PORT, CPWALKER_IP);
             await new Promise(resolve => setTimeout(resolve, 50));
-        })();
-        sendUDP(exo_config, EXO_PORT, CPWALKER_IP);
-        (async () => {
+            sendUDP(imp_config_calibrate, IMPEDANCE_PORT, CPWALKER_IP);
+            await new Promise(resolve => setTimeout(resolve, 50));
+            sendUDP(exo_config, EXO_PORT, CPWALKER_IP);
             await new Promise(resolve => setTimeout(resolve, 50));
         })();
     });
@@ -1149,6 +1166,18 @@ function startTherapy() {
             exo_config[3] = parseInt(config.gait_velocity);
             exo_config[4] = parseInt(config.rom);
             exo_config[5] = parseInt(config.leg_length);
+            imp_config_calibrate = [cal_imp, 0, 0, 0];
+            // Send data to the robot
+            (async () => {
+                await new Promise(resolve => setTimeout(resolve, 50));
+                sendUDP(imp_config_calibrate, IMPEDANCE_PORT, CPWALKER_IP);
+                await new Promise(resolve => setTimeout(resolve, 4000));
+                sendUDP(imp_config, IMPEDANCE_PORT, CPWALKER_IP);
+                await new Promise(resolve => setTimeout(resolve, 50));
+                sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP);
+                await new Promise(resolve => setTimeout(resolve, 100));
+                sendUDP(exo_config, EXO_PORT, CPWALKER_IP);
+            })();
         // IMPEDANCE CONTROL
         } else {
             console.log("Impedance Control");
@@ -1160,9 +1189,9 @@ function startTherapy() {
             trac_config = [cmd_start, cmd_v_l, cmd_v_r, cmd_traction_mode];
             // Impedance config
             cal_imp = 1;
-            if (config.control_mode == "h_impedance") {niv_imp = 3;}
+            if (config.control_mode == "h_impedance") {niv_imp = 1;}
             else if (config.control_mode == "m_impedance") {niv_imp = 2;}
-            else if (config.control_mode == "l_impedance") {niv_imp = 1;}
+            else if (config.control_mode == "l_impedance") {niv_imp = 3;}
             else { niv_imp = 0;}
             check_gauges = 0;
             weight_ref = 0;
@@ -1183,28 +1212,23 @@ function startTherapy() {
             if (config.left_knee_config == "enable") {
                 joints[3] = 1;
             }
+            exo_config[0] =   parseInt(joints.join(""), 2);
             exo_config[1] = 10; // Start motion in impedance control mode
             exo_config[2] = parseInt(config.steps);
             exo_config[3] = parseInt(config.gait_velocity);
             exo_config[4] = parseInt(config.rom);
             exo_config[5] = parseInt(config.leg_length);
+            (async () => {
+                await new Promise(resolve => setTimeout(resolve, 50));
+                sendUDP(imp_config_calibrate, IMPEDANCE_PORT, CPWALKER_IP);
+                await new Promise(resolve => setTimeout(resolve, 4000));
+                sendUDP(imp_config, IMPEDANCE_PORT, CPWALKER_IP);
+                await new Promise(resolve => setTimeout(resolve, 50));
+                sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP);
+                await new Promise(resolve => setTimeout(resolve, 100));
+                sendUDP(exo_config, EXO_PORT, CPWALKER_IP);
+            })();
         }
-        // Send data to the robot
-        (async () => {
-            await new Promise(resolve => setTimeout(resolve, 50));
-        })();
-        sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP);
-        (async () => {
-            await new Promise(resolve => setTimeout(resolve, 50));
-        })();
-        sendUDP(imp_config, IMPEDANCE_PORT, CPWALKER_IP);
-        (async () => {
-            await new Promise(resolve => setTimeout(resolve, 50));
-        })();
-        sendUDP(exo_config, EXO_PORT, CPWALKER_IP);
-        (async () => {
-            await new Promise(resolve => setTimeout(resolve, 50));
-        })();
     });
 }
 
@@ -1217,6 +1241,8 @@ function stopTherapy() {
     var cmd_v_r;
     var cmd_v_l;
     var cmd_traction_mode;
+    // Impedance calibration reset
+    var imp_config_calibrate = [0, 0, 0, 0];
     // Exo control variabels
     var exo_config = [];
     // Exoskeleton config and move to initial position.
@@ -1230,13 +1256,11 @@ function stopTherapy() {
     // Send data
     (async () => {
         await new Promise(resolve => setTimeout(resolve, 50));
-    })();
-    sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP);
-    (async () => {
+        sendUDP(imp_config_calibrate, IMPEDANCE_PORT, CPWALKER_IP);
         await new Promise(resolve => setTimeout(resolve, 50));
-    })();
-    sendUDP(exo_config, EXO_PORT, CPWALKER_IP);
-    (async () => {
+        sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP);
+        await new Promise(resolve => setTimeout(resolve, 50));
+        sendUDP(exo_config, EXO_PORT, CPWALKER_IP);
         await new Promise(resolve => setTimeout(resolve, 50));
     })();
 }
@@ -1248,35 +1272,35 @@ function stopExo() {
    exo_config = [0,0,0,0,0,0,0,0];
    // Send data
    sendUDP(exo_config, EXO_PORT, CPWALKER_IP);
-   (async () => {
-    await new Promise(resolve => setTimeout(resolve, 50));
-    })();
 }
 
 // Sends COMMAND(array of numbers) to a PORT(int) of a specific IP(string)
 function sendUDP(COMMAND, PORT, IP) {
+    console.log(COMMAND)
+    console.log(parseInt(COMMAND))
     // Transform COMMAND to hexadecimal
     var COMMAND_HEX = [];
     if (COMMAND.length > 1) {
         for (let index = 0; index < COMMAND.length; index++) {
-            if (COMMAND[index] < 16) {
-                COMMAND_HEX[index] = (0).toString(16) + (COMMAND[index]).toString(16);
+            console.log(parseInt(COMMAND[index]));
+            if (parseInt(COMMAND[index]) < 16) {
+                COMMAND_HEX[index] = (0).toString(16) + (parseInt(COMMAND[index])).toString(16);
             } else {
-                COMMAND_HEX[index] = (COMMAND[index]).toString(16);
+                COMMAND_HEX[index] = (parseInt(COMMAND[index])).toString(16);
             }
         }
         var msg = Buffer.from(COMMAND_HEX.join(''),'hex');
     } else {
-        if (COMMAND < 16) {
-            COMMAND_HEX = (0).toString(16) + (COMMAND[index]).toString(16);
+        if (parseInt(COMMAND) < 16) {
+            COMMAND_HEX = (0).toString(16) + (parseInt(COMMAND[index])).toString(16);
         } else {
-            COMMAND_HEX = (COMMAND).toString(16);
+            COMMAND_HEX = (parseInt(COMMAND)).toString(16);
         }
         var msg = Buffer.from(COMMAND_HEX,'hex');
     }
 
     udp_send.send(msg, PORT, IP);
-    console.log(`PORT:` + PORT + '; COMMAND: ' + COMMAND + '; COMMAND_HEX: ' + COMMAND_HEX);
+    console.log(`PORT:` + PORT + ' IP:' + IP + '; COMMAND: ' + COMMAND + '; COMMAND_HEX: ' + COMMAND_HEX);
 }
 
 // Decode joint real and reference angle values. Get the coded_value and returns an array

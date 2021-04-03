@@ -5,8 +5,10 @@ var direction;
 
 window.onload = function(){ 
   document.getElementById("velocity_input").onclick = function() {
+    max_vel = 0.6;
     speed = document.getElementById("velocity_input").value;
     document.getElementById("velocity_html").innerHTML = speed + "%";
+    document.getElementById("velocity_ms").innerHTML = (max_vel * parseInt(speed)/100).toFixed(2).toString() + " (m/s)";
     if (direction != "stop"){
       sendTraction(direction, speed);
     }

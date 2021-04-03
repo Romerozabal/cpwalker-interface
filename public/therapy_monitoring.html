@@ -39,24 +39,6 @@
                 </div>
             </div>
         </div>
-        <!-- Start Modal if click to reconect -->
-        <div id="modal-reconnect" class="modal fade" role = "dialog">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-body">
-                        <div class="container card shadow-lg o-hidden border-0 my-5 p-5">
-                            <div class="text-center">
-                                <h3 class="text-dark mb-4">If you reconnect the therapy will stop. Are you sure you want to reconnect?</h3>
-                            </div>
-                            <div class="text-center">
-                                <button id="reconnect" style = "background-color: hsla(120, 100%, 25%, 0.8);" class="btn btn-primary"> Yes</button>
-                                <button id="dont_reconnect" style = "background-color: hsla(0, 100%, 50%, 0.8);" class= "btn btn-primary"> No</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
         <nav class="navbar navbar-dark align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0">
             <div class="container-fluid d-flex flex-column p-0">
                 <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
@@ -106,16 +88,40 @@
             <div class="container-fluid">
                 <div class="mb-3 d-flex justify-content-between " >
                     <h3 class="text-dark mb-4">&nbsp;Therapy Monitor</h3>
+                </div>
+                <div class="mb-3 d-flex centered" >
                     <button class="btn btn-primary btn-xl" value="start_position" id="start_stop" type="submit" style = "background: #0968e4">MOVE TO START POSITION</button>
-                    <button class="btn btn-primary" id="reconnect_modal" type="submit" style = "background:  #09c768">Reconnect</button>
                 </div>
                 <div class="mb-3 d-flex centered" >
                     <button class="btn btn-primary " value="start_position" id="save_data" type="submit" style = "background: #fd4e4e; display: none">Save Data</button>
                 </div>
 
                 <!-- Joint Charts-->
+                <div class="mb-3 d-flex centered" >
+                    <form class="user text-center">
+                        <div class="form-group" id="time_window_form">
+                            <label>
+                                <strong>Time window (seconds):</strong>
+                            </label>
+                            <div class="mb-3 d-flex centered" >
+                                <a id="time_window_decrease" class="btn btn-outline-secondary">
+                                    <span  class="fas fa-minus"></span>
+                                </a>
+                                <button class="btn btn-primary" type="button" id="time_window" value = "10"> 10 (s) </button>
+                                <a id="time_window_increase" class="btn btn-outline-secondary">
+                                    <span  class="fas fa-plus"></span>
+                                </a>
+                            </div>
+                            <label>
+                                <strong> Steps </strong>
+                            </label>
+                            <div class="mb-3 d-flex centered" >
+                                <button class="btn btn-outline-secondary" type="button" id="current_steps" > 0 </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
                 <div id = "jointCharts" class="card shadow mb-4">
-
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h6 class="text-primary font-weight-bold m-0">Right Hip</h6>
                     </div>
@@ -165,46 +171,15 @@
             </div>
 
             <!-- Therapeutic Charts left hip and knee-->
-            <div class="row">
-                <div class="col-lg-5 col-xl-4">
-                    <div class="card shadow mb-4">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h6 class="text-primary font-weight-bold m-0">Left Hip</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart-area">
-                                <canvas data-bs-chart="{&quot;type&quot;:&quot;doughnut&quot;,&quot;data&quot;:{&quot;labels&quot;:[&quot;Direct&quot;,&quot;Social&quot;,&quot;Referral&quot;],&quot;datasets&quot;:[{&quot;label&quot;:&quot;&quot;,&quot;backgroundColor&quot;:[&quot;#4e73df&quot;,&quot;#1cc88a&quot;,&quot;#36b9cc&quot;],&quot;borderColor&quot;:[&quot;#ffffff&quot;,&quot;#ffffff&quot;,&quot;#ffffff&quot;],&quot;data&quot;:[&quot;50&quot;,&quot;30&quot;,&quot;15&quot;]}]},&quot;options&quot;:{&quot;maintainAspectRatio&quot;:false,&quot;legend&quot;:{&quot;display&quot;:false},&quot;title&quot;:{}}}"></canvas>
-                            </div>
-                            <div class="text-center small mt-4">
-                                <span class="mr-2">
-                                    <i class="fas fa-circle text-primary"></i>&nbsp;Direct
-                                </span>
-                                <span class="mr-2">
-                                <i class="fas fa-circle text-success"></i>&nbsp;Social</span><span class="mr-2"><i class="fas fa-circle text-info"></i>&nbsp;Refferal</span>
-                            </div>
-                        </div>
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h6 class="text-primary font-weight-bold m-0">Left Knee</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart-area">
-                                <canvas data-bs-chart="{&quot;type&quot;:&quot;doughnut&quot;,&quot;data&quot;:{&quot;labels&quot;:[&quot;Direct&quot;,&quot;Social&quot;,&quot;Referral&quot;],&quot;datasets&quot;:[{&quot;label&quot;:&quot;&quot;,&quot;backgroundColor&quot;:[&quot;#4e73df&quot;,&quot;#1cc88a&quot;,&quot;#36b9cc&quot;],&quot;borderColor&quot;:[&quot;#ffffff&quot;,&quot;#ffffff&quot;,&quot;#ffffff&quot;],&quot;data&quot;:[&quot;50&quot;,&quot;30&quot;,&quot;15&quot;]}]},&quot;options&quot;:{&quot;maintainAspectRatio&quot;:false,&quot;legend&quot;:{&quot;display&quot;:false},&quot;title&quot;:{}}}"></canvas>
-                            </div>                        
-                            <div class="text-center small mt-4">
-                                <span class="mr-2"><i class="fas fa-circle text-primary"></i>&nbsp;Direct</span><span class="mr-2"><i class="fas fa-circle text-success"></i>&nbsp;Social</span><span class="mr-2"><i class="fas fa-circle text-info"></i>&nbsp;Refferal</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
+            <div class="row">   
                 <!-- Therapy settings information -->
-                <div class="col-lg-5 col-xl-4">
+                <div class="col">
                     <div class="card shadow mb-4">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h6 class="text-primary font-weight-bold m-0">Therapy Sethings</h6>
+                            <h6 style = "width:100%; text-align: center;" class="text-primary font-weight-bold m-0">Therapy Sethings</h6>
                         </div>
                         <div  class="card-body">
-                            <table style = "width:100%; text-align: center;" class="table">
+                            <table style = "width:100%; text-align: center;" class="table table-striped">
                                 <thead>
                                   <tr>
                                     <th scope="col">Patient</th>
@@ -223,23 +198,14 @@
                                 </tbody>
                                 <thead>
                                     <tr>
-                                      <th colspan="4" scope="col">Steps</th>
+                                      <th colspan="2" scope="col">Steps</th>
+                                      <th colspan="2" scope="col">Control Mode</th>
                                     </tr>
                                   </thead>
                                   <tbody>
                                     <tr>                                        
-                                        <td style=" text-align: center;"><p id='steps'> - </p></td>
-                                    </tr>
-                                  </tbody>
-                                </thead>
-                                <thead>
-                                    <tr>
-                                      <th colspan="4" scope="col">Control Mode</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    <tr>                                        
-                                        <td><p id='control_mode'> - </p></td>
+                                        <td colspan="2" style=" text-align: center;"><p id='steps'> - </p></td>
+                                        <td colspan="2"><p id='control_mode'> - </p></td>
                                     </tr>
                                   </tbody>
                                 </thead>
@@ -262,45 +228,8 @@
                                 </thead>
                             </table>
                         </div>
-                        <div class="card-body">
-                            <div class="card-body">
-                                <img style="display: block; margin-left: auto; margin-right: auto; max-width:100%;max-height:100%;" src="assets/img/exo_render.png">
-                            </div>
-                        </div>
                     </div>
-                </div>
-
-                <!-- Therapeutic charts right hip and knee -->
-                <div class="col-lg-5 col-xl-4">
-                    <div class="card shadow mb-4">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h6 class="text-primary font-weight-bold m-0">Right Hip</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart-area">
-                                <canvas data-bs-chart="{&quot;type&quot;:&quot;doughnut&quot;,&quot;data&quot;:{&quot;labels&quot;:[&quot;Direct&quot;,&quot;Social&quot;,&quot;Referral&quot;],&quot;datasets&quot;:[{&quot;label&quot;:&quot;&quot;,&quot;backgroundColor&quot;:[&quot;#4e73df&quot;,&quot;#1cc88a&quot;,&quot;#36b9cc&quot;],&quot;borderColor&quot;:[&quot;#ffffff&quot;,&quot;#ffffff&quot;,&quot;#ffffff&quot;],&quot;data&quot;:[&quot;50&quot;,&quot;30&quot;,&quot;15&quot;]}]},&quot;options&quot;:{&quot;maintainAspectRatio&quot;:false,&quot;legend&quot;:{&quot;display&quot;:false},&quot;title&quot;:{}}}"></canvas>
-                            </div>
-                            <div class="text-center small mt-4">
-                                <span class="mr-2">
-                                    <i class="fas fa-circle text-primary"></i>&nbsp;Direct
-                                </span>
-                                <span class="mr-2">
-                                <i class="fas fa-circle text-success"></i>&nbsp;Social</span><span class="mr-2"><i class="fas fa-circle text-info"></i>&nbsp;Refferal</span>
-                            </div>
-                        </div>
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h6 class="text-primary font-weight-bold m-0">Right Knee</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart-area">
-                                <canvas data-bs-chart="{&quot;type&quot;:&quot;doughnut&quot;,&quot;data&quot;:{&quot;labels&quot;:[&quot;Direct&quot;,&quot;Social&quot;,&quot;Referral&quot;],&quot;datasets&quot;:[{&quot;label&quot;:&quot;&quot;,&quot;backgroundColor&quot;:[&quot;#4e73df&quot;,&quot;#1cc88a&quot;,&quot;#36b9cc&quot;],&quot;borderColor&quot;:[&quot;#ffffff&quot;,&quot;#ffffff&quot;,&quot;#ffffff&quot;],&quot;data&quot;:[&quot;50&quot;,&quot;30&quot;,&quot;15&quot;]}]},&quot;options&quot;:{&quot;maintainAspectRatio&quot;:false,&quot;legend&quot;:{&quot;display&quot;:false},&quot;title&quot;:{}}}"></canvas>
-                            </div>                        
-                            <div class="text-center small mt-4">
-                                <span class="mr-2"><i class="fas fa-circle text-primary"></i>&nbsp;Direct</span><span class="mr-2"><i class="fas fa-circle text-success"></i>&nbsp;Social</span><span class="mr-2"><i class="fas fa-circle text-info"></i>&nbsp;Refferal</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>                
+                </div>               
             </div>
             <!-- End: Charts -->
             <footer class="bg-white sticky-footer">

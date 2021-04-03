@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="assets/css/fontawesome-all.min.css">
     <link rel="stylesheet" href="assets/css/google-fonts-montserrat.css">
     <link rel="stylesheet" href="assets/css/cloudflareAjaxBaguetteboxbaguetteBox.min.css">
+    <link rel="stylesheet" href="assets/css/tables.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <!-- Solid Fontawesome icons-->
@@ -56,9 +57,10 @@
                                 <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#"><img class="img" src="assets/img/letras.png" style= "height:50%"><img class="img" src="assets/img/logoblanco.png" style= "height:80%"></a>
                                     <div
                                         class="dropdown-menu shadow dropdown-menu-right animated--grow-in" role="menu"><a class="dropdown-item" role="presentation" href="#"><i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Profile</a><a class="dropdown-item" role="presentation" href="#"><i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Settings</a>
-                                        <a
-                                            class="dropdown-item" role="presentation" href="#"><i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Activity log</a>
-                                            <div class="dropdown-divider"></div><a class="dropdown-item" role="presentation" href="#"><i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a></div>
+                                        <a class="dropdown-item" role="presentation" href="#"><i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Activity log</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" role="presentation" href="#"><i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>&nbsp;Logout</a>
+                                    </div>
                                 </div>
                             </li>
                         </ul>
@@ -176,66 +178,6 @@
                           </div>
                         <br>
                         <br>
-
-                        <h3>General FES Configuration </h3>
-                        <form>
-                            <div class="form-row">
-                                <div class="col">
-                                    <div class="form-group">
-                                        <label for="channels" class = "centered"> <strong>Channels:</strong></label>
-                                        <div class="form-row">
-                                            <div class="col">
-                                                <div class="btn btn-secondary" id="channel0_general" value="0" > Channel 0 </div>
-                                                <br>
-                                                <br>
-                                                <div class="btn btn-secondary" id="channel1_general" value="0"> Channel 1 </div>
-                                            </div>
-                                            <div class="col">
-                                                <div class="btn btn-secondary" id="channel2_general" value="0"> Channel 2 </div>
-                                                <br>
-                                                <br>
-                                                <div class="btn btn-secondary" id="channel3_general" value="0"> Channel 3 </div>
-                                            </div>
-                                            <div class="col">
-                                                <div class="btn btn-secondary" id="channel4_general" value="0"> Channel 4 </div>
-                                                <br>
-                                                <br>
-                                                <div class="btn btn-secondary" id="channel5_general" value="0"> Channel 5 </div>
-                                            </div>
-                                            <div class="col">
-                                                <div class="btn btn-secondary" id="channel6_general" value="0"> Channel 6 </div>
-                                                <br>
-                                                <br>
-                                                <div class="btn btn-secondary" id="channel7_general" value="0"> Channel 7 </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="col">
-                                    <div class="form-group">
-                                        <label for="main_freq">
-                                            <strong>Main frequency (Hz)</strong>
-                                        </label>
-                                        <input class="form-control" id="main_freq_general" type="number" placeholder="40">
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="form-group">
-                                        <label for="group_time">
-                                            <strong>Attendance frequency between groups (doublets and triplets)</strong>
-                                        </label>
-                                        <input class="form-control" id="group_time_general" type="number" placeholder="0">
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                        <button class="btn btn-primary btn-xl" id="fes_general_config" type="submit" >Save general configuration</button>
-                    </div>
-                    <br>
-                    <h3>Create stimulation pattern</h3>
-                    <h6> Click in any gait phase and select the desired the channel, current, pulse width and mode</h6>
                     <!-- Create pattern modal  -->
                     <div id="modal_fes_patern" class="modal fade" role="dialog" >
                         <div class="modal-dialog">
@@ -311,56 +253,256 @@
                         </div>
                     </div>
 
-                    <!-- Joint Charts-->
-                    <div id = "jointCharts" class="card shadow mb-4">
-
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h6 class="text-primary font-weight-bold m-0">Right Hip</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart-area">
-                                <div id = "rightLeftHip">
-                                    <canvas id="r_hip_chart"></canvas>
+                    <!-- TABS PARA LA NEVEGACION DE LAS DIFERENTES TABLAS-->
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                        <a class="nav-link active" id="hybrid_therapies_tab" data-toggle="tab" href="#hybrid_therapies" role="tab" aria-controls="hybrid_therapies" aria-selected="true"> <h3>Hybrid Therapy</h3></a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="science_mode_tab" data-toggle="tab" href="#science_mode" role="tab" aria-controls="science_mode" aria-selected="false"> <h3>Science Mode</h3></a>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="myTabContent">
+                        <div class="tab-pane fade show active" id="hybrid_therapies" role="tabpanel" aria-labelledby="hybrid_therapies_tabs">
+                            <br>
+                            <h4>Select the desired hybrid mode:</h4>
+                            <div class="col">
+                                <div class="container-fluid">
+                                    <div class="row mb-2">
+                                        <div class="col-lg-2 col-center">
+                                            <br>
+                                            <img src="assets/img/Musculos_estimulacion.png" alt="Electrode Location" style="height:400px; border-radius: 8px;">
+                                        </div>
+                                        <div class="col-lg-10 col-center">
+                                            <div class="table-responsive ">
+                                                <style>
+                                                    .table.dataTable  {
+                                                    font-family: Verdana, Geneva, Tahoma, sans-serif;
+                                                    font-size: 18px;
+                                                    }
+                                                </style>
+                                                <table id="therapy mode" class="table table-bordered table-hover table-striped" >
+                                                    <thead class="thead-light">
+                                                        <tr>
+                                                            <th scope="col">
+                                                                <div class="custom-control custom-checkbox">
+                                                                    <input type="checkbox" class="form-check-input" id="stabiliy" value="0">
+                                                                </div>
+                                                                <br>
+                                                            </th>
+                                                            <th scope="col"> 
+                                                                <h4>Stability and Support Improvement</h4>
+                                                                <br>
+                                                            </th>
+                                                            <td scope="col"><h5>Gluteus maximuss<br> Hamstrings <br> Gastrocnemius </h5></td>
+                                                            <td scope="col"><h5>Channel 0 <br> Channel 1 <br> Channel 2</h5></td>
+                                                            <td>
+                                                                <h5>Left Leg:
+                                                                    <input id ="l_leg" type="checkbox" />
+                                                                    <br>
+                                                                    <br>
+                                                                    Right leg:
+                                                                    <input id ="r_leg" type="checkbox" />
+                                                                </h5>
+                                                            </td>                                        
+                                                        </tr>
+                                                    </thead>
+                                                    <thead class="thead-light">
+                                                        <tr>
+                                                            <th>
+                                                                <div class="custom-control custom-checkbox">
+                                                                    <input type="checkbox" class="form-check-input"  id="stride" value="0">
+                                                                </div>
+                                                                <br>
+                                                            </th>
+                                                            <th scope="col"> 
+                                                                <h4>Stride Length Improvement</h4> 
+                                                                <br>
+                                                            </th>
+                                                            <td scope="col"><h5> <br>Femoral rectus </h5></td>
+                                                            <td scope="col"><h5> <br>Channel 3 </h5> </td>
+                                                            <td>
+                                                                <h5>
+                                                                    Left Leg:
+                                                                    <input id ="l_leg" type="checkbox" />
+                                                                    <br>
+                                                                    <br>
+                                                                    Right leg:
+                                                                    <input id ="r_leg" type="checkbox" />
+                                                                </h5>
+                                                            </td>                                        
+                                                        </tr>
+                                                    </thead>
+                                                    <thead class="thead-light">
+                                                        <tr>
+                                                            <th>
+                                                                <div class="custom-control custom-checkbox">
+                                                                    <input type="checkbox" class="form-check-input"  id="contact" value="0">
+                                                                </div>
+                                                                <br>
+                                                            </th>
+                                                            <th scope="col"> 
+                                                                <h4>Initial Contact Improvement</h4> 
+                                                                <br>
+                                                            </th>
+                                                            <td scope="col"> <h5> Femoral Rectus <br> Tibialis Anterior <br> Vastus Internal and External </h5> </td>
+                                                            <td scope="col"> <h5> Channel 3 <br> Channel 4 <br> Channel 5 </h5></td>
+                                                            <td>
+                                                                <h5>
+                                                                    Left Leg:
+                                                                    <input id ="l_leg" type="checkbox" />
+                                                                    <br>
+                                                                    <br>
+                                                                    Right leg:
+                                                                    <input id ="r_leg" type="checkbox" />
+                                                                </h5>
+                                                            </td>                                        
+                                                        </tr>
+                                                    </thead>
+                                                    <thead class="thead-light">
+                                                        <tr>
+                                                            <th>
+                                                                <div class="custom-control custom-checkbox">
+                                                                    <input type="checkbox" class="form-check-input"  id="propulsion" value="0">
+                                                                </div>
+                                                                <br>
+                                                            </th>
+                                                            <th scope="col"> 
+                                                                <h4>Propulsion Improvement</h4>
+                                                                <br> 
+                                                            </th>
+                                                            <td scope="col"><h5> Gastrocnemios <br><br> Sural Triceps </h5></td>
+                                                            <td scope="col"><h5> Canal 2 <br> <br> Canal 6 </h5></td>
+                                                            <td>
+                                                                <h5>
+                                                                    Left Leg:
+                                                                    <input id ="l_leg" type="checkbox" />
+                                                                    <br>
+                                                                    <br>
+                                                                    Right leg:
+                                                                    <input id ="r_leg" type="checkbox" />
+                                                                </h5>
+                                                            </td>                                        
+                                                        </tr>
+                                                    </thead>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h6 class="text-primary font-weight-bold m-0">Left Hip</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart-area">
-                                <div id = "LeftHip">
-                                    <canvas id="l_hip_chart"></canvas>
+                        <div class="tab-content fade" id="science_mode" role="tabpanel" aria-labelledby="science_mode_tab">
+                            <br>
+                            <h3>General FES Configuration </h3>
+                            <form>
+                                <div class="form-row">
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label for="channels" class = "centered"> <strong>Channels:</strong></label>
+                                            <div class="form-row">
+                                                <div class="col">
+                                                    <div class="btn btn-secondary" id="channel0_general" value="0" > Channel 0 </div>
+                                                    <br>
+                                                    <br>
+                                                    <div class="btn btn-secondary" id="channel1_general" value="0"> Channel 1 </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="btn btn-secondary" id="channel2_general" value="0"> Channel 2 </div>
+                                                    <br>
+                                                    <br>
+                                                    <div class="btn btn-secondary" id="channel3_general" value="0"> Channel 3 </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="btn btn-secondary" id="channel4_general" value="0"> Channel 4 </div>
+                                                    <br>
+                                                    <br>
+                                                    <div class="btn btn-secondary" id="channel5_general" value="0"> Channel 5 </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="btn btn-secondary" id="channel6_general" value="0"> Channel 6 </div>
+                                                    <br>
+                                                    <br>
+                                                    <div class="btn btn-secondary" id="channel7_general" value="0"> Channel 7 </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-
-
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h6 class="text-primary font-weight-bold m-0">Right Knee</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart-area">
-                                <div id = "rightLeftKnee">
-                                    <canvas id="r_knee_chart"></canvas>
+                                <div class="form-row">
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label for="main_freq">
+                                                <strong>Main frequency (Hz)</strong>
+                                            </label>
+                                            <input class="form-control" id="main_freq_general" type="number" placeholder="40">
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-group">
+                                            <label for="group_time">
+                                                <strong>Attendance frequency between groups (doublets and triplets)</strong>
+                                            </label>
+                                            <input class="form-control" id="group_time_general" type="number" placeholder="0">
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
+                            </form>
+                            <button class="btn btn-primary btn-xl" id="fes_general_config" type="submit" >Save general configuration</button>
+                            <br>
+                            <br>
 
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h6 class="text-primary font-weight-bold m-0">Left Knee</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart-area">
-                                <div id = "leftKnee">
-                                    <canvas id="l_knee_chart"></canvas>
+                            <h3>Create stimulation pattern</h3>
+                            <h4> Select in any gait phase, channel, current, pulse width and create you own stimulation patern </h4>
+                            <br>
+                            <br>
+                            <!-- Joint Charts-->
+                            <div id = "jointCharts" class="card shadow mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h4 class="text-primary font-weight-bold m-0">Right Hip</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-area">
+                                        <div id = "rightLeftHip">
+                                            <canvas id="r_hip_chart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h4 class="text-primary font-weight-bold m-0">Left Hip</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-area">
+                                        <div id = "LeftHip">
+                                            <canvas id="l_hip_chart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h4 class="text-primary font-weight-bold m-0">Right Knee</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-area">
+                                        <div id = "rightLeftKnee">
+                                            <canvas id="r_knee_chart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h4 class="text-primary font-weight-bold m-0">Left Knee</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-area">
+                                        <div id = "leftKnee">
+                                            <canvas id="l_knee_chart"></canvas>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
             <footer class="bg-white sticky-footer">
                 <div class="container my-auto">
                     <div class="text-center my-auto copyright"><span>Copyright © CPWalker 2020</span></div>

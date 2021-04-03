@@ -3,9 +3,10 @@
 import serial
 import glob
 import socket
-from gpiozero import GPIO
+from gpiozero import LED
+import time
 
-pin_trigger = GPIO(26)
+pin_trigger = LED(26)
 
 CPWALKER_IP = "127.0.0.1"
 PORT_FES = 6000;
@@ -30,7 +31,7 @@ while True:
 				stopbits=serial.STOPBITS_ONE,
 				bytesize=serial.EIGHTBITS
 		)
-		trama_fes = sock.recvfrom(1024)
+		trama_fes = sock.recvfrom(22)
 		trama_fes = bytearray(trama_fes[0])
 		print(len(trama_fes))
 		print("Trama: ")		
@@ -38,8 +39,9 @@ while True:
 			print(data)
 		pin_trigger.on()
 		ser.write(trama_fes)
+		time.sleep(10)
 		pin_trigger.off()
 	else:
 		# Advise server that could not send data to RehaStym
-		sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
-		sock.sendto(bytes(MESSAGE, "utf-8"), (UDP_IP, UDP_PORT))
+		#sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
+		#sock.sendto(bytes(MESSAGE, "utf-8"), (UDP_IP, UDP_PORT))

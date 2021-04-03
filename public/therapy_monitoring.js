@@ -11,8 +11,29 @@ var right_knee_real;
 var right_knee_ref;
 var left_knee_real;
 var left_knee_ref;
+var right_leg_index;
+var left_leg_index;
+var current_step = 0;
+var flag_stp = true;
+var numberElements = 100;
 
+var increase_time = false;
+var decrease_time = false;
 
+setInterval(function () {
+	if (decrease_time && parseInt(document.getElementById("time_window").value) > 0) {
+		document.getElementById("time_window").value = parseInt(document.getElementById("time_window").value) - 1;
+		document.getElementById("time_window").innerHTML = (document.getElementById("time_window").value).toString() + " (s)";
+		numberElements = parseInt(document.getElementById("time_window").value) * 10;
+		console.log(document.getElementById("time_window").value);
+	}
+	
+	if (increase_time) {
+		document.getElementById("time_window").value = parseInt(document.getElementById("time_window").value) + 1;
+		document.getElementById("time_window").innerHTML = (document.getElementById("time_window").value).toString() + " (s)";
+		numberElements = parseInt(document.getElementById("time_window").value) * 10;
+	}
+}, 100);
 
 // Get charts form html and plot the incomming data. 
 window.onload = function() {
@@ -21,7 +42,19 @@ window.onload = function() {
 	////////////////
 	// Charts configuration
 	//Configuration variables
-	var numberElements = 70;
+
+	document.getElementById("time_window_decrease").onmousedown = function() {
+		decrease_time = true;		
+	};	
+	document.getElementById("time_window_decrease").onmouseup = function() {
+		decrease_time = false;
+	};
+	document.getElementById("time_window_increase").onmousedown = function() {
+		increase_time = true;
+	};
+	document.getElementById("time_window_increase").onmouseup = function() {
+		increase_time = false;
+	};
 
 	//Globals
 	var updateCount = 0;
@@ -43,9 +76,10 @@ window.onload = function() {
 				type: 'time',
 				distribution: 'line',
 				time: {
+					unit: 'second',
 					displayFormats: {
-						second: 'mm:ss'
-					}
+                        quarter: 'HH MM SS'
+                    }
 				},
 				scaleLabel: {
 					display: true,
@@ -101,7 +135,7 @@ window.onload = function() {
 			},
 			elements: {
 				line: {
-					tension: 0.3 // disables bezier curves
+					tension: 0 // disables bezier curves
 				}
 			},
 			title:{
@@ -138,7 +172,7 @@ window.onload = function() {
 			},
 			elements: {
 				line: {
-					tension: 0.4 // disables bezier curves
+					tension: 0 // disables bezier curves
 				}
 			},
 			title:{
@@ -156,7 +190,7 @@ window.onload = function() {
         },
 		elements: {
             line: {
-                tension: 0.4 // disables bezier curves
+                tension: 0 // disables bezier curves
             }
 		},
 		type: 'line',
@@ -184,7 +218,7 @@ window.onload = function() {
 			},
 			elements: {
 				line: {
-					tension: 0.4 // disables bezier curves
+					tension: 0 // disables bezier curves
 				}
 			},
 			title:{
@@ -202,7 +236,7 @@ window.onload = function() {
         },
 		elements: {
             line: {
-                tension: 0.4 // disables bezier curves
+                tension: 0 // disables bezier curves
             }
 		},
 		type: 'line',
@@ -230,7 +264,7 @@ window.onload = function() {
 			},
 			elements: {
 				line: {
-					tension: 0.4 // disables bezier curves
+					tension: 0 // disables bezier curves
 				}
 			},
 			title:{
@@ -251,14 +285,26 @@ window.onload = function() {
 		right_knee_ref = Math.floor(data.right_knee_ref);
 		left_knee_real = Math.floor(data.left_knee_real);
 		left_knee_ref = Math.floor(data.left_knee_ref);
+		right_leg_index = parseInt(data.right_leg_index);
+		left_leg_index = parseInt(data.left_leg_index);
+
+		if (left_leg_index <= 20) {
+			flag_stp = true;
+		}
+
+		if (left_leg_index >= 190 && flag_stp) {
+			flag_stp = false;
+			current_step = current_step + 1;
+			document.getElementById("current_steps").innerHTML = current_step.toString() + " / " + document.getElementById("steps").innerHTML;
+		}
 
 		ctxrhipInstance.data.labels.push(new Date());
-		ctxrhipInstance.data.datasets[0].data.push(right_knee_ref);
-		ctxrhipInstance.data.datasets[1].data.push(right_knee_real);
+		ctxrhipInstance.data.datasets[0].data.push(right_hip_ref);
+		ctxrhipInstance.data.datasets[1].data.push(right_hip_real);
 		
 		ctxlhipInstance.data.labels.push(new Date());
-		ctxlhipInstance.data.datasets[0].data.push(left_knee_ref);
-		ctxlhipInstance.data.datasets[1].data.push(left_knee_real);
+		ctxlhipInstance.data.datasets[0].data.push(left_hip_ref);
+		ctxlhipInstance.data.datasets[1].data.push(left_hip_real);
 
 		ctxrkneeInstance.data.labels.push(new Date());
 		ctxrkneeInstance.data.datasets[0].data.push(right_knee_ref);
@@ -268,8 +314,11 @@ window.onload = function() {
 		ctxlkneeInstance.data.datasets[0].data.push(left_knee_ref);
 		ctxlkneeInstance.data.datasets[1].data.push(left_knee_real);
 
-		
-		if(updateCount > numberElements){
+		console.log(ctxlkneeInstance.data.datasets[1].data. length);
+		console.log(numberElements);
+		console.log(updateCount);
+
+		if(updateCount >= numberElements){
 			ctxrhipInstance.data.labels.shift();
 			ctxrhipInstance.data.datasets[0].data.shift();
 			ctxrhipInstance.data.datasets[1].data.shift();
@@ -285,6 +334,26 @@ window.onload = function() {
 			ctxlkneeInstance.data.labels.shift();
 			ctxlkneeInstance.data.datasets[0].data.shift();
 			ctxlkneeInstance.data.datasets[1].data.shift();
+
+			if (numberElements < ctxrkneeInstance.data.datasets[0].data.length) {
+				ctxrhipInstance.data.labels.shift();
+				ctxrhipInstance.data.datasets[0].data.shift();
+				ctxrhipInstance.data.datasets[1].data.shift();
+
+				ctxlhipInstance.data.labels.shift();
+				ctxlhipInstance.data.datasets[0].data.shift();
+				ctxlhipInstance.data.datasets[1].data.shift();
+
+				ctxrkneeInstance.data.labels.shift();
+				ctxrkneeInstance.data.datasets[0].data.shift();
+				ctxrkneeInstance.data.datasets[1].data.shift();
+
+				ctxlkneeInstance.data.labels.shift();
+				ctxlkneeInstance.data.datasets[0].data.shift();
+				ctxlkneeInstance.data.datasets[1].data.shift();
+
+				updateCount--;
+			}
 		}
 		else updateCount++;
 		ctxrhipInstance.update();
@@ -292,27 +361,47 @@ window.onload = function() {
 		ctxrkneeInstance.update();
 		ctxlkneeInstance.update();			
 	})
-
-	document.getElementById("reconnect").onclick = function() {
-		socket.emit("reconnect")		
-		$("#modal-reconnect").modal('hide');
-	};
 	
 	// Start stop interaction
 	document.getElementById("start_stop").onclick = function() {
 		// Move to the start position and configure the robot with the therapy settings
 		if (document.getElementById("start_stop").value == "start_position") {
-			document.getElementById("start_stop").value = "start";
-			document.getElementById("start_stop").innerHTML = "START";
-			document.getElementById("start_stop").style.background = "#09c768";
+			document.getElementById("start_stop").value = "countdown";
 			socket.emit('monitoring:configure_robot');
+			var myTimer;
+			myTimer = setInterval(myClock, 1000);
+			var c = 4;
+			function myClock() {
+				document.getElementById("start_stop").innerHTML = --c;
+					if (c == 0) {
+						clearInterval(myTimer);
+						document.getElementById("save_data").style.display = 'none';
+						document.getElementById("start_stop").value = "start";
+						document.getElementById("start_stop").innerHTML = "START";
+						document.getElementById("start_stop").style.background = "#09c768";
+					}
+			}
+			current_step = 0;
+			document.getElementById("current_steps").innerHTML = current_step.toString() + " / " + document.getElementById("steps").innerHTML;			
 		// Start the therapy
 		} else if (document.getElementById("start_stop").value == "start") {
-				document.getElementById("save_data").style.display = 'none';
-				document.getElementById("start_stop").value = "stop";
-				document.getElementById("start_stop").innerHTML = "STOP";
-				document.getElementById("start_stop").style.background = "#fd4e4e"; 
+				document.getElementById("start_stop").value = "countdown";
 				socket.emit('monitoring:start');
+				var myTimer;
+				myTimer = setInterval(myClock, 1000);
+				var c = 4;
+				function myClock() {
+					document.getElementById("start_stop").innerHTML = --c;
+						if (c == 0) {
+							clearInterval(myTimer);
+							document.getElementById("save_data").style.display = 'none';
+							document.getElementById("start_stop").value = "stop";
+							document.getElementById("start_stop").innerHTML = "STOP";
+							document.getElementById("start_stop").style.background = "#fd4e4e"; 
+							current_step = 0;
+							document.getElementById("current_steps").innerHTML = current_step.toString() + " / " + document.getElementById("steps").innerHTML;
+						}
+				}
 		// Stop the therapy
 		}  else if (document.getElementById("start_stop").value == "stop") {
 			document.getElementById("save_data").value = "not_saved";
@@ -323,6 +412,8 @@ window.onload = function() {
 			document.getElementById("start_stop").innerHTML = "MOVE TO START POSITION";
 			document.getElementById("start_stop").style.background = "#0968e4";
 			socket.emit('monitoring:stop'); 
+			current_step = 0;
+			document.getElementById("current_steps").innerHTML = current_step.toString() + " / " + document.getElementById("steps").innerHTML;
 		}
 	};
 
@@ -368,48 +459,10 @@ window.onload = function() {
 	document.getElementById("continue-therapy").onclick = function() {
 		$("#modal-change-page").modal('hide');
 	}
-	document.getElementById("reconnect_modal").onclick = function() {
-		$("#modal-reconnect").modal('show');
-	}
-	document.getElementById("dont_reconnect").onclick = function() {
-		$("#modal-reconnect").modal('hide')
-	}
 
 	document.getElementById("stop-exit-therapy").onclick = function() {
 		// Redirect to the therapy monitoring window
 		location.replace(THERAPY_MONITOR_GOTO_LINK)
-	}
-
-	// Functions called when charts refresh to update data sets
-	function onRefreshRH() {
-		console.log("onRefreshRH");
-		ctxrhipInstance.data.labels.push(new Date());
-		ctxrhipInstance.data.datasets.forEach((dataset) =>{dataset.data.push(1)});
-	}
-	function onRefreshLH() {
-		console.log("onRefreshLH");
-		ctxlhipInstance.data.labels.push(new Date());
-		ctxlhipInstance.data.datasets.forEach((dataset) =>{dataset.data.push({
-				right_hip_real
-			})
-		});
-	}
-	function onRefreshRK(chart) {
-		console.log("onRefreshRK");
-		ctxrkneeInstance.data.labels.push(new Date());
-		ctxrkneeInstance.data.datasets.forEach((dataset) =>{dataset.data.push({
-				x: Date.now(),
-				y: right_hip_real
-			})
-		});
-	}
-	function onRefreshLK(chart) {
-		console.log("onRefreshLK");
-		ctxlkneeInstance.data.labels.push(new Date());
-		ctxlkneeInstance.data.datasets[0].data.push({
-				x: Date.now(),
-				y: right_hip_real
-		});
 	}
 };
 

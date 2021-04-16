@@ -66,93 +66,96 @@
                         </ul>
                      </div>
                 </nav>
+                
                 <!-- Start Modal if click on Test Stimulator  -->
-                <div id="modal_fes_config_test" class="modal fade" role="dialog" >
+                <div id="modal_fes_config" class="modal fade" role="dialog" >
                     <div class="modal-dialog">
                         <div class="modal-content" >
                             <div class="modal-body">
-                                <h3>Test Stimulator </h3>
+                                <h3 id="fes_configure_title"> Test Stimulator </h3>
                                 <br>
                                 <form>
-                                    <div class="form-row">
-                                        <div class="col">
-                                            <div class="form-group">
-                                                <label for="channels" class = "centered"> <strong>Select channels:</strong></label>
-                                                <div class="form-row">
-                                                    <div class="col">
-                                                        <div class="btn btn-secondary" id="channel0" value="0" > Channel 0 </div>
-                                                        <br>
-                                                        <br>
-                                                        <div class="btn btn-secondary" id="channel1" value="0"> Channel 1 </div>
-                                                    </div>
-                                                    <div class="col">
-                                                        <div class="btn btn-secondary" id="channel2" value="0"> Channel 2 </div>
-                                                        <br>
-                                                        <br>
-                                                        <div class="btn btn-secondary" id="channel3" value="0"> Channel 3 </div>
-                                                    </div>
-                                                    <div class="col">
-                                                        <div class="btn btn-secondary" id="channel4" value="0"> Channel 4 </div>
-                                                        <br>
-                                                        <br>
-                                                        <div class="btn btn-secondary" id="channel5" value="0"> Channel 5 </div>
-                                                    </div>
-                                                    <div class="col">
-                                                        <div class="btn btn-secondary" id="channel6" value="0"> Channel 6 </div>
-                                                        <br>
-                                                        <br>
-                                                        <div class="btn btn-secondary" id="channel7" value="0"> Channel 7 </div>
-                                                    </div>
+                                    <div class="form-group" id="channel_list">
+                                        <label for="channels" class = "centered"> <strong>Select channels:</strong></label>
+                                        <div class="form-row">
+                                            <div class="col">
+                                                <div class="btn btn-secondary" id="channel0" value="0" > Channel 0 </div>
+                                                <br>
+                                                <br>
+                                                <div class="btn btn-secondary" id="channel1" value="0"> Channel 1 </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="btn btn-secondary" id="channel2" value="0"> Channel 2 </div>
+                                                <br>
+                                                <br>
+                                                <div class="btn btn-secondary" id="channel3" value="0"> Channel 3 </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="btn btn-secondary" id="channel4" value="0"> Channel 4 </div>
+                                                <br>
+                                                <br>
+                                                <div class="btn btn-secondary" id="channel5" value="0"> Channel 5 </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="btn btn-secondary" id="channel6" value="0"> Channel 6 </div>
+                                                <br>
+                                                <br>
+                                                <div class="btn btn-secondary" id="channel7" value="0"> Channel 7 </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="fes_init_conf">
+                                        <label class = "centered"> <strong> General parameters:</strong></label>
+                                        <div class="form-row">
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label for="main_freq">
+                                                        <strong>Main frequency</strong>
+                                                    </label>
+                                                    <input class="form-control" id="main_freq" type="number" placeholder="40">
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label for="group_time">
+                                                        <strong>Frequency between groups</strong>
+                                                    </label>
+                                                    <input class="form-control" id="group_time" type="number" placeholder="0">
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="form-row">
-                                        <div class="col">
-                                            <div class="form-group">
-                                                <label for="current">
-                                                    <strong>Current (mA)</strong>
-                                                </label>
-                                                <input class="form-control" id="current" type="number" placeholder="6">
+                                    <div id="fes_update_conf">
+                                        <label class = "centered"> <strong> Stimulation parameters:</strong></label>
+                                        <div class="form-row">                                        
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label for="current">
+                                                        <strong>Current (mA)</strong>
+                                                    </label>
+                                                    <input class="form-control" id="current" type="number" placeholder="6">
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="col">
-                                            <div class="form-group">
-                                                <label for="leg_length">
-                                                    <strong>Pulse width (us)</strong>
-                                                </label>
-                                                <input class="form-control" id="pw" type="number" placeholder="250">
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label for="leg_length">
+                                                        <strong>Pulse width (us)</strong>
+                                                    </label>
+                                                    <input class="form-control" id="pw" type="number" placeholder="250">
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="col">
-                                            <div class="form-group">
-                                                <label for="main_freq">
-                                                    <strong>Main frequency</strong>
-                                                </label>
-                                                <input class="form-control" id="main_freq" type="number" placeholder="40">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-row">
-                                        <div class="col">
-                                            <div class="form-group">
-                                                <label for="group_time">
-                                                    <strong>Attendance frequency between groups (doublets and triplets)</strong>
-                                                </label>
-                                                <input class="form-control" id="group_time" type="number" placeholder="0">
-                                            </div>
-                                        </div>
-                                        <div class="col">
-                                            <div class="form-group">
-                                                <label for="mode">
-                                                    <strong>Mode of assistance: single pulses(0) | doublets(1) | triplets(2) </strong>
-                                                </label>
-                                                <input class="form-control" id="mode" type="number" placeholder="0">
+                                            <div class="col">
+                                                <div class="form-group">
+                                                    <label for="mode">
+                                                        <strong>Mode of assistance single pulses(0) | doublets(1) | triplets(2) </strong>
+                                                    </label>
+                                                    <input class="form-control" id="mode" type="number" placeholder="0">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </form>
-                                <button class="btn btn-primary btn-xl" id="fes_config_test" value="test" type="submit" >Test</button>
+                                <button class="btn btn-primary btn-xl" id="fes_config" value="test" type="submit" >Test</button>
                             </div>
                         </div>
                     </div>
@@ -265,12 +268,30 @@
                     <div class="tab-content" id="myTabContent">
                         <div class="tab-pane fade show active" id="hybrid_therapies" role="tabpanel" aria-labelledby="hybrid_therapies_tabs">
                             <br>
-                            <h4>Select the desired hybrid mode:</h4>
+                            <h4>Configure the desired hybrid therapy mode:</h4>
+                            <div class="form-row">
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label for="main_freq_therapy">
+                                            <strong>Main frequency (Hz)</strong>
+                                        </label>
+                                        <input class="form-control" id="main_freq_therapy" type="number" placeholder="40">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label for="group_time_therapy">
+                                            <strong>Attendance frequency between groups (doublets and triplets)</strong>
+                                        </label>
+                                        <input class="form-control" id="group_time_therapy" type="number" placeholder="0">
+                                    </div>
+                                </div>
+                            </div>
                             <div class="col">
                                 <div class="container-fluid">
                                     <div class="row mb-2">
                                         <div class="col-lg-2 col-center">
-                                            <br>
+                                            <h5> Electrodes placement </h5>
                                             <img src="assets/img/Musculos_estimulacion.png" alt="Electrode Location" style="height:400px; border-radius: 8px;">
                                         </div>
                                         <div class="col-lg-10 col-center">

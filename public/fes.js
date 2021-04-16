@@ -13,12 +13,13 @@ for (let index = 0; index < samples.length; index++) {
 }
 window.onload = function(){
 	document.getElementById("test_stimulator").onclick = function() {
-		$("#modal_fes_config_test").modal('show').modal('show');
+		$("#modal_fes_config").modal('show').modal('show'); 
+		document.getElementById("fes_config").innerHTML = "Test";
+		document.getElementById("channel_list").style.display = "block";
 	}
 
-	// TEST FES CHANNEL BOTTONS
-	document.getElementById("channel0").onclick = function() {
-		channel = document.getElementById("channel0")
+	// FES CHANNEL BOTTONS	
+	function channel_active(channel) {
 		if (channel.value != "1" && channel.value != "0") {
 			channel.value = "0"
 		}
@@ -32,403 +33,125 @@ window.onload = function(){
 			channel.classList.add("btn-primary")
 		}
 	}
+
+	document.getElementById("channel0").onclick = function() {
+		channel = document.getElementById("channel0")
+		channel_active(channel)
+	}
+
 	document.getElementById("channel1").onclick = function() {
 		channel = document.getElementById("channel1")
-		if (channel.value != "1" && channel.value != "0") {
-			channel.value = "0"
-		}
-		if (channel.value == "1") {
-			channel.value = "0"
-			channel.classList.toggle("btn-primary")
-			channel.classList.add("btn-secondary")
-		} else {
-			channel.value = "1"
-			channel.classList.toggle("btn-secondary")
-			channel.classList.add("btn-primary")
-		}
+		channel_active(channel)
 	}
 	document.getElementById("channel2").onclick = function() {
 		channel = document.getElementById("channel2")
-		if (channel.value != "1" && channel.value != "0") {
-			channel.value = "0"
-		}
-		if (channel.value == "1") {
-			channel.value = "0"
-			channel.classList.toggle("btn-primary")
-			channel.classList.add("btn-secondary")
-		} else {
-			channel.value = "1"
-			channel.classList.toggle("btn-secondary")
-			channel.classList.add("btn-primary")
-		}
+		channel_active(channel)
 	}
 	document.getElementById("channel3").onclick = function() {
 		channel = document.getElementById("channel3")
-		if (channel.value != "1" && channel.value != "0") {
-			channel.value = "0"
-		}
-		if (channel.value == "1") {
-			channel.value = "0"
-			channel.classList.toggle("btn-primary")
-			channel.classList.add("btn-secondary")
-		} else {
-			channel.value = "1"
-			channel.classList.toggle("btn-secondary")
-			channel.classList.add("btn-primary")
-		}
+		channel_active(channel)
 	}
 	document.getElementById("channel4").onclick = function() {
 		channel = document.getElementById("channel4")
-		if (channel.value != "1" && channel.value != "0") {
-			channel.value = "0"
-		}
-		if (channel.value == "1") {
-			channel.value = "0"
-			channel.classList.toggle("btn-primary")
-			channel.classList.add("btn-secondary")
-		} else {
-			channel.value = "1"
-			channel.classList.toggle("btn-secondary")
-			channel.classList.add("btn-primary")
-		}
+		channel_active(channel)
 	}
 	document.getElementById("channel5").onclick = function() {
 		channel = document.getElementById("channel5")
-		if (channel.value != "1" && channel.value != "0") {
-			channel.value = "0"
-		}
-		if (channel.value == "1") {
-			channel.value = "0"
-			channel.classList.toggle("btn-primary")
-			channel.classList.add("btn-secondary")
-		} else {
-			channel.value = "1"
-			channel.classList.toggle("btn-secondary")
-			channel.classList.add("btn-primary")
-		}
+		channel_active(channel)
 	}
 	document.getElementById("channel6").onclick = function() {
 		channel = document.getElementById("channel6")
-		if (channel.value != "1" && channel.value != "0") {
-			channel.value = "0"
-		}
-		if (channel.value == "1") {
-			channel.value = "0"
-			channel.classList.toggle("btn-primary")
-			channel.classList.add("btn-secondary")
-		} else {
-			channel.value = "1"
-			channel.classList.toggle("btn-secondary")
-			channel.classList.add("btn-primary")
-		}
+		channel_active(channel)
 	}
 	document.getElementById("channel7").onclick = function() {
 		channel = document.getElementById("channel7")
-		if (channel.value != "1" && channel.value != "0") {
-			channel.value = "0"
-		}
-		if (channel.value == "1") {
-			channel.value = "0"
-			channel.classList.toggle("btn-primary")
-			channel.classList.add("btn-secondary")
-		} else {
-			channel.value = "1"
-			channel.classList.toggle("btn-secondary")
-			channel.classList.add("btn-primary")
-		}
-	}
-
-
-	// STIMULATION POINTS CHANNEL BOTTONS 
-	document.getElementById("channel0_stim").onclick = function() {
-		channel = document.getElementById("channel0_stim")
-		if (channel.value != "1" && channel.value != "0") {
-			channel.value = "0"
-		}
-		if (channel.value == "1") {
-			channel.value = "0"
-			channel.classList.toggle("btn-primary")
-			channel.classList.add("btn-secondary")
-		} else {
-			channel.value = "1"
-			channel.classList.toggle("btn-secondary")
-			channel.classList.add("btn-primary")
-		}
-		console.log(channel.value)
-	}
-	document.getElementById("channel1_stim").onclick = function() {
-		channel = document.getElementById("channel1_stim")
-		if (channel.value != "1" && channel.value != "0") {
-			channel.value = "0"
-		}
-		if (channel.value == "1") {
-			channel.value = "0"
-			channel.classList.toggle("btn-primary")
-			channel.classList.add("btn-secondary")
-		} else {
-			channel.value = "1"
-			channel.classList.toggle("btn-secondary")
-			channel.classList.add("btn-primary")
-		}
-		console.log(channel.value)
-	}
-	document.getElementById("channel2_stim").onclick = function() {
-		channel = document.getElementById("channel2_stim")
-		if (channel.value != "1" && channel.value != "0") {
-			channel.value = "0"
-		}
-		if (channel.value == "1") {
-			channel.value = "0"
-			channel.classList.toggle("btn-primary")
-			channel.classList.add("btn-secondary")
-		} else {
-			channel.value = "1"
-			channel.classList.toggle("btn-secondary")
-			channel.classList.add("btn-primary")
-		}
-		console.log(channel.value)
-	}
-	document.getElementById("channel3_stim").onclick = function() {
-		channel = document.getElementById("channel3_stim")
-		if (channel.value != "1" && channel.value != "0") {
-			channel.value = "0"
-		}
-		if (channel.value == "1") {
-			channel.value = "0"
-			channel.classList.toggle("btn-primary")
-			channel.classList.add("btn-secondary")
-		} else {
-			channel.value = "1"
-			channel.classList.toggle("btn-secondary")
-			channel.classList.add("btn-primary")
-		}
-		console.log(channel.value)
-	}
-	document.getElementById("channel4_stim").onclick = function() {
-		channel = document.getElementById("channel4_stim")
-		if (channel.value != "1" && channel.value != "0") {
-			channel.value = "0"
-		}
-		if (channel.value == "1") {
-			channel.value = "0"
-			channel.classList.toggle("btn-primary")
-			channel.classList.add("btn-secondary")
-		} else {
-			channel.value = "1"
-			channel.classList.toggle("btn-secondary")
-			channel.classList.add("btn-primary")
-		}
-		console.log(channel.value)
-	}
-	document.getElementById("channel5_stim").onclick = function() {
-		channel = document.getElementById("channel5_stim")
-		if (channel.value != "1" && channel.value != "0") {
-			channel.value = "0"
-		}
-		if (channel.value == "1") {
-			channel.value = "0"
-			channel.classList.toggle("btn-primary")
-			channel.classList.add("btn-secondary")
-		} else {
-			channel.value = "1"
-			channel.classList.toggle("btn-secondary")
-			channel.classList.add("btn-primary")
-		}
-		console.log(channel.value)
-	}
-	document.getElementById("channel6_stim").onclick = function() {
-		channel = document.getElementById("channel6_stim")
-		if (channel.value != "1" && channel.value != "0") {
-			channel.value = "0"
-		}
-		if (channel.value == "1") {
-			channel.value = "0"
-			channel.classList.toggle("btn-primary")
-			channel.classList.add("btn-secondary")
-		} else {
-			channel.value = "1"
-			channel.classList.toggle("btn-secondary")
-			channel.classList.add("btn-primary")
-		}
-		console.log(channel.value)
-	}
-	document.getElementById("channel7_stim").onclick = function() {
-		channel = document.getElementById("channel7_stim")
-		if (channel.value != "1" && channel.value != "0") {
-			channel.value = "0"
-		}
-		if (channel.value == "1") {
-			channel.value = "0"
-			channel.classList.toggle("btn-primary")
-			channel.classList.add("btn-secondary")
-		} else {
-			channel.value = "1"
-			channel.classList.toggle("btn-secondary")
-			channel.classList.add("btn-primary")
-		}
-		console.log(channel.value)
+		channel_active(channel)
 	}
 
 	// GENERAL FES CHANNEL BOTTONS
 	document.getElementById("channel0_general").onclick = function() {
 		channel = document.getElementById("channel0_general")
-		if (channel.value != "1" && channel.value != "0") {
-			channel.value = "0"
-		}
-		if (channel.value == "1") {
-			channel.value = "0"
-			channel.classList.toggle("btn-primary")
-			channel.classList.add("btn-secondary")
-		} else {
-			channel.value = "1"
-			channel.classList.toggle("btn-secondary")
-			channel.classList.add("btn-primary")
-		}
+		channel_active(channel)
 	}
 	document.getElementById("channel1_general").onclick = function() {
 		channel = document.getElementById("channel1_general")
-		if (channel.value != "1" && channel.value != "0") {
-			channel.value = "0"
-		}
-		if (channel.value == "1") {
-			channel.value = "0"
-			channel.classList.toggle("btn-primary")
-			channel.classList.add("btn-secondary")
-		} else {
-			channel.value = "1"
-			channel.classList.toggle("btn-secondary")
-			channel.classList.add("btn-primary")
-		}
+		channel_active(channel)
 	}
 	document.getElementById("channel2_general").onclick = function() {
 		channel = document.getElementById("channel2_general")
-		if (channel.value != "1" && channel.value != "0") {
-			channel.value = "0"
-		}
-		if (channel.value == "1") {
-			channel.value = "0"
-			channel.classList.toggle("btn-primary")
-			channel.classList.add("btn-secondary")
-		} else {
-			channel.value = "1"
-			channel.classList.toggle("btn-secondary")
-			channel.classList.add("btn-primary")
-		}
+		channel_active(channel)
 	}
 	document.getElementById("channel3_general").onclick = function() {
 		channel = document.getElementById("channel3_general")
-		if (channel.value != "1" && channel.value != "0") {
-			channel.value = "0"
-		}
-		if (channel.value == "1") {
-			channel.value = "0"
-			channel.classList.toggle("btn-primary")
-			channel.classList.add("btn-secondary")
-		} else {
-			channel.value = "1"
-			channel.classList.toggle("btn-secondary")
-			channel.classList.add("btn-primary")
-		}
+		channel_active(channel)
 	}
 	document.getElementById("channel4_general").onclick = function() {
 		channel = document.getElementById("channel4_general")
-		if (channel.value != "1" && channel.value != "0") {
-			channel.value = "0"
-		}
-		if (channel.value == "1") {
-			channel.value = "0"
-			channel.classList.toggle("btn-primary")
-			channel.classList.add("btn-secondary")
-		} else {
-			channel.value = "1"
-			channel.classList.toggle("btn-secondary")
-			channel.classList.add("btn-primary")
-		}
+		channel_active(channel)
 	}
 	document.getElementById("channel5_general").onclick = function() {
 		channel = document.getElementById("channel5_general")
-		if (channel.value != "1" && channel.value != "0") {
-			channel.value = "0"
-		}
-		if (channel.value == "1") {
-			channel.value = "0"
-			channel.classList.toggle("btn-primary")
-			channel.classList.add("btn-secondary")
-		} else {
-			channel.value = "1"
-			channel.classList.toggle("btn-secondary")
-			channel.classList.add("btn-primary")
-		}
+		channel_active(channel)
 	}
 	document.getElementById("channel6_general").onclick = function() {
 		channel = document.getElementById("channel6_general")
-		if (channel.value != "1" && channel.value != "0") {
-			channel.value = "0"
-		}
-		if (channel.value == "1") {
-			channel.value = "0"
-			channel.classList.toggle("btn-primary")
-			channel.classList.add("btn-secondary")
-		} else {
-			channel.value = "1"
-			channel.classList.toggle("btn-secondary")
-			channel.classList.add("btn-primary")
-		}
+		channel_active(channel)
 	}
 	document.getElementById("channel7_general").onclick = function() {		
 		channel = document.getElementById("channel7_general")
-		if (channel.value != "1" && channel.value != "0") {
-			channel.value = "0"
-		}
-		if (channel.value == "1") {
-			channel.value = "0"
-			channel.classList.toggle("btn-primary")
-			channel.classList.add("btn-secondary")
-		} else {
-			channel.value = "1"
-			channel.classList.toggle("btn-secondary")
-			channel.classList.add("btn-primary")
-		}
+		channel_active(channel)
 	}
 
 	document.getElementById("r_hip_chart").onclick = function(evt){
 		var activePoints = ctxrhipInstance.getElementsAtEvent(evt);
-		document.getElementById("save_fes_stimulation").value = "r_hip"
+		document.getElementById("fes_config").value = "r_hip";
+		document.getElementById("fes_config").innerHTML = "Configure";
 		document.getElementById("fes_angle").style.display = "block";
 		document.getElementById("fes_angle").value = (activePoints[0]._index).toString();
 		document.getElementById("fes_angle").innerHTML = "Right Hip | Gait percentage: " + (activePoints[0]._index / 200 * 100).toString() +  "% | Angle: " + hip_trajectory[activePoints[0]._index].toString() + "º";
-		document.getElementById("save_fes_stimulation").innerHTML = "Save Configuration";
-		$("#modal_fes_patern").modal('show').modal('show');
+		$("#modal_fes_config").modal('show').modal('show');
+		document.getElementById("channel_list").style.display = "block";
+		document.getElementById("fes_init_conf").style.display = "none";
+		document.getElementById("fes_update_conf").style.display = "block";
 	};
 
 	document.getElementById("l_hip_chart").onclick = function(evt){
 		var activePoints = ctxlhipInstance.getElementsAtEvent(evt);
-		document.getElementById("save_fes_stimulation").value = "l_hip"
+		document.getElementById("fes_config").value = "l_hip"
+		document.getElementById("fes_config").innerHTML = "Configure";
 		document.getElementById("fes_angle").style.display = "block";
 		document.getElementById("fes_angle").value = (activePoints[0]._index).toString();
 		document.getElementById("fes_angle").innerHTML = "Left Hip | Gait percentage: " + (activePoints[0]._index / 200 * 100).toString() +  "% | Angle: " + hip_trajectory[activePoints[0]._index].toString() + "º";
-		document.getElementById("save_fes_stimulation").innerHTML = "Save Configuration";
-		$("#modal_fes_patern").modal('show').modal('show');
+		$("#modal_fes_config").modal('show').modal('show');
+		document.getElementById("channel_list").style.display = "block";
+		document.getElementById("fes_init_conf").style.display = "none";
+		document.getElementById("fes_update_conf").style.display = "block";
 	};
 
 	document.getElementById("r_knee_chart").onclick = function(evt){
 		var activePoints = ctxrkneeInstance.getElementsAtEvent(evt);
-		document.getElementById("save_fes_stimulation").value = "r_knee"
+		document.getElementById("fes_config").value = "r_knee"
+		document.getElementById("fes_config").innerHTML = "Configure";
 		document.getElementById("fes_angle").style.display = "block";
 		document.getElementById("fes_angle").value = (activePoints[0]._index).toString();
 		document.getElementById("fes_angle").innerHTML = "Right Knee  | Gait percentage: " + (activePoints[0]._index / 200 * 100).toString() +  "% | Angle: " + knee_trajectory[activePoints[0]._index].toString() + "º";
-		document.getElementById("save_fes_stimulation").innerHTML = "Save Configuration";
-		$("#modal_fes_patern").modal('show').modal('show');
+		$("#modal_fes_config").modal('show').modal('show');
+		document.getElementById("channel_list").style.display = "block";
+		document.getElementById("fes_init_conf").style.display = "none";
+		document.getElementById("fes_update_conf").style.display = "block";
 	};
 
 	document.getElementById("l_knee_chart").onclick = function(evt){
 		var activePoints = ctxlkneeInstance.getElementsAtEvent(evt)
 		document.getElementById("save_fes_stimulation").value = "l_knee"
+		document.getElementById("fes_config").innerHTML = "Configure";
 		document.getElementById("fes_angle").style.display = "block"
 		document.getElementById("fes_angle").value = (activePoints[0]._index).toString();
 		document.getElementById("fes_angle").innerHTML = "Left Knee | Gait percentage: " + (activePoints[0]._index / 200 * 100).toString() +  "% | Angle: " + knee_trajectory[activePoints[0]._index].toString() + "º";
-		document.getElementById("save_fes_stimulation").innerHTML = "Save Configuration";
-		$("#modal_fes_patern").modal('show').modal('show');
+		$("#modal_fes_config").modal('show').modal('show');
+		document.getElementById("channel_list").style.display = "block";
+		document.getElementById("fes_init_conf").style.display = "none";
+		document.getElementById("fes_update_conf").style.display = "block";
 	};
 
 	document.getElementById("fes_general_config").onclick = function() {
@@ -477,60 +200,13 @@ window.onload = function(){
 		})
 	};
 
-	document.getElementById("save_fes_stimulation").onclick = function() {
-		var channels = [0,0,0,0,0,0,0,0]
-		channel0 = document.getElementById("channel0_stim")
-		channel1 = document.getElementById("channel1_stim")
-		channel2 = document.getElementById("channel2_stim")
-		channel3 = document.getElementById("channel3_stim")
-		channel4 = document.getElementById("channel4_stim")
-		channel5 = document.getElementById("channel5_stim")
-		channel6 = document.getElementById("channel6_stim")
-		channel7 = document.getElementById("channel7_stim")
-		console.log(channel0.value, channel1.value, channel2.value, channel3.value, channel4.value, channel5.value, channel6.value, channel7.value)
-		if (channel0.value == "1") {
-			channels[7] = 1
-		}
-		if (channel1.value == "1") {
-			channels[6] = 1
-		}
-		if (channel2.value == "1") {
-			channels[5] = 1
-		}
-		if (channel3.value == "1") {
-			channels[4] = 1
-		}
-		if (channel4.value == "1") {
-			channels[3] = 1
-		}
-		if (channel5.value == "1") {
-			channels[2] = 1
-		}
-		if (channel6.value == "1") {
-			channels[1] = 1
-		}
-		if (channel7.value == "1") {
-			channels[0] = 1
-		}
-		channels = channels.join("").toString()
-		console.log(channels)
-		var joint = document.getElementById("save_fes_stimulation").value;
-		var current = document.getElementById("current_stim").value;
-		var pw = document.getElementById("pw_stim").value;
-		var mode = document.getElementById("mode_stim").value;
-		var index = document.getElementById("fes_angle").value;
-		socket.emit('FES:save_stim', {
-		joint: joint,
-		channels: channels,
-		current : current,
-		pw : pw,
-		mode : mode,
-		index: index
-		})
-	};
 
+	document.getElementById("fes_config").onclick = function() {
+		// FES configuration
+		fes_config = document.getElementById("fes_config").value;
+		console.log(fes_config);
 
-	document.getElementById("fes_config_test").onclick = function() {
+		// Selected channels
 		var channels = [0,0,0,0,0,0,0,0]
 		channel0 = document.getElementById("channel0")
 		channel1 = document.getElementById("channel1")
@@ -565,21 +241,38 @@ window.onload = function(){
 			channels[0] = 1
 		}
 		channels = channels.join("").toString()
+
+		// FES configuration parameters
 		var current = document.getElementById("current").value;
 		var pw = document.getElementById("pw").value;
 		var group_time = document.getElementById("group_time").value;
 		var mode = document.getElementById("mode").value;
 		var main_freq = document.getElementById("main_freq").value;
 		var index = document.getElementById("fes_angle").value;
-		socket.emit('FES:configuration_test', {
-		channels: channels,
-		current : current,
-		pw : pw,
-		group_time: group_time,
-		mode : mode,
-		main_freq : main_freq,
-		index: index
-		})
+
+		var joint = document.getElementById("save_fes_stimulation").value;
+		var index = document.getElementById("fes_angle").value;
+
+		if (fes_config == "test") {
+			socket.emit('FES:configuration_test', {
+			channels: channels,
+			current : current,
+			pw : pw,
+			group_time: group_time,
+			mode : mode,
+			main_freq : main_freq,
+			index: index
+			})
+		} else if (fes_config == "r_hip" || fes_config == "l_hip" || fes_config == "r_knee" || fes_config == "l_knee") {
+			socket.emit('FES:save_stim', {
+			joint: joint,
+			channels: channels,
+			current : current,
+			pw : pw,
+			mode : mode,
+			index: index
+			})
+		}
 	};
 
 	// Get list of serial ports connected

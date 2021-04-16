@@ -9,7 +9,7 @@ window.onload = function(){
     speed = document.getElementById("velocity_input").value;
     document.getElementById("velocity_html").innerHTML = speed + "%";
     document.getElementById("velocity_ms").innerHTML = (max_vel * parseInt(speed)/100).toFixed(2).toString() + " (m/s)";
-    if (direction != "stop"){
+    if (direction != "stop" && direction != undefined){
       sendTraction(direction, speed);
     }
   };
@@ -33,6 +33,7 @@ var move_backwards = false;
 $arrow_right.onclick = () => {
   if (move_right) {
     move_right = false;
+    direction = "stop";
     sendTraction("stop", 0);
   } else {
     move_right = true;
@@ -52,6 +53,7 @@ $arrow_right.onclick = () => {
 $arrow_left.onclick = () => {
   if (move_left) {
     move_left = false;
+    direction = "stop";
     sendTraction("stop", 0);
   } else {
     move_left = true;
@@ -72,6 +74,7 @@ $arrow_left.onclick = () => {
 $arrow_fordward.onclick = () => {
   if (move_fordward) {
     move_fordward = false;
+    direction = "stop";
     sendTraction("stop", 0);
   } else {
     move_fordward = true;
@@ -91,7 +94,8 @@ $arrow_fordward.onclick = () => {
 $arrow_backwards.onclick = () => {
   if (move_backwards) {
     move_backwards = false;
-    sendTraction("backwards", 0);
+    direction = "stop";
+    sendTraction("stop", 0);
   } else {
     move_backwards = true;
     document.getElementById("direction_html").innerHTML = "Backwards...";

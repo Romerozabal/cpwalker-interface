@@ -6,13 +6,13 @@ const {spawn} = require ('child_process');
 const {exec} = require ('child_process');
 
 
+// Relative configuration file path:
+var therapyConfigPath = path.join(__dirname, 'config','therapySettings.json');
+
 // Execute python program to control the rehaStym when server starts
 const python = spawn('python', ['rehaStym_configuration.py']);
 
-
 var PLOTSAMPLINGTIME = 100; //ms
-
-
 
 var net = require('net');
 
@@ -47,13 +47,13 @@ client.on('close', function() {
 // UPD sockets to send data
 var udp_send = dgram.createSocket('udp4');
 // UDP sockets to receive data
-var s_left_knee = dgram.createSocket('udp4');
-var s_right_knee = dgram.createSocket('udp4');
-var s_left_hip = dgram.createSocket('udp4');
-var s_right_hip = dgram.createSocket('udp4');
-var s_weight = dgram.createSocket('udp4');
-var s_r_index = dgram.createSocket('udp4');
-var s_l_index = dgram.createSocket('udp4');
+//var s_left_knee = dgram.createSocket('udp4');
+//var s_right_knee = dgram.createSocket('udp4');
+//var s_left_hip = dgram.createSocket('udp4');
+//var s_right_hip = dgram.createSocket('udp4');
+//var s_weight = dgram.createSocket('udp4');
+//var s_r_index = dgram.createSocket('udp4');
+//var s_l_index = dgram.createSocket('udp4');
 var s_msg = dgram.createSocket('udp4');
 
 // UDP constants to send data
@@ -63,6 +63,7 @@ const EXO_PORT = 50011; //Exoskeleton port
 const WEIGHT_PORT = 50015; //Patient weight control
 const TRACTION_PORT = 50012; //Traction control
 const IMPEDANCE_PORT = 50016; //Impedance control
+const JOINT_CONTROL_PORT = 50017; //Joint control mode
 const TRAMA_PORT = 6000; //FES stimulation command
 
 /////////////////////////////////
@@ -105,8 +106,6 @@ const ExcelJS = require('exceljs');
 const { parse } = require('path');
 
 
-
-
 ///////////////////
 //** CLASSES **//
 ///////////////////
@@ -145,9 +144,9 @@ class stimulationFES {
 
 // Arrays of recorded therapy dataç
 var record_therapy = false;
-var time_spam = []
-var right_leg_gait = []; // Vector of right leg gait phase (0-200) of the reference trajectory
-var left_leg_gait = []; // Vector of left leg gait phase (0-200) of the reference trajectory
+var time_spam = [];
+var right_leg_index_vector = []; // Vector of right leg gait phase (0-200) of the reference trajectory
+var left_leg_index_vector = []; // Vector of left leg gait phase (0-200) of the reference trajectory
 var left_knee_vector = [];
 var right_knee_vector= [];
 var left_hip_vector= [];
@@ -194,11 +193,39 @@ var encoder_right_wheel;
 
 // CPWalker data
 s_msg.on('message', function(msg, info) {
-    //console.log(msg);
-    [left_knee_real, left_knee_ref, right_knee_real, right_knee_ref, left_hip_real, left_hip_ref, right_hip_real, right_hip_ref, weight, right_leg_index, left_leg_index, torque_left_knee, torque_right_knee, torque_left_hip, torque_right_hip, pistons, traction_ref, encoder_left_wheel, encoder_right_wheel] = decodemsg(msg);
+    [left_knee_real, left_knee_ref, right_knee_real, right_knee_ref, left_hip_real, left_hip_ref, right_hip_real, right_hip_ref, left_leg_index, right_leg_index, torque_left_knee, torque_right_knee, torque_left_hip, torque_right_hip, weight, pistons, traction_ref, encoder_left_wheel, encoder_right_wheel] = decodemsg(msg);
+    
+    if (record_therapy) {
+        left_knee_vector.push(parseFloat(left_knee_real));
+        left_knee_ref_vector.push(parseFloat(left_knee_ref));
+
+        right_knee_vector.push(parseFloat(right_knee_real));
+        right_knee_ref_vector.push(parseFloat(right_knee_ref));
+
+        left_hip_vector.push(parseFloat(left_hip_real))
+        left_hip_ref_vector.push(parseFloat(left_hip_ref))
+
+        right_hip_vector.push(parseFloat(right_hip_real))
+        right_hip_ref_vector.push(parseFloat(right_hip_ref))
+
+        left_leg_index_vector.push(left_leg_index);
+        right_leg_index_vector.push(right_leg_index);
+
+        weight_vector.push(parseFloat(weight));
+        torque_left_knee_vector.push(parseFloat(torque_left_knee));
+        torque_right_knee_vector.push(parseFloat(torque_right_knee));
+        torque_left_hip_vector.push(parseFloat(torque_left_hip));
+        torque_right_hip_vector.push(parseFloat(torque_right_hip));
+        pistons_vector.push(parseFloat(pistons));
+        traction_ref_vector.push(parseFloat(traction_ref));
+        encoder_left_wheel_vector.push(parseFloat(encoder_left_wheel));
+        encoder_right_wheel_vector.push(parseFloat(encoder_right_wheel));
+
+        time_spam.push(Date.now() / 1000);
+    }
 });
 
-
+/*
 // Left knee data
 s_left_knee.on('message', function(msg, info) {
     [left_knee_real, left_knee_ref] = decodeRealRef(msg);
@@ -231,33 +258,29 @@ s_right_hip.on('message', function(msg, info) {
     if (record_therapy) {
         right_hip_vector.push(parseFloat(right_hip_real))
         right_hip_ref_vector.push(parseFloat(right_hip_ref))
-    }
 });
 // Patient weight
 s_weight.on('message', function(msg, info) {
-    /*var weight = [];
+    var weight = [];
     for (i = 0 ; i < String(msg).length; i++) {
         weight.push(String(msg).charCodeAt(i));
     }
     console.log(weight);
-    */
 });
 // Right leg % gait
 s_r_index.on('message', function(msg, info) {
     if (record_therapy) {
         right_leg_index = msg.readUInt8(0);
-        right_leg_gait.push(right_leg_index);
+        right_leg_index_vector.push(right_leg_index);
     }
 });
 // Left leg % gait
 s_l_index.on('message', function(msg, info) {
     if (record_therapy) {
         left_leg_index = msg.readUInt8(0);
-        left_leg_gait.push(left_leg_index);
+        left_leg_index_vector.push(left_leg_index);
     }
 });
-// Bind the UDP ports
-s_msg.bind(10000);
 s_left_knee.bind(10001);
 s_right_knee.bind(10002);
 s_left_hip.bind(10003);
@@ -265,7 +288,10 @@ s_right_hip.bind(10004);
 s_weight.bind(10005);
 s_r_index.bind(10006);
 s_l_index.bind(10007);
+*/
 
+// Bind the UDP ports
+s_msg.bind(10000);
 
 
 var last_trama = [];
@@ -358,8 +384,8 @@ setInterval(function () {
         }
         // Do not repeate same last command
         if (equals(last_trama,trama) == false) {
-        // Send final command to the stimulator
-        sendUDP(trama,TRAMA_PORT,LOCAL_IP);
+            // Send final command to the stimulator
+            sendUDP(trama,TRAMA_PORT,LOCAL_IP);
         }
     }
 }, 0);
@@ -501,7 +527,7 @@ io.on('connection', (socket) => {
         console.log("Add session data")
         var sql = "INSERT INTO tabla_sesion (idPaciente, NumberSession, idTerapeuta, patiente_age, patiente_weight, leg_length, hip_upper_strap, knee_lower_strap, gait_velocity, gmfcs, steps, ROM, PBWS, control_mode, right_knee_config, left_knee_config, right_hip_config, left_hip_config, observations) VALUES (?)";
         // Read therapy configuration from conf file
-        fs.readFile('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', (err, data) => {
+        fs.readFile(therapyConfigPath, (err, data) => {
         //fs.readFile('config/therapySettings.json', (err, data) => {
             if (err) throw err;
             var config = JSON.parse(data);
@@ -527,8 +553,8 @@ io.on('connection', (socket) => {
                         // Prepare joints angles data of the last session
                         var insertDataRows = ""
                         for (let index = 0; index < right_hip_vector.length; index++) {
-                            insertDataRows = "(" + (sessionID).toString() + "," + (time_spam[index]).toString() +","+ (left_knee_ref_vector[index]).toString() + "," + (left_knee_vector[index]).toString() + "," + (right_knee_ref_vector[index]).toString() + "," + (right_knee_vector[index]).toString() + "," + (left_hip_ref_vector[index]).toString() + "," + (left_hip_vector[index]).toString() + "," + (right_hip_ref_vector[index]).toString() + "," + (right_hip_vector[index]).toString() + ");"
-                            var sql = "INSERT INTO data_sessions (idSesion, Date, left_knee_goal, left_knee, right_knee_goal, right_knee, left_hip_goal, left_hip, right_hip_goal, right_hip) VALUES " + insertDataRows;
+                            insertDataRows = "(" + (sessionID).toString() + "," + (time_spam[index]).toString() +","+ (left_knee_ref_vector[index]).toString() + "," + (left_knee_vector[index]).toString() + "," + (right_knee_ref_vector[index]).toString() + "," + (right_knee_vector[index]).toString() + "," + (left_hip_ref_vector[index]).toString() + "," + (left_hip_vector[index]).toString() + "," + (right_hip_ref_vector[index]).toString() + "," + (right_hip_vector[index]).toString()  + "," + (torque_left_knee_vector[index]).toString() + "," + (torque_right_knee_vector[index]).toString() + "," + (torque_left_hip_vector[index]).toString() + "," + (torque_right_hip_vector[index]).toString() + "," + (weight_vector[index]).toString() + ");"
+                            var sql = "INSERT INTO data_sessions (idSesion, Date, left_knee_goal, left_knee, right_knee_goal, right_knee, left_hip_goal, left_hip, right_hip_goal, right_hip, left_knee_force, right_knee_force, left_hip_force, right_hip_force, weight_gauge) VALUES " + insertDataRows;
                             con.query(sql, function (err, result) {
                                 if (err) throw err;
                             });
@@ -655,7 +681,7 @@ io.on('connection', (socket) => {
 
     // Save therapy settings in a JSON file.
     socket.on('settings:save_settings', (data) => {
-        fs.writeFileSync('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', JSON.stringify(data), function (err){
+        fs.writeFileSync(therapyConfigPath, JSON.stringify(data), function (err){
         //fs.writeFileSync('config/therapySettings.json', JSON.stringify(data), function (err){
             if (err) throw err;
             console.log('Therapy settings saved!')
@@ -665,7 +691,7 @@ io.on('connection', (socket) => {
     // Show therapy settings in the monitoring screen.
     socket.on('monitoring:ask_therapy_settings', function(callbackFn) {
         // Read therappy settings from config file.
-        fs.readFile('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', (err, data) => {
+        fs.readFile(therapyConfigPath, (err, data) => {
         //fs.readFile('config/therapySettings.json', (err, data) => {
             if (err) throw err;
             let config = JSON.parse(data);
@@ -742,8 +768,17 @@ io.on('connection', (socket) => {
         left_knee_ref_vector= [];
         right_knee_vector = [];
         right_knee_ref_vector= [];
-        right_leg_gait = [];
-        left_leg_gait = [];
+        right_leg_index_vector = [];
+        left_leg_index_vector = [];
+        weight_vector= [];
+        torque_left_knee_vector= [];
+        torque_right_knee_vector= [];
+        torque_left_hip_vector= [];
+        torque_right_hip_vector= [];
+        pistons_vector= [];
+        traction_ref_vector= [];
+        encoder_left_wheel_vector= [];
+        encoder_right_wheel_vector= [];
     });
 
     // Stop therapy.
@@ -755,8 +790,8 @@ io.on('connection', (socket) => {
         console.log(left_hip_vector.length);
         console.log(right_knee_vector.length);
         console.log(left_knee_vector.length);
-        console.log(right_leg_gait.length);
-        console.log(left_leg_gait.length);
+        console.log(right_leg_index_vector.length);
+        console.log(left_leg_index_vector.length);
     });
 
     // Send test FES configuration
@@ -1089,7 +1124,7 @@ function configureStartPos() {
     var pat_weight
     var pbws;
     // Get therapy settings from json file
-    fs.readFile('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', (err, data) => {
+    fs.readFile(therapyConfigPath, (err, data) => {
     //fs.readFile('config/therapySettings.json', (err, data) => {
         if (err) throw err;
         // Get json object
@@ -1153,8 +1188,6 @@ function startTherapy() {
     var cmd_traction_mode;
     // Exo control variabels
     var exo_config = [];
-    var trajectory_ctr;
-    var impedance_ctr;
     // Impedance variables
     var imp_config = [];
     var cal_imp;
@@ -1162,18 +1195,68 @@ function startTherapy() {
     var check_gauges;
     var weight_ref;
     // Read therappy settings from config file.
-    fs.readFile('/home/pi/CPWalker/cpwalker-interface/config/therapySettings.json', (err, data) => {
-    //fs.readFile('config/therapySettings.json', (err, data) => {
+    fs.readFile(therapyConfigPath, (err, data) => {
         if (err) throw err;
         // Get json object
         let config = JSON.parse(data);
-        // Check type of therapy (trajectory control, impedance control)
-        if (data.right_hip_config == "t_control" || data.left_hip_config == "t_control"
-            || data.right_knee_config == "t_control" || data.left_knee_config == "t_control") {
-            trajectory_ctr = true;
-        } else {
-            impedance_ctr = true;
-        }
+
+        // Encode joint control mode 
+        var joint_control_mode = [config.left_hip_control,config.right_hip_control,config.left_knee_control,config.right_knee_control];
+
+        // Traction control config and initial position
+        cmd_start = 0; // Exoskeleton does not go to initial position
+        cmd_v_r = 50; // Velocity of right wheel 0
+        cmd_v_l = 50; // Velocity of left wheel 0
+        cmd_traction_mode = 20;
+        trac_config = [cmd_start, cmd_v_l, cmd_v_r, cmd_traction_mode];
+
+        // Impedance configuration
+        cal_imp = 1;
+        niv_imp = 0;
+        check_gauges = 0;
+        weight_ref = 0;
+        imp_config = [cal_imp, 0, check_gauges, weight_ref];
+        imp_config_calibrate = [cal_imp, 0, 0, 0];
+
+         // Exoskeleton config trajectory control mode.
+         exo_config = [0,0,0,0,0,0,0,0];
+
+         // Encode selected joints.
+         var joints = [0,0,0,0]
+         if (config.right_hip_config == "enable") {
+             joints[0] = 1;
+         }
+         if (config.left_hip_config == "enable") {
+             joints[1] = 1;
+         }
+         if (config.right_knee_config == "enable") {
+             joints[2] = 1;
+         }
+         if (config.left_knee_config == "enable") {
+             joints[3] = 1;
+         }
+         exo_config[0] =   parseInt(joints.join(""), 2);
+         exo_config[1] = 4; // Start motion in position control mode
+         exo_config[2] = parseInt(config.steps);
+         exo_config[3] = parseInt(config.gait_velocity);
+         exo_config[4] = parseInt(config.rom);
+         exo_config[5] = parseInt(config.leg_length);
+
+        // Send data to the robot
+        (async () => {
+            await new Promise(resolve => setTimeout(resolve, 50));
+            sendUDP(imp_config_calibrate, IMPEDANCE_PORT, CPWALKER_IP);
+            await new Promise(resolve => setTimeout(resolve, 4000));
+            sendUDP(imp_config, IMPEDANCE_PORT, CPWALKER_IP);
+            await new Promise(resolve => setTimeout(resolve, 50));
+            sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP);
+            await new Promise(resolve => setTimeout(resolve, 100));
+            sendUDP(exo_config, EXO_PORT, CPWALKER_IP);
+            await new Promise(resolve => setTimeout(resolve, 50));
+            sendUDP(joint_control_mode, JOINT_CONTROL_PORT, CPWALKER_IP);
+        })();
+
+        /*
         // TRAJECTORY CONTROL
         if (config.control_mode == "trajectory") {
             console.log("Trajectory Control");
@@ -1220,9 +1303,10 @@ function startTherapy() {
                 sendUDP(imp_config, IMPEDANCE_PORT, CPWALKER_IP);
                 await new Promise(resolve => setTimeout(resolve, 50));
                 sendUDP(trac_config, TRACTION_PORT, CPWALKER_IP);
-                await new Promise(resolve => setTimeout(resolve, 100));
+                await new Promise(resolve => setTimeout(resolve, 50));
                 sendUDP(exo_config, EXO_PORT, CPWALKER_IP);
             })();
+            
         // IMPEDANCE CONTROL
         } else {
             console.log("Impedance Control");
@@ -1241,6 +1325,7 @@ function startTherapy() {
             check_gauges = 0;
             weight_ref = 0;
             imp_config = [cal_imp, niv_imp, check_gauges, weight_ref];
+            imp_config_calibrate = [cal_imp, 0, 0, 0]
             // Exoskeleton config impedance control mode.
             exo_config = [0,0,0,0,0,0,0,0];
             // Encode selected joints.
@@ -1263,6 +1348,7 @@ function startTherapy() {
             exo_config[3] = parseInt(config.gait_velocity);
             exo_config[4] = parseInt(config.rom);
             exo_config[5] = parseInt(config.leg_length);
+
             (async () => {
                 await new Promise(resolve => setTimeout(resolve, 50));
                 sendUDP(imp_config_calibrate, IMPEDANCE_PORT, CPWALKER_IP);
@@ -1274,6 +1360,7 @@ function startTherapy() {
                 sendUDP(exo_config, EXO_PORT, CPWALKER_IP);
             })();
         }
+        */
     });
 }
 
@@ -1387,68 +1474,79 @@ function decodeRealRef(coded_values) {
     return [ sign_real_pos * (interger_real_pos + decimals_2_real_pos/100) , sign_ref_pos * (interger_ref_pos + decimals_2_ref_pos/100) ]
 }
 
-function decodemsg(msg) {
-    msg = msg.toString('hex');
-    // Transform the coded_number of type string to an hex number array
-    msg_vector = [];
-    for (i = 0 ; i < msg.length; i = i + 2) {
+function decodemsg(msg) {     
+    // Message format:
+    // [left_knee_real, left_knee_ref, right_knee_real, right_knee_ref, left_hip_real, left_hip_ref, right_hip_real, right_hip_ref, ...
+    // right_leg_index, left_leg_index , torque_left_knee, torque_right_knee, torque_left_hip, torque_right_hip, weight, pistons, ...
+    // raction_ref, encoder_left_wheel, encoder_right_wheel]
+                                                                                                                                                                                                                                                                                                   
+    msg = msg.toString('hex');                                                                                                                                                                                                                                                                                                
+    // Transform the coded_number of type string to an hex number array                                                                                                                                                                                                                                                                              
+    msg_vector = [];                                                                                                                                                                                                                                                                                                             
+    for (i = 0 ; i < msg.length; i = i + 2) {                                                                                                                                                                                                                                                                                        
         msg_vector.push(parseInt(msg.charAt(i) + msg.charAt(i + 1),16));
         //console.log(msg.charAt(i) + msg.charAt(i + 1));
-        //console.log(msg_vector[msg_vector.length - 1]);
+        //console.log(msg_vector[msg_vector.length - 1]);                                                                                                                                                                                                                                                                        
     }
-    
-    msg_data = [];
-    // left_knee_real, left_knee_ref, right_knee_real, right_knee_ref, left_hip_real, left_hip_ref, right_hip_real, right_hip_ref, weight
+    //console.log(msg_vector);
+    msg_data = [];                                                                                                                                                                                                                                                                                                               
     let index = 0;
     while (index < msg_vector.length) {
-        // Data doubles: left_knee_real, left_knee_ref, right_knee_real, right_knee_ref, left_hip_real, left_hip_ref, right_hip_real, right_hip_ref, weight
-        if (index < 9 * 4) {
+        // Data doubles: left_knee_real, left_knee_ref, right_knee_real, right_knee_ref, left_hip_real, left_hip_ref, right_hip_real, right_hip_ref                                                                                                                                                                          
+        if (index < 8 * 4) {      
             //console.log("angles");
-            msg_data.push(data2double(msg_vector[index],msg_vector[index + 1], msg_vector[index + 2], msg_vector[index + 3]));        
+            //console.log(index);                                                                                                                                                                                                                                                                                                         
+            msg_data.push(data2double(msg_vector[index],msg_vector[index + 1], msg_vector[index + 2], msg_vector[index + 3]));
             index = index + 4;
-        }
-        // Data intergers:  right_leg_index, left_leg_index
-        else if (index < (9 * 4) + (2 * 2)) {
+        }                                                                                                                                                                                                                                                                                                                            
+        // Data intergers:  right_leg_index, left_leg_index                                                                                                                                                                                                                                                                          
+        else if (index < (8 * 4) + (2)) {
             //console.log("index");
-            msg_data.push(data2interger(msg_vector[index],msg_vector[index + 1]));        
-            index = index + 2;
+            //console.log(index);  
+            msg_data.push(data2interger(msg_vector[index]));
+            index = index + 1;                                                                                                                                                                                                                                                                                                       
+        }                                                                                                                                                                                                                                                                                                                            
+        // Data doubles:  torque_left_knee, torque_right_knee, torque_left_hip, torque_right_hip, weight
+        else if (index < (8 * 4) + (2) + (5 * 4)) {
+            //console.log("torques");                                                                                                                                                                                                                                                                                                    
+            //console.log(index);  
+            msg_data.push(data2double(msg_vector[index],msg_vector[index + 1], msg_vector[index + 2], msg_vector[index + 3]));
+            index = index + 4;                                                                                                                                                                                                                                                                                                       
         }
-        // Data doubles:  torque_left_knee, torque_right_knee, torque_left_hip, torque_right_hip,
-        else if (index < (9 * 4) + (2 * 2) + (4 * 4)) {
-            //console.log("torques");
-            msg_data.push(data2double(msg_vector[index],msg_vector[index + 1], msg_vector[index + 2], msg_vector[index + 3]));        
-            index = index + 4;
-        }
-        // Data interger:  pistons
-        else if (index < (9 * 4) + (2 * 2) + (4 * 4) + (2)) {
+            // Data interger:  pistons
+        else if (index < (8 * 4) + (2) + (5 * 4) + (1)) {
             //console.log("pistons");
-            msg_data.push(data2interger(msg_vector[index],msg_vector[index + 1]));        
-            index = index + 2;
-        }
+            //console.log(index);  
+            msg_data.push(data2interger(msg_vector[index]));
+            index = index + 1;                                                                                                                                                                                                                                                                                                       
+        }                                                                                                                                                                                                                                                                                                                            
         // Data doubles: traction_ref, encoder_left_wheel, encoder_right_wheel
-        else if (index < (9 * 4) + (2 * 2) + (4 * 4) + (2) + (4 * 3)) {
-            //console.log("traction");
-            msg_data.push(data2double(msg_vector[index],msg_vector[index + 1], msg_vector[index + 2], msg_vector[index + 3]));        
+        else if (index < (8 * 4) + (2) + (5 * 4) + (1) + (4 * 3)) {
+            msg_data.push(data2double(msg_vector[index],msg_vector[index + 1], msg_vector[index + 2], msg_vector[index + 3]));
+            //console.log("traction");  
+            //console.log(index);                                                                                                                                                                                                                                                 
             index = index + 4;
-        }
+        }                                                                                                                                                                                                                                                                                                                        
     }
     //console.log(msg_data);
-    return msg_data;
+    return msg_data;                                                                                                                                                                                                                                                                                                         
 }
-
 function data2double(interger2, interger1, decimal2, decimal1) {
-    var bin =  interger1.toString(2) + interger2.toString(2);
-    var sign = 1;
-    //console.log(interger1_bin);
-    //console.log(bin);
-    if(bin.charAt(bin.length - 1) == '1') {
-        console.log(bin);
-        bin[bin.length - 1] = '0';
-        sign = -1;
+    var bin = interger1.toString(2) + interger2.toString(2);
+    var number;
+    var len = bin.length;                                                                                                                                                                                                                                                                                                        
+    //console.log(bin);                                                                                                                                                                                                                                                                                                          
+    if(bin.charAt(0) == '1') {
+        //console.log("Negativo!!!");                                                                                                                                                                                                                                                                                                
+        //console.log(- ~parseInt(bin,2) - parseInt(Array(len).fill(1).join('').toString(2),2));
+        number =  - ~parseInt(bin,2) - parseInt(Array(len).fill(1).join('').toString(2),2) - (parseInt(decimal1.toString(2) + decimal2.toString(2),2) / 1000);
+    } else {                                                                                                                                                                                                                                                                                                                         
+        number = parseInt(bin,2) + (parseInt(decimal1.toString(2) + decimal2.toString(2),2) / 1000);
     }
-    return sign * (parseInt(interger1.toString(2) + interger2.toString(2),2)) + parseInt((decimal1.toString(2) + decimal2.toString(2)),2) / 1000;
+    //console.log(number);                                                                                                                                                                                                                                                                                                       
+    return number;                                                                                                                                                                                                                                                                                                           
 }
-function data2interger(interger2, interger1) {
-    return parseInt((interger1.toString(2) + interger2.toString(2)),2);
+function data2interger(interger) {
+    //console.log(parseInt((interger1.toString(2) + interger2.toString(2)),2));
+    return parseInt(interger.toString(2),2);
 }
-

@@ -4,6 +4,7 @@ const express = require('express'); // Configurar express
 const fs = require('fs'); //  File System module
 const {spawn} = require ('child_process');
 const {exec} = require ('child_process');
+const net = require('net');
 
 
 // Relative configuration file path:
@@ -12,23 +13,87 @@ var therapyConfigPath = path.join(__dirname, 'config','therapySettings.json');
 // Execute python program to control the rehaStym when server starts
 const python = spawn('python', ['rehaStym_configuration.py']);
 
-var PLOTSAMPLINGTIME = 100; //ms
+const PLOTSAMPLINGTIME = 100; //ms
 
-var net = require('net');
+
+
+
+const client_delsys_start = new net.Socket();
+const client_delsys_data = new net.Socket();
+
+const DELSYS_PC_IP = '192.168.1.104';
+const DELSYS_START_PORT = 30000;
+const DELSYS_DATA_PORT = 30001;
 
 /*
-var client = new net.Socket();
-client.connect(10000, '192.168.1.48', function() {
-	console.log('Connected');
+const client_delsys_start = net.createConnection(DELSYS_START_PORT, DELSYS_PC_IP, () => {
+    // 'connect' listener.
+    console.log('connected to server!');
+    client_delsys_start.write('#ready');
 });
+*/
 
-client.on('data', function(data) {
+
+/*
+// Send data to the charts in therapy monitoring
+var connect_delsys = false;
+setInterval(function () {
+    if (!connect_delsys) {
+        client_delsys_start.connect(DELSYS_START_PORT, DELSYS_PC_IP, function() {
+            console.log('Connected to start');
+            client_delsys_start.write('#ready');
+            connect_delsys = true;
+        });  
+        client_delsys_data.connect(DELSYS_DATA_PORT, DELSYS_PC_IP, function() {
+            console.log('Connected to data');
+            connect_delsys = true;
+        });  
+    }    
+}, 2000);
+
+client_delsys_start.on('error', function(ex) {
+    console.log(ex);
+    connect_delsys = false;
+});  
+client_delsys_start.on('end', function() {
+    console.log('Delsys start ended');
+});
+client_delsys_start.on('close', function() {
+    console.log('Delsys start closed');
+});
+    
+var emg_msgs = []
+client_delsys_data.on('data', function(data) {
+    //var datos = JSON.parse(data);
+    var msg_data = false;
+    var message = "";
     console.log(data);
-	//decodemsg(data);
+    for (let index = 0; index < data.length; index++) {
+        if (data.charAt(i) == "{" || msg_data) {
+            // Head of the message
+            msg_data = true;
+            message = message + data.charAt(i);
+        } 
+        if (data.charAt(i) == "}") { 
+            // End of the message
+            msg_data = false;
+            message;
+        }
+    }
+    console.log(data.length);
+    console.log(Date.now() / 1000);
+    connect_delsys = true;
 });
 
-client.on('close', function() {
-	console.log('Connection closed');
+client_delsys_data.on('error', function(ex) {
+    console.log(ex);
+    connect_delsys = false;
+});
+client_delsys_data.on('end', function() {
+    console.log('Delsys data ended');
+});
+client_delsys_data.on('close', function() {
+    console.log('Delsys data closed');
 });
 */
 
@@ -323,27 +388,6 @@ setInterval(function () {
             }
         }
 
-        /*
-        // Stimulation working
-            if (joint == "l_hip") {
-                if ((left_hip_ref > (hip_trajectory[index] - margin) && (left_hip_ref < (hip_trajectory[index] + margin)))) {
-                    stimList.push(i)
-                }
-            } else if (joint == "r_hip") {
-                if (( right_hip_ref > (hip_trajectory[index] - margin) && (right_hip_ref < (hip_trajectory[index] + margin)))) {
-                    stimList.push(i)
-                }
-            } else if (joint == "l_knee") {
-                if ((left_knee_ref > (knee_trajectory[index] - margin) && (left_knee_ref < (knee_trajectory[index] + margin)))) {
-                    stimList.push(i)
-                }
-            } else if (joint == "r_knee") {
-                if (( right_knee_ref > (knee_trajectory[index] - margin) && (right_knee_ref < (knee_trajectory[index] + margin)))) {
-                    stimList.push(i)
-                }
-            }
-        }
-        */
         // FES update trama
         // Calculate the check command for the RehaStim update tramma
         var check = 0;
@@ -389,6 +433,7 @@ setInterval(function () {
         }
     }
 }, 0);
+
 
 ///////////////////////////////////////
 //*** Server-Client communication ***//
@@ -704,7 +749,6 @@ io.on('connection', (socket) => {
                 rom :   config.rom,
                 pbws :   config.pbws,
                 steps :   config.steps,
-                control_mode :   config.control_mode,
                 left_hip_config :   config.left_hip_config,
                 left_knee_config :   config.left_knee_config,
                 right_hip_config :   config.right_hip_config,
@@ -757,8 +801,8 @@ io.on('connection', (socket) => {
     // Start therapy.
     socket.on('monitoring:start', function(callbackFn) {
         startTherapy();
-        // Start saving joints angles
-        record_therapy = true;
+
+        // Reset all vectors
         time_spam = [];
         left_hip_vector = [];
         left_hip_ref_vector= [];
@@ -779,19 +823,15 @@ io.on('connection', (socket) => {
         traction_ref_vector= [];
         encoder_left_wheel_vector= [];
         encoder_right_wheel_vector= [];
+
+        // Start recording
+        record_therapy = true;
     });
 
     // Stop therapy.
     socket.on('monitoring:stop', function(callbackFn) {
         stopTherapy();
         record_therapy = false;
-        console.log("Saved vector sizes: r_h , l_h, r_k, l_k, r_index, l_index");
-        console.log(right_hip_vector.length);
-        console.log(left_hip_vector.length);
-        console.log(right_knee_vector.length);
-        console.log(left_knee_vector.length);
-        console.log(right_leg_index_vector.length);
-        console.log(left_leg_index_vector.length);
     });
 
     // Send test FES configuration
@@ -1081,15 +1121,19 @@ function binaryResize (data, size) {
     return dataResized;
 }
 
+
 function moveManually(data) {
+
     //Get values
     w_r = data.w_right;
     w_l = data.w_left;
+
     //Command variables
     var cmd_start;
     var cmd_v_l;
     var cmd_v_r;
     var cmd_traction_mode;
+
     //Commands transformation:
     cmd_start = 0;
     cmd_v_r = Math.round(50 * (1 + w_r/100));
@@ -1100,6 +1144,7 @@ function moveManually(data) {
         cmd_traction_mode = 10; //10 -> Manual control
     }
     var trac_manual = [cmd_start, cmd_v_l, cmd_v_r, cmd_traction_mode];
+
     // Send UDP Mesage:
     stopExo();
     (async () => {
@@ -1108,62 +1153,60 @@ function moveManually(data) {
     })();
 }
 
+
 // Configure robot with the therapy settings and move to start position.
 function configureStartPos() {
     console.log("Configure and move to start pos");
     var exo_config = [];
+
     // Traction control variabels
     var trac_config = [];
     var cmd_start;
     var cmd_v_r;
     var cmd_v_l;
     var cmd_traction_mode;
+
     // Weight support variabels
     var weight_conf = [];
     var calibrate;
     var pat_weight
     var pbws;
+
     // Get therapy settings from json file
     fs.readFile(therapyConfigPath, (err, data) => {
-    //fs.readFile('config/therapySettings.json', (err, data) => {
         if (err) throw err;
+        
         // Get json object
         let config = JSON.parse(data);
+
         // Traction control config and initial position
         cmd_start = 150; // Exoskeleton goes to initial position
         cmd_v_r = 50; // Velocity of right wheel 0
         cmd_v_l = 50; // Velocity of left wheel 0
         cmd_traction_mode = 0;
         trac_config = [cmd_start, cmd_v_l, cmd_v_r, cmd_traction_mode];
+
         // Weight support config
         calibrate = 1;
         pat_weight = parseInt(config.weight);
         pbws =  parseInt(config.pbws);
         weight_conf = [calibrate, pat_weight, pbws, 0];
+
         // Impedance calibration reset
         var imp_config_calibrate = [0, 0, 0, 0];
+
         // Exoskeleton config and move to initial position.
         exo_config = [0,0,0,0,0,0,0,0];
-        // Encode selected joints.
-        var joints = [0,0,0,0]
-        if (config.right_hip_config == "enable") {
-            joints[0] = 1;
-        }
-        if (config.left_hip_config == "enable") {
-            joints[1] = 1;
-        }
-        if (config.right_knee_config == "enable") {
-            joints[2] = 1;
-        }
-        if (config.left_knee_config == "enable") {
-            joints[3] = 1;
-        }
-        exo_config[0] =   parseInt(joints.join(""), 2);
-        exo_config[1] = 20; // Move to the start position.
+        exo_config[1] = 1; // Start motion 
         exo_config[2] = parseInt(config.steps);
         exo_config[3] = parseInt(config.gait_velocity);
         exo_config[4] = parseInt(config.rom);
         exo_config[5] = parseInt(config.leg_length);
+
+        // Encode joint control mode 
+        // Value 5 = Move to start possition
+        var joint_control_mode = [5,5,5,5];
+
         // Send data to the robot
         (async () => {
             await new Promise(resolve => setTimeout(resolve, 50));
@@ -1175,6 +1218,7 @@ function configureStartPos() {
             await new Promise(resolve => setTimeout(resolve, 50));
             sendUDP(exo_config, EXO_PORT, CPWALKER_IP);
             await new Promise(resolve => setTimeout(resolve, 50));
+            sendUDP(joint_control_mode, JOINT_CONTROL_PORT, CPWALKER_IP);
         })();
     });
 }
@@ -1197,11 +1241,9 @@ function startTherapy() {
     // Read therappy settings from config file.
     fs.readFile(therapyConfigPath, (err, data) => {
         if (err) throw err;
+
         // Get json object
         let config = JSON.parse(data);
-
-        // Encode joint control mode 
-        var joint_control_mode = [config.left_hip_control,config.right_hip_control,config.left_knee_control,config.right_knee_control];
 
         // Traction control config and initial position
         cmd_start = 0; // Exoskeleton does not go to initial position
@@ -1212,7 +1254,7 @@ function startTherapy() {
 
         // Impedance configuration
         cal_imp = 1;
-        niv_imp = 0;
+        niv_imp = 0; // TODO: no se usa
         check_gauges = 0;
         weight_ref = 0;
         imp_config = [cal_imp, 0, check_gauges, weight_ref];
@@ -1220,27 +1262,14 @@ function startTherapy() {
 
          // Exoskeleton config trajectory control mode.
          exo_config = [0,0,0,0,0,0,0,0];
-
-         // Encode selected joints.
-         var joints = [0,0,0,0]
-         if (config.right_hip_config == "enable") {
-             joints[0] = 1;
-         }
-         if (config.left_hip_config == "enable") {
-             joints[1] = 1;
-         }
-         if (config.right_knee_config == "enable") {
-             joints[2] = 1;
-         }
-         if (config.left_knee_config == "enable") {
-             joints[3] = 1;
-         }
-         exo_config[0] =   parseInt(joints.join(""), 2);
-         exo_config[1] = 4; // Start motion in position control mode
+         exo_config[1] = 1; // Start motion
          exo_config[2] = parseInt(config.steps);
          exo_config[3] = parseInt(config.gait_velocity);
          exo_config[4] = parseInt(config.rom);
          exo_config[5] = parseInt(config.leg_length);
+
+        // Encode joint control mode 
+        var joint_control_mode = [encodeControlModes(config.left_hip_config), encodeControlModes(config.right_hip_config), encodeControlModes(config.left_knee_config), encodeControlModes(config.right_knee_config)];
 
         // Send data to the robot
         (async () => {
@@ -1408,13 +1437,10 @@ function stopExo() {
 
 // Sends COMMAND(array of numbers) to a PORT(int) of a specific IP(string)
 function sendUDP(COMMAND, PORT, IP) {
-    console.log(COMMAND)
-    console.log(parseInt(COMMAND))
     // Transform COMMAND to hexadecimal
     var COMMAND_HEX = [];
     if (COMMAND.length > 1) {
         for (let index = 0; index < COMMAND.length; index++) {
-            console.log(parseInt(COMMAND[index]));
             if (parseInt(COMMAND[index]) < 16) {
                 COMMAND_HEX[index] = (0).toString(16) + (parseInt(COMMAND[index])).toString(16);
             } else {
@@ -1531,6 +1557,7 @@ function decodemsg(msg) {
     //console.log(msg_data);
     return msg_data;                                                                                                                                                                                                                                                                                                         
 }
+
 function data2double(interger2, interger1, decimal2, decimal1) {
     var bin = interger1.toString(2) + interger2.toString(2);
     var number;
@@ -1546,7 +1573,29 @@ function data2double(interger2, interger1, decimal2, decimal1) {
     //console.log(number);                                                                                                                                                                                                                                                                                                       
     return number;                                                                                                                                                                                                                                                                                                           
 }
+
 function data2interger(interger) {
     //console.log(parseInt((interger1.toString(2) + interger2.toString(2)),2));
     return parseInt(interger.toString(2),2);
+}
+
+function encodeControlModes(control_mode) {    
+    // Encode joint control mode:
+    // Disable = 0
+    // Full assistance = 1
+    // High assistance = 2
+    // Low assistance = 3
+    var encoded_mode = 0;
+    if (control_mode == "Disable") {
+        encoded_mode = 0;
+    } else if (control_mode == "Full assistance") {
+        encoded_mode = 1;
+    } else if (control_mode == "High assistance") {
+        encoded_mode = 2;
+    } else if (control_mode == "Medium assistance") {
+        encoded_mode = 3;
+    } else if (control_mode == "Low assistance") {
+        encoded_mode = 4;
+    }
+    return encoded_mode;
 }

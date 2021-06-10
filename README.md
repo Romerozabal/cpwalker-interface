@@ -1,56 +1,58 @@
-# cpwalker-interface
-*Interface of the CPWalker Robotic Platform*
+# **CPWalker Robotic Platform's Interface Set-up**
 
 In this repository it has been developed the current User Interface of the CPWalker Robotic Platform of the CSIC CAR-UPM, a rehabilitation robotic system for patients with Cerebral Palsy.
 
-*Raspberry Server SET-UP*
 
-- Install *Ubuntu Server 20.04*:
+1º - **OS Installation**: Install in your SD Card the Operating System for your Raspberry Pi 4 Model B: Debian 10 Buster. We recommend you to follow the instruction in the official documentation web of [raspberry image OS installation](https://www.raspberrypi.org/documentation/installation/installing-images/). In case you want a customized installation the Debian 10 Buster image .zip can be download here: [Debian 10 Buster image](https://downloads.raspberrypi.org/raspios_armhf/images/raspios_armhf-2021-05-28/).
 
-https://ubuntu.com/tutorials/how-to-install-ubuntu-on-your-raspberry-pi#1-overview
+2º - **CPWalker Interface dependecies**: Once Debian 10 is installen in the raspberry, connect it to the internet and download the following dependencies:
+ - Install **NodeJs**: 
+ 
+    $ sudo apt update
+    
+    $ sudo apt install nodejs npm
+    
+    - Clone this repository in your desired folder and install the CPWalker interface requirements.
+   
+	- Install **express** module:
 
-
--Install *Nodejs*:
-
-https://www.instructables.com/Install-Nodejs-and-Npm-on-Raspberry-Pi/
-
-
-- Install *mysql* data base in Ubuntu 20.04:
-
-https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-20-04
-
-- Create the *user* with:
-
-mysql > CREATE USER 'sammy'@'localhost' IDENTIFIED BY 'password';
-
-- Create the *database* with:
-
-mysql > CREATE DATABASE cpwdb;
-
-
-*Network Setup"
-
-In order to connect to the CPWalker Platform you need to modify the configuration network files of the "/etc/netplan/*.yaml". In this folder "/etc/netplan/" after the first boot of the system you will find the file "50-cloud-ini.yaml" generated in the first boot, you may modify it to connect to the desired network as follows:
-
-==================================================================================
-# This file is generated from information provided by the datasource.  Changes
-# to it will not persist across an instance reboot.  To disable cloud-init's
-# network configuration capabilities, write a file
-# /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg with the following:
-# network: {config: disabled}
-network:
-    ethernets:
-        eth0:
-            dhcp4: true
-            optional: true
-    version: 2
-    wifis:
-        wlan0:
-            optional: true
-            access-points:
-                "CP_WalkerAP":
-                    password: "password"
-==================================================================================
-
-
-
+	  $ sudo npm install express (some errors may occur during installation) 
+     
+  - Install **MariaDB** database and configure the CPWalker database:
+	
+	$ sudo apt install mariadb-server
+      
+    $ sudo muysql_secure_installation (password "mysql")
+    
+  - Configure CPWalker database using the *cpwdb_scriptdb.sql* file in this repository.
+    $ sudo mysql -u root
+      
+    $ > CREATE DATABASE cpwdb;
+      
+      $ > CREATE USER 'root'@'localhost' IDENTIFIED BY 'mysql';
+      
+      $ > GRANT ALL PRIVILEGES ON cpwdb.* TO 'root'@'localhost';
+      
+      $ > FLUSH PRIVILEGES;
+      
+      $ > exit;
+      
+      $ sudo mysql -u root cpwdb < ~/cpwalker_interface/cpwdb_scriptdb.sql
+      
+3º - **Wireless Access Point**: Once you have installed the previous packages, and dependencies configure the raspberry pi as WiFi access point following the raspberry pi official documentation [Setting up a Raspberry Pi as a routed wireless access point](https://www.raspberrypi.org/documentation/configuration/wireless/access-point-routed.md) modifying the following lines:
+ - In */etc/dhcpcd.conf*:   
+ 
+   static ip_address=192.168.43.1/24
+   
+ - In */etc/dnsmasq.conf*: 
+ 
+   bdhcp-range=192.168.43.2,192.168.43.20,255.255.255.0,24h
+   
+   address=/gw.wlan/192.168.43.1
+   
+ - In */etc/hostapd/hostapd.conf*:
+ 
+   country_code=ES
+   
+   wpa_passphrase=gneccarcsic
+    
